@@ -17,16 +17,19 @@ DROP POLICY IF EXISTS "Upload de fichiers" ON storage.objects;
 DROP POLICY IF EXISTS "Suppression de ses fichiers" ON storage.objects;
 
 -- Nouvelles politiques : lecture authentifiée + propriété sur écriture/suppression
+DROP POLICY IF EXISTS "Lecture fichiers événements (authentifié)" ON storage.objects;
 CREATE POLICY "Lecture fichiers événements (authentifié)"
     ON storage.objects FOR SELECT
     TO authenticated
     USING (bucket_id = 'event-attachments');
 
+DROP POLICY IF EXISTS "Upload fichiers événements" ON storage.objects;
 CREATE POLICY "Upload fichiers événements"
     ON storage.objects FOR INSERT
     TO authenticated
     WITH CHECK (bucket_id = 'event-attachments');
 
+DROP POLICY IF EXISTS "Suppression de ses propres fichiers" ON storage.objects;
 CREATE POLICY "Suppression de ses propres fichiers"
     ON storage.objects FOR DELETE
     TO authenticated
@@ -40,21 +43,25 @@ DROP POLICY IF EXISTS "Les utilisateurs peuvent uploader leur avatar." ON storag
 DROP POLICY IF EXISTS "Les utilisateurs peuvent modifier leur avatar." ON storage.objects;
 DROP POLICY IF EXISTS "Les utilisateurs peuvent supprimer leur avatar." ON storage.objects;
 
+DROP POLICY IF EXISTS "Avatars visibles par les utilisateurs connectés" ON storage.objects;
 CREATE POLICY "Avatars visibles par les utilisateurs connectés"
     ON storage.objects FOR SELECT
     TO authenticated
     USING (bucket_id = 'avatars');
 
+DROP POLICY IF EXISTS "Upload de son propre avatar" ON storage.objects;
 CREATE POLICY "Upload de son propre avatar"
     ON storage.objects FOR INSERT
     TO authenticated
     WITH CHECK (bucket_id = 'avatars');
 
+DROP POLICY IF EXISTS "Modification de son propre avatar" ON storage.objects;
 CREATE POLICY "Modification de son propre avatar"
     ON storage.objects FOR UPDATE
     TO authenticated
     USING (bucket_id = 'avatars' AND owner = auth.uid());
 
+DROP POLICY IF EXISTS "Suppression de son propre avatar" ON storage.objects;
 CREATE POLICY "Suppression de son propre avatar"
     ON storage.objects FOR DELETE
     TO authenticated
