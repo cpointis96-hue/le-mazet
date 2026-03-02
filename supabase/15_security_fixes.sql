@@ -171,6 +171,7 @@ GRANT EXECUTE ON FUNCTION public.get_calendar_events() TO authenticated;
 --    (amélioration de clarté — comportement identique, intention documentée)
 -- -----------------------------------------------------------------------------
 DROP POLICY IF EXISTS "Le créateur peut modifier les propositions" ON public.event_date_proposals;
+DROP POLICY IF EXISTS "Le créateur peut gérer ses propositions" ON public.event_date_proposals;
 
 CREATE POLICY "Le créateur peut gérer ses propositions"
     ON public.event_date_proposals FOR ALL
