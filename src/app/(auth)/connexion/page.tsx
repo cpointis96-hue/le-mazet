@@ -4,12 +4,12 @@ import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Label } from '@/components/ui/Label';
 import Link from 'next/link';
-import { useState } from 'react';
+import { useState, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { login } from './actions';
 import { MailCheck } from 'lucide-react';
 
-export default function ConnexionPage() {
+function ConnexionContent() {
     const [error, setError] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
     const searchParams = useSearchParams();
@@ -31,7 +31,6 @@ export default function ConnexionPage() {
 
     return (
         <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Message : email de réinitialisation envoyé */}
             {isResetSent && (
                 <div className="flex items-start gap-2 text-sm text-green-700 bg-green-500/10 border border-green-500/20 px-3 py-3 rounded-md">
                     <MailCheck className="w-4 h-4 mt-0.5 shrink-0" />
@@ -39,7 +38,6 @@ export default function ConnexionPage() {
                 </div>
             )}
 
-            {/* Message : inscription en attente de confirmation */}
             {isSignupPending && (
                 <div className="flex items-start gap-2 text-sm text-blue-700 bg-blue-500/10 border border-blue-500/20 px-3 py-3 rounded-md">
                     <MailCheck className="w-4 h-4 mt-0.5 shrink-0" />
@@ -84,5 +82,13 @@ export default function ConnexionPage() {
                 </Link>
             </div>
         </form>
+    );
+}
+
+export default function ConnexionPage() {
+    return (
+        <Suspense>
+            <ConnexionContent />
+        </Suspense>
     );
 }
