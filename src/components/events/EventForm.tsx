@@ -29,6 +29,7 @@ const eventSchema = z.object({
     startTime: z.string().optional(),
     endTime: z.string().optional(),
     allDay: z.boolean(),
+    isVacation: z.boolean(),
     color: z.string(),
     category: z.string().optional(),
     status: z.enum(["proposed", "confirmed"]),
@@ -51,8 +52,12 @@ interface EventFormProps {
 export function EventForm({ initialData, onSubmit, isProposal = false }: EventFormProps) {
     const router = useRouter();
 
-    const todayStr = new Date().toLocaleDateString('en-CA'); // YYYY-MM-DD local format
+    const todayStr = new Date().toLocaleDateString('en-CA');
     const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+
+    const isVacationInitial = initialData
+        ? (initialData.allDay && !!initialData.endDate && initialData.endDate > initialData.startDate)
+        : false;
 
     const { register, handleSubmit, control, watch, formState: { errors } } = useForm<EventFormValues>({
         resolver: zodResolver(eventSchema),
@@ -65,6 +70,7 @@ export function EventForm({ initialData, onSubmit, isProposal = false }: EventFo
             startTime: initialData?.startTime || "09:00",
             endTime: initialData?.endTime || "10:00",
             allDay: initialData?.allDay ?? false,
+            isVacation: isVacationInitial,
             color: initialData?.color || EVENT_COLORS[0].value,
             category: initialData?.category || CATEGORIES[0],
             status: initialData?.status || (isProposal ? "proposed" : "confirmed"),
@@ -78,12 +84,16 @@ export function EventForm({ initialData, onSubmit, isProposal = false }: EventFo
         name: "proposals"
     });
 
-    const allDay = watch("allDay");
+    const isVacation = watch("isVacation");
     const isMultiDate = watch("isMultiDate");
 
     const submitHandler = (data: EventFormValues) => {
-        data.endDate = data.startDate;
-        data.endTime = data.startTime;
+        data.allDay = data.isVacation;
+
+        if (!data.isVacation) {
+            data.endDate = data.startDate;
+            data.endTime = data.startTime;
+        }
 
         if (onSubmit) {
             onSubmit(data, selectedFiles);
@@ -101,21 +111,23 @@ export function EventForm({ initialData, onSubmit, isProposal = false }: EventFo
                     {errors.title && <p className="text-sm text-destructive mt-1">{errors.title.message}</p>}
                 </div>
 
+                {/* Vacances toggle */}
                 <div className="flex items-center space-x-2">
                     <Controller
                         control={control}
-                        name="allDay"
+                        name="isVacation"
                         render={({ field }) => (
                             <Switch
-                                id="allDay"
+                                id="isVacation"
                                 checked={field.value}
                                 onCheckedChange={field.onChange}
                             />
                         )}
                     />
-                    <Label htmlFor="allDay">Toute la journée</Label>
+                    <Label htmlFor="isVacation">Vacances</Label>
                 </div>
 
+                {/* Sondage toggle */}
                 <div className="flex items-center space-x-2 pb-4 border-b">
                     <Controller
                         control={control}
@@ -131,20 +143,35 @@ export function EventForm({ initialData, onSubmit, isProposal = false }: EventFo
                     <Label htmlFor="isMultiDate">Proposer plusieurs dates/heures (Mode Sondage)</Label>
                 </div>
 
-                {!isMultiDate ? (
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                            <Label htmlFor="startDate">Date</Label>
-                            <Input id="startDate" type="date" {...register("startDate")} className="mt-1" />
+                {/* Date fields */}
+                {!isMultiDate && (
+                    isVacation ? (
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <Label htmlFor="startDate">Date de début</Label>
+                                <Input id="startDate" type="date" {...register("startDate")} className="mt-1" />
+                            </div>
+                            <div>
+                                <Label htmlFor="endDate">Date de fin</Label>
+                                <Input id="endDate" type="date" {...register("endDate")} className="mt-1" />
+                            </div>
                         </div>
-                        {!allDay && (
+                    ) : (
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <Label htmlFor="startDate">Date</Label>
+                                <Input id="startDate" type="date" {...register("startDate")} className="mt-1" />
+                            </div>
                             <div>
                                 <Label htmlFor="startTime">Heure</Label>
                                 <Input id="startTime" type="time" {...register("startTime")} className="mt-1" />
                             </div>
-                        )}
-                    </div>
-                ) : (
+                        </div>
+                    )
+                )}
+
+                {/* Proposals (sondage mode) */}
+                {isMultiDate && (
                     <div className="space-y-4 bg-muted/20 p-4 rounded-xl border border-border/50">
                         <Label>Dates proposées</Label>
                         <div className="space-y-3 mt-2">
@@ -154,7 +181,7 @@ export function EventForm({ initialData, onSubmit, isProposal = false }: EventFo
                                         <Label className="text-xs text-muted-foreground">Date</Label>
                                         <Input type="date" className="w-full" {...register(`proposals.${index}.startDate` as const)} />
                                     </div>
-                                    {!allDay && (
+                                    {!isVacation && (
                                         <div className="flex-1 w-full sm:max-w-[120px]">
                                             <Label className="text-xs text-muted-foreground">Heure</Label>
                                             <Input type="time" className="w-full" {...register(`proposals.${index}.startTime` as const)} />
@@ -205,7 +232,6 @@ export function EventForm({ initialData, onSubmit, isProposal = false }: EventFo
                     />
                 </div>
 
-                {/* Ajout des pièces jointes */}
                 <div>
                     <Label htmlFor="attachments">Pièces jointes (Images, PDF, Documents...)</Label>
                     <Input
