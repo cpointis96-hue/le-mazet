@@ -4,13 +4,55 @@ import { useSupabaseEvents } from "@/hooks/useSupabaseEvents";
 import { useSupabaseUsers } from "@/hooks/useSupabaseUsers";
 import { CalendarEvent } from "@/types/calendar.types";
 import Link from "next/link";
-import { format } from "date-fns";
+import { format, isToday, isTomorrow, isThisWeek, parseISO } from "date-fns";
 import { fr } from "date-fns/locale";
 import { Plus, Beer, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useProposalsData } from "@/hooks/useProposalsData";
 import { useState } from "react";
 import { EventDetailsModal } from "./EventDetailsModal";
+import { UserAvatar } from "@/components/ui/UserAvatar";
+
+// Grouping Logic for Date Headers
+function getDateLabel(dateStr: string): string {
+    if (!dateStr) return "";
+    try {
+        const date = parseISO(dateStr);
+        if (isToday(date)) return "Aujourd'hui";
+        if (isTomorrow(date)) return "Demain";
+        if (isThisWeek(date)) return format(date, "EEEE", { locale: fr });
+        return format(date, "EEEE d MMMM", { locale: fr });
+    } catch (e) {
+        return dateStr;
+    }
+}
+
+function groupEventsByDate(events: CalendarEvent[]) {
+    const sorted = [...events].sort((a, b) =>
+        a.startDate.localeCompare(b.startDate)
+    );
+
+    const groups: { [key: string]: CalendarEvent[] } = {};
+    for (const event of sorted) {
+        if (!groups[event.startDate]) {
+            groups[event.startDate] = [];
+        }
+        groups[event.startDate].push(event);
+    }
+
+    return Object.entries(groups).map(([date, evts]) => {
+        const fullDateStr = format(parseISO(date), "d MMMM yyyy", { locale: fr });
+        const labelStr = getDateLabel(date);
+
+        const isLiteral = labelStr === "Aujourd'hui" || labelStr === "Demain" || labelStr.split(' ').length === 1;
+
+        return {
+            label: labelStr,
+            sublabel: isLiteral ? fullDateStr : undefined,
+            events: evts,
+        };
+    });
+}
 
 export default function EvenementsPage() {
     const proposalsData = useProposalsData();
@@ -53,6 +95,9 @@ export default function EvenementsPage() {
         const availableCount = proposalsData.responses.filter((r: any) => r.eventId === e.id && r.status === 'available').length;
         return availableCount >= 2;
     });
+
+    const groupedProposed = groupEventsByDate(proposedEvents);
+    const groupedConfirmed = groupEventsByDate(confirmedEvents);
 
     return (
         <div className="h-full flex flex-col gap-5 overflow-y-auto pb-8">
@@ -97,16 +142,32 @@ export default function EvenementsPage() {
                         <p className="text-muted-foreground text-xs mt-0.5">Lancez une idée pour réveiller le groupe !</p>
                     </div>
                 ) : (
-                    <div className="flex flex-col gap-2">
-                        {proposedEvents.map(event => (
-                            <EventCard
-                                key={event.id}
-                                event={event}
-                                users={users}
-                                proposalsData={proposalsData}
-                                isConfirmed={false}
-                                onClick={() => openEvent(event, false)}
-                            />
+                    <div className="flex flex-col gap-6">
+                        {groupedProposed.map((group) => (
+                            <div key={group.label} className="flex flex-col gap-2">
+                                <div className="flex items-baseline gap-2 px-1">
+                                    <span className="text-sm font-bold capitalize text-foreground">
+                                        {group.label}
+                                    </span>
+                                    {group.sublabel && group.label !== group.sublabel && (
+                                        <span className="text-xs text-muted-foreground">
+                                            {group.sublabel}
+                                        </span>
+                                    )}
+                                </div>
+                                <div className="flex flex-col gap-2">
+                                    {group.events.map((event) => (
+                                        <EventCard
+                                            key={event.id}
+                                            event={event}
+                                            users={users}
+                                            proposalsData={proposalsData}
+                                            isConfirmed={false}
+                                            onClick={() => openEvent(event, false)}
+                                        />
+                                    ))}
+                                </div>
+                            </div>
                         ))}
                     </div>
                 )}
@@ -129,16 +190,32 @@ export default function EvenementsPage() {
                         <p className="text-muted-foreground text-xs mt-0.5">Votez plus haut et ça va vite changer !</p>
                     </div>
                 ) : (
-                    <div className="flex flex-col gap-2">
-                        {confirmedEvents.map(event => (
-                            <EventCard
-                                key={event.id}
-                                event={event}
-                                users={users}
-                                proposalsData={proposalsData}
-                                isConfirmed={true}
-                                onClick={() => openEvent(event, true)}
-                            />
+                    <div className="flex flex-col gap-6">
+                        {groupedConfirmed.map((group) => (
+                            <div key={group.label} className="flex flex-col gap-2">
+                                <div className="flex items-baseline gap-2 px-1">
+                                    <span className="text-sm font-bold capitalize text-foreground">
+                                        {group.label}
+                                    </span>
+                                    {group.sublabel && group.label !== group.sublabel && (
+                                        <span className="text-xs text-muted-foreground">
+                                            {group.sublabel}
+                                        </span>
+                                    )}
+                                </div>
+                                <div className="flex flex-col gap-2">
+                                    {group.events.map((event) => (
+                                        <EventCard
+                                            key={event.id}
+                                            event={event}
+                                            users={users}
+                                            proposalsData={proposalsData}
+                                            isConfirmed={true}
+                                            onClick={() => openEvent(event, true)}
+                                        />
+                                    ))}
+                                </div>
+                            </div>
                         ))}
                     </div>
                 )}

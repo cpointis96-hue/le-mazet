@@ -38,11 +38,21 @@ function groupEventsByDate(events: CalendarEvent[]): GroupedEvents[] {
         groups[event.startDate].push(event);
     }
 
-    return Object.entries(groups).map(([date, evts]) => ({
-        label: getDateLabel(date),
-        sublabel: format(parseISO(date), "d MMMM yyyy", { locale: fr }),
-        events: evts,
-    }));
+    return Object.entries(groups).map(([date, evts]) => {
+        const fullDateStr = format(parseISO(date), "d MMMM yyyy", { locale: fr });
+        const labelStr = getDateLabel(date);
+
+        // Si le label est "Aujourd'hui" ou "Demain" ou juste le jour de la semaine (isThisWeek), 
+        // on garde le sublabel (ex: 18 mars 2026).
+        // Sinon (ex: "Mercredi 18 mars"), on ne met pas de sublabel car c'est redondant.
+        const isLiteral = labelStr === "Aujourd'hui" || labelStr === "Demain" || labelStr.split(' ').length === 1;
+
+        return {
+            label: labelStr,
+            sublabel: isLiteral ? fullDateStr : undefined,
+            events: evts,
+        };
+    });
 }
 
 export function AgendaView({ events, onEventClick }: AgendaViewProps) {
