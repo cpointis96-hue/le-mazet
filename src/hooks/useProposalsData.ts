@@ -11,10 +11,14 @@ import {
     EventResponse,
     EventComment
 } from '@/lib/supabase/proposals-queries';
+import { getAllEventDateProposals, getAllEventDateVotes } from '@/lib/supabase/queries';
+import { EventDateProposal, EventDateVote } from '@/types/calendar.types';
 
 export function useProposalsData() {
     const [responses, setResponses] = useState<EventResponse[]>([]);
     const [comments, setComments] = useState<EventComment[]>([]);
+    const [dateProposals, setDateProposals] = useState<EventDateProposal[]>([]);
+    const [dateVotes, setDateVotes] = useState<(EventDateVote & { user: { displayName: string, avatarId: string | null } })[]>([]);
     const [currentUserId, setCurrentUserId] = useState<string | null>(null);
 
     useEffect(() => {
@@ -27,9 +31,13 @@ export function useProposalsData() {
             }
             const res = await getEventResponses(supabase);
             const com = await getEventComments(supabase);
+            const dProps = await getAllEventDateProposals(supabase);
+            const dVotes = await getAllEventDateVotes(supabase);
 
             setResponses(res);
             setComments(com);
+            setDateProposals(dProps);
+            setDateVotes(dVotes);
         }
 
         init();
@@ -50,9 +58,27 @@ export function useProposalsData() {
             })
             .subscribe();
 
+        const channelDateProps = supabase
+            .channel('date-proposals-changes')
+            .on('postgres_changes', { event: '*', schema: 'public', table: 'event_date_proposals' }, async () => {
+                const fresh = await getAllEventDateProposals(supabase);
+                setDateProposals(fresh);
+            })
+            .subscribe();
+
+        const channelDateVotes = supabase
+            .channel('date-votes-changes')
+            .on('postgres_changes', { event: '*', schema: 'public', table: 'event_date_votes' }, async () => {
+                const fresh = await getAllEventDateVotes(supabase);
+                setDateVotes(fresh);
+            })
+            .subscribe();
+
         return () => {
             supabase.removeChannel(channelResp);
             supabase.removeChannel(channelComm);
+            supabase.removeChannel(channelDateProps);
+            supabase.removeChannel(channelDateVotes);
         };
     }, []);
 
@@ -97,6 +123,8 @@ export function useProposalsData() {
     return {
         responses,
         comments,
+        dateProposals,
+        dateVotes,
         setResponse,
         postComment,
         currentUserId

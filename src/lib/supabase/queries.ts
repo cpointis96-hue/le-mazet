@@ -148,6 +148,29 @@ export async function getEventDateProposals(
     }));
 }
 
+export async function getAllEventDateProposals(
+    supabase: SupabaseClient
+): Promise<EventDateProposal[]> {
+    const { data, error } = await supabase
+        .from('event_date_proposals')
+        .select('*')
+        .order('start_date', { ascending: true });
+
+    if (error) {
+        console.error('getAllEventDateProposals error:', error.message);
+        return [];
+    }
+
+    return (data || []).map(row => ({
+        id: row.id,
+        eventId: row.event_id,
+        startDate: row.start_date,
+        endDate: row.end_date || undefined,
+        startTime: row.start_time,
+        comment: row.comment
+    }));
+}
+
 export async function getEventDateVotes(
     supabase: SupabaseClient,
     eventId: string
@@ -163,6 +186,34 @@ export async function getEventDateVotes(
 
     if (error) {
         console.error('getEventDateVotes error:', error.message);
+        return [];
+    }
+
+    return (data || []).map(row => ({
+        id: row.id,
+        proposalId: row.proposal_id,
+        userId: row.user_id,
+        status: row.status,
+        user: {
+            displayName: row.user?.display_name || 'Inconnu',
+            avatarId: row.user?.avatar_id || null
+        }
+    }));
+}
+
+export async function getAllEventDateVotes(
+    supabase: SupabaseClient
+): Promise<(EventDateVote & { user: { displayName: string, avatarId: string | null } })[]> {
+    const { data, error } = await supabase
+        .from('event_date_votes')
+        .select(`
+            *,
+            proposal:proposal_id!inner(event_id),
+            user:user_id(display_name, avatar_id)
+        `);
+
+    if (error) {
+        console.error('getAllEventDateVotes error:', error.message);
         return [];
     }
 

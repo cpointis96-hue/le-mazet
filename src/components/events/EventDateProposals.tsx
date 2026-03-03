@@ -9,42 +9,23 @@ import { Button } from "@/components/ui/Button";
 import { UserAvatar } from "@/components/ui/UserAvatar";
 import { Check, X, Crown, Trophy } from "lucide-react";
 
-export function EventDateProposals({ eventId, creatorId, onConfirmed }: { eventId: string, creatorId: string, onConfirmed: () => void }) {
+export function EventDateProposals({ eventId, creatorId, proposalsData, onConfirmed }: { eventId: string, creatorId: string, proposalsData: any, onConfirmed: () => void }) {
     const { currentUser } = useSupabaseUsers();
     const supabase = useMemo(() => createClient(), []);
 
     const [proposals, setProposals] = useState<EventDateProposal[]>([]);
     const [votes, setVotes] = useState<(EventDateVote & { user: { displayName: string, avatarId: string | null } })[]>([]);
-    const [isLoading, setIsLoading] = useState(true);
     const [isConfirming, setIsConfirming] = useState<string | null>(null);
 
     const isCreator = currentUser?.id === creatorId;
 
     useEffect(() => {
-        const fetchProposalsAndVotes = async (showLoading = false) => {
-            if (showLoading) setIsLoading(true);
-            const [pData, vData] = await Promise.all([
-                getEventDateProposals(supabase, eventId),
-                getEventDateVotes(supabase, eventId)
-            ]);
-            setProposals(pData);
-            setVotes(vData);
-            if (showLoading) setIsLoading(false);
-        };
-        fetchProposalsAndVotes(true);
-
-        const channel = supabase.channel(`votes_${eventId}`)
-            .on(
-                'postgres_changes',
-                { event: '*', schema: 'public', table: 'event_date_votes' },
-                () => fetchProposalsAndVotes()
-            )
-            .subscribe();
-
-        return () => {
-            supabase.removeChannel(channel);
-        };
-    }, [eventId, supabase]);
+        if (!proposalsData) return;
+        setProposals(proposalsData.dateProposals.filter((p: any) => p.eventId === eventId));
+        setVotes(proposalsData.dateVotes.filter((v: any) =>
+            proposalsData.dateProposals.some((p: any) => p.eventId === eventId && p.id === v.proposalId)
+        ));
+    }, [proposalsData?.dateProposals, proposalsData?.dateVotes, eventId]);
 
     const handleVote = async (proposalId: string, status: 'available' | 'unavailable' | 'maybe') => {
         if (!currentUser) return;
@@ -90,9 +71,7 @@ export function EventDateProposals({ eventId, creatorId, onConfirmed }: { eventI
         }
     };
 
-    if (isLoading) return <div className="text-sm text-muted-foreground animate-pulse">Chargement des propositions...</div>;
-
-    if (proposals.length === 0) return null;
+    if (!proposalsData || proposals.length === 0) return null;
 
     return (
         <div className="space-y-4">

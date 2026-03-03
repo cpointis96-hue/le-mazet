@@ -288,7 +288,7 @@ function EventCard({ event, users, proposalsData, isConfirmed = false, onClick }
                         <h3 className="font-semibold text-sm leading-snug truncate">{event.title}</h3>
                         <p className="text-xs text-muted-foreground mt-0.5">
                             {isMultiDate ? (
-                                <span className="text-amber-500">Dates en sondage</span>
+                                <span className="text-amber-500">Sondage en cours</span>
                             ) : (
                                 <>
                                     {timeFormatted && <span>{timeFormatted} · </span>}

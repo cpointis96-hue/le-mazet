@@ -128,7 +128,7 @@ export function EventDetailsModal({ event, isOpen, onClose, users, proposalsData
 
                     {/* Sondage de dates (Mullti-dates Doodle) */}
                     {event.isMultiDate && event.status === 'proposed' && (
-                        <EventDateProposals eventId={event.id} creatorId={event.userId} onConfirmed={onClose} />
+                        <EventDateProposals eventId={event.id} creatorId={event.userId} proposalsData={proposalsData} onConfirmed={onClose} />
                     )}
 
                     {/* Checklist "Ce qu'on ramène" uniquement pour l'invitation à manger ET (date unique OU date choisie) */}
