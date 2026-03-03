@@ -146,7 +146,7 @@ export function EventDetailsModal({ event, isOpen, onClose, users, proposalsData
                                         href={getFileUrl(att.filePath)}
                                         target="_blank"
                                         rel="noopener noreferrer"
-                                        className="flex items-center justify-between p-3 rounded-lg border bg-muted/30 hover:bg-muted/60 transition-colors group"
+                                        className="flex items-center justify-between p-3 rounded-lg border border-border/50 hover:border-border transition-colors group"
                                     >
                                         <div className="flex flex-col overflow-hidden">
                                             <span className="text-sm font-medium truncate">{att.fileName}</span>
@@ -192,7 +192,7 @@ export function EventDetailsModal({ event, isOpen, onClose, users, proposalsData
 
                 {/* Section d'Actions Rapides / Vote */}
                 {!isPrivateEvent && event.status === 'proposed' && !isConfirmed && !event.isMultiDate && (
-                    <div className="mt-4 p-4 sm:p-5 bg-muted/20 border-t sm:border rounded-none sm:rounded-xl flex flex-col sm:flex-row items-center justify-between gap-4">
+                    <div className="mt-4 p-4 sm:p-5 border-t flex flex-col sm:flex-row items-center justify-between gap-4">
                         <div className="flex flex-col sm:flex-row items-center sm:items-center gap-3 text-sm font-medium w-full sm:w-auto">
                             <span className="text-muted-foreground w-full text-center sm:text-left sm:w-auto">Votre disponibilité :</span>
                             <div className="flex gap-2 w-full sm:w-auto justify-center">

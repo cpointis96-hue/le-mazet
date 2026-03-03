@@ -119,7 +119,7 @@ export function EventChecklist({ eventId }: { eventId: string }) {
     }, {} as Record<ChecklistCategory, ChecklistItem[]>);
 
     return (
-        <div className="space-y-4 bg-muted/20 p-4 rounded-xl border border-border/50">
+        <div className="space-y-4 p-4 rounded-xl border border-border/50">
             <h3 className="text-sm font-semibold text-foreground/80 flex items-center gap-2">
                 🛍️ Ce qu'on ramène
             </h3>
