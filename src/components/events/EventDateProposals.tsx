@@ -96,19 +96,20 @@ export function EventDateProposals({ eventId, creatorId, onConfirmed }: { eventI
 
     return (
         <div className="space-y-4">
-            <h3 className="text-sm font-semibold text-foreground/80 flex items-center gap-2">
-                📅 Sondage de date
-            </h3>
-
             <div className="flex flex-col gap-3">
                 {proposals.map(proposal => {
                     const proposalVotes = votes.filter(v => v.proposalId === proposal.id);
                     const myVote = proposalVotes.find(v => v.userId === currentUser?.id)?.status;
 
-                    const startDate = new Date(proposal.startDate).toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'short' });
-                    const timeStr = proposal.startTime ? proposal.startTime.slice(0, 5) : 'Toute la journée';
-
-                    const dateDisplay = `${startDate} - ${timeStr}`;
+                    const startDate = new Date(proposal.startDate + 'T12:00:00').toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'short' });
+                    let dateDisplay: string;
+                    if (proposal.endDate) {
+                        const endDate = new Date(proposal.endDate + 'T12:00:00').toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'short' });
+                        dateDisplay = `${startDate} → ${endDate}`;
+                    } else {
+                        const timeStr = proposal.startTime ? proposal.startTime.slice(0, 5) : 'Toute la journée';
+                        dateDisplay = `${startDate} — ${timeStr}`;
+                    }
 
                     // Sort votes: available first, then maybe, then unavailable
                     const sortedVotes = [...proposalVotes].sort((a, b) => {

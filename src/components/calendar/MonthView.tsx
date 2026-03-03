@@ -43,29 +43,31 @@ export function MonthView({
             </div>
 
             {/* Calendar Grid */}
-            <div className="flex-1 grid grid-cols-7 auto-rows-fr">
-                {days.map((date, idx) => {
-                    // Filter events for this day
-                    const dStr = format(date, 'yyyy-MM-dd');
-                    const dayEvents = events.filter((e) => {
-                        return e.startDate <= dStr && e.endDate >= dStr;
-                    });
+            <div className="flex-1 overflow-y-auto">
+                <div className="grid grid-cols-7 auto-rows-[minmax(100px,1fr)] min-h-full">
+                    {days.map((date, idx) => {
+                        // Filter events for this day
+                        const dStr = format(date, 'yyyy-MM-dd');
+                        const dayEvents = events.filter((e) => {
+                            return e.startDate <= dStr && e.endDate >= dStr;
+                        });
 
-                    const dayAvailability = availabilities.find(a => a.date === dStr);
+                        const dayAvailability = availabilities.find(a => a.date === dStr);
 
-                    return (
-                        <MonthViewDay
-                            key={date.toISOString()}
-                            date={date}
-                            currentMonth={currentDate}
-                            events={dayEvents}
-                            availability={dayAvailability}
-                            onToggleAvailability={onToggleAvailability ? () => onToggleAvailability(dStr, dayAvailability?.status) : undefined}
-                            onDayClick={onDayClick}
-                            onEventClick={onEventClick}
-                        />
-                    );
-                })}
+                        return (
+                            <MonthViewDay
+                                key={date.toISOString()}
+                                date={date}
+                                currentMonth={currentDate}
+                                events={dayEvents}
+                                availability={dayAvailability}
+                                onToggleAvailability={onToggleAvailability ? () => onToggleAvailability(dStr, dayAvailability?.status) : undefined}
+                                onDayClick={onDayClick}
+                                onEventClick={onEventClick}
+                            />
+                        );
+                    })}
+                </div>
             </div>
         </div>
     );

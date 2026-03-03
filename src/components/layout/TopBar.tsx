@@ -10,19 +10,15 @@ interface TopBarProps {
 
 export function TopBar({ onMenuClick }: TopBarProps) {
     return (
-        <header className="sticky top-0 z-30 flex h-14 items-center gap-4 border-b bg-card px-4 sm:px-6 shadow-sm">
+        <div className="absolute top-4 left-4 z-30 lg:hidden">
             <button
                 type="button"
-                className="-m-2 p-2 text-muted-foreground md:hidden"
+                className="p-1 -ml-1 text-muted-foreground bg-slate-50/80 dark:bg-slate-950/80 rounded-md shadow-sm"
                 onClick={onMenuClick}
             >
-                <span className="sr-only">Open sidebar</span>
-                <Menu className="h-5 w-5" aria-hidden="true" />
+                <span className="sr-only">Ouvrir le menu</span>
+                <Menu className="h-6 w-6 text-foreground" aria-hidden="true" />
             </button>
-
-            <div className="flex flex-1 justify-end gap-x-4 items-center">
-                {/* Removed Créer button and Avatar per user request */}
-            </div>
-        </header>
+        </div>
     );
 }

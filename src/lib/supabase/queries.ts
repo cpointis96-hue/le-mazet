@@ -23,6 +23,7 @@ function rowToEvent(row: Record<string, unknown>): CalendarEvent {
         recurrenceEnd: row.recurrence_end as string | undefined,
         reminderMinutes: row.reminder_minutes as number | undefined,
         isMultiDate: row.is_multi_date as boolean | undefined,
+        pollDeadline: row.poll_deadline as string | undefined,
     };
 }
 
@@ -47,6 +48,7 @@ function eventToRow(event: Omit<CalendarEvent, 'id' | 'userId'>, userId: string)
         recurrence_end: event.recurrenceEnd ?? null,
         reminder_minutes: event.reminderMinutes ?? null,
         is_multi_date: event.isMultiDate ?? false,
+        poll_deadline: event.pollDeadline ?? null,
     };
 }
 
@@ -90,6 +92,7 @@ export async function createDateProposals(
     const rows = proposals.map(p => ({
         event_id: eventId,
         start_date: p.startDate,
+        end_date: p.endDate || null,
         start_time: p.startTime || null,
         comment: p.comment || null
     }));
@@ -122,6 +125,7 @@ export async function getEventDateProposals(
         id: row.id,
         eventId: row.event_id,
         startDate: row.start_date,
+        endDate: row.end_date || undefined,
         startTime: row.start_time,
         comment: row.comment
     }));
@@ -216,9 +220,10 @@ export async function confirmWinningDate(
         .from('events')
         .update({
             start_date: proposal.start_date,
-            end_date: proposal.start_date,
-            start_time: proposal.start_time,
+            end_date: proposal.end_date || proposal.start_date,
+            start_time: proposal.end_date ? null : proposal.start_time,
             end_time: null,
+            all_day: !!proposal.end_date,
             status: 'confirmed'
         })
         .eq('id', eventId);
@@ -252,6 +257,7 @@ export async function updateEvent(
     if (updates.recurrenceRule !== undefined) dbUpdates.recurrence_rule = updates.recurrenceRule;
     if (updates.recurrenceEnd !== undefined) dbUpdates.recurrence_end = updates.recurrenceEnd;
     if (updates.reminderMinutes !== undefined) dbUpdates.reminder_minutes = updates.reminderMinutes;
+    if (updates.pollDeadline !== undefined) dbUpdates.poll_deadline = updates.pollDeadline;
     dbUpdates.updated_at = new Date().toISOString();
 
     const { data, error } = await supabase

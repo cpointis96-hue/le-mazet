@@ -59,10 +59,10 @@ export default function EvenementsPage() {
 
     return (
         <div className="h-full flex flex-col gap-6 p-4">
-            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-3 pl-10 lg:pl-0">
                 <div>
-                    <div className="flex items-center gap-3">
-                        <h1 className="text-2xl font-bold tracking-tight">On se voit quand ?</h1>
+                    <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+                        <h1 className="text-xl sm:text-2xl font-bold tracking-tight">On se voit quand ?</h1>
                         <Link href="/evenements/nouveau?type=proposal" className="inline-flex items-center justify-center gap-1.5 rounded-full bg-primary/10 px-3 py-1 text-xs font-medium text-primary hover:bg-primary/20 transition-colors">
                             <Plus className="w-3.5 h-3.5" />
                             Lancer une idée
@@ -109,7 +109,7 @@ export default function EvenementsPage() {
                 <div className="flex flex-col gap-4">
                     <div>
                         <h2 className="text-base font-semibold uppercase tracking-widest text-foreground/60">C'est noté</h2>
-                        <p className="text-sm text-muted-foreground mt-0.5">Ces plans sont dans la poche.</p>
+                        <p className="text-sm text-muted-foreground mt-0.5">On se voit !</p>
                     </div>
 
                     <div className="flex flex-col gap-3">
@@ -191,6 +191,11 @@ function EventCard({ event, users, proposalsData, isConfirmed = false, onClick }
                         <span className="text-foreground/40"> · Par {creator.displayName}</span>
                     )}
                 </p>
+                {event.isMultiDate && event.status === 'proposed' && event.pollDeadline && (
+                    <div className="mt-2 text-xs font-semibold text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950/30 w-fit px-2 py-1 rounded-md border border-red-200 dark:border-red-900/50">
+                        ⏳ Réponse attendue avant le {format(new Date(event.pollDeadline), 'd MMMM', { locale: fr })}
+                    </div>
+                )}
             </div>
 
             {event.description && (
@@ -200,7 +205,7 @@ function EventCard({ event, users, proposalsData, isConfirmed = false, onClick }
             )}
 
             {/* Votes */}
-            {(availableVoters.length > 0 || unavailableVoters.length > 0) && (
+            {!(event.isMultiDate && event.status === 'proposed') && (availableVoters.length > 0 || unavailableVoters.length > 0) && (
                 <div className="grid grid-cols-2 gap-2 text-sm pt-2 border-t border-border/50">
                     <div>
                         <span className="text-xs uppercase tracking-wider font-semibold text-emerald-600/80 block mb-0.5">Présents</span>

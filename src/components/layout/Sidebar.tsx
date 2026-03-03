@@ -11,7 +11,8 @@ import {
     User,
     X,
     Ticket,
-    MessageSquare
+    MessageSquare,
+    LogOut
 } from "lucide-react";
 import { MemberLegend } from "@/components/shared-calendar/MemberLegend";
 import { useSupabaseUsers } from "@/hooks/useSupabaseUsers";
@@ -117,7 +118,6 @@ export function Sidebar({ className, onClose, ...props }: SidebarProps) {
                             </Link>
                         );
                     })}
-                    {/* Bouton de déconnexion */}
                     <button
                         onClick={async () => {
                             if (onClose) onClose();
@@ -127,9 +127,9 @@ export function Sidebar({ className, onClose, ...props }: SidebarProps) {
                             await supabase.auth.signOut();
                             window.location.href = '/';
                         }}
-                        className="group flex w-full items-center px-3 py-2 text-sm font-medium rounded-md transition-colors text-red-500 hover:bg-red-50 dark:hover:bg-red-950/50"
+                        className="group flex w-full items-center px-3 py-2 mt-1 text-sm font-medium rounded-md transition-colors text-red-500 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-950/30"
                     >
-                        <User className="mr-3 h-5 w-5 flex-shrink-0 transition-colors text-red-500" aria-hidden="true" /> {/* On utilise temporairement User si LogOut n'est pas importé ou on peut juste utiliser LogOut */}
+                        <LogOut className="mr-3 h-5 w-5 flex-shrink-0 transition-colors text-red-500 dark:text-red-400" aria-hidden="true" />
                         Se déconnecter
                     </button>
                 </nav>

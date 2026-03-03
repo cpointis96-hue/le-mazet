@@ -24,8 +24,8 @@ export default async function ProfilePage() {
     }
 
     return (
-        <div className="max-w-2xl mx-auto py-8">
-            <h1 className="text-3xl font-bold mb-2">Mon Profil</h1>
+        <div className="max-w-2xl mx-auto py-8 pl-10 lg:pl-0">
+            <h1 className="text-2xl sm:text-3xl font-bold mb-2">Mon Profil</h1>
             <p className="text-muted-foreground mb-8">
                 Gérez vos informations personnelles et votre apparence sur le calendrier.
             </p>

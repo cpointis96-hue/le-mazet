@@ -54,7 +54,7 @@ export function EventDetail({ event }: EventDetailProps) {
                 {!event.allDay && event.startTime && (
                     <div>
                         <strong className="text-foreground">Heure : </strong>
-                        {event.startTime} {event.endTime && ` - ${event.endTime}`}
+                        {event.startTime.slice(0, 5)}{event.endTime && ` - ${event.endTime.slice(0, 5)}`}
                     </div>
                 )}
 

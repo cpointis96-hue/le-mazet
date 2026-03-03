@@ -94,7 +94,7 @@ export default function RegisterPage() {
                         id="displayName"
                         name="displayName"
                         type="text"
-                        placeholder="Ex: Alice"
+                        placeholder="Ex: John Wick"
                         required
                     />
                 </div>

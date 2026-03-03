@@ -29,7 +29,10 @@ interface EventDetailsModalProps {
 export function EventDetailsModal({ event, isOpen, onClose, users, proposalsData, isConfirmed = false }: EventDetailsModalProps) {
     const creator = users.find(u => u.id === event.userId);
     const dateFormatted = format(new Date(event.startDate), "EEEE d MMMM yyyy", { locale: fr });
-    const timeFormatted = event.allDay ? 'Toute la journée' : `${event.startTime} - ${event.endTime}`;
+    const fmtT = (t?: string | null) => t ? t.slice(0, 5) : null;
+    const timeFormatted = event.allDay
+        ? 'Toute la journée'
+        : [fmtT(event.startTime), fmtT(event.endTime)].filter(Boolean).join(' - ');
 
     const eventResponses = proposalsData.responses.filter((r: any) => r.eventId === event.id);
     const eventComments = proposalsData.comments.filter((c: any) => c.eventId === event.id);
@@ -112,6 +115,14 @@ export function EventDetailsModal({ event, isOpen, onClose, users, proposalsData
                 </div>
 
                 <div className="p-6 flex-1 overflow-y-auto flex flex-col gap-8">
+                    {/* Description (affichée en haut pour les sondages) */}
+                    {event.description && (
+                        <div>
+                            <h4 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-2">Description</h4>
+                            <p className="text-sm whitespace-pre-wrap leading-relaxed">{event.description}</p>
+                        </div>
+                    )}
+
                     {/* Sondage de dates (Mullti-dates Doodle) */}
                     {event.isMultiDate && event.status === 'proposed' && (
                         <EventDateProposals eventId={event.id} creatorId={event.userId} onConfirmed={onClose} />
@@ -120,14 +131,6 @@ export function EventDetailsModal({ event, isOpen, onClose, users, proposalsData
                     {/* Checklist "Ce qu'on ramène" uniquement pour l'invitation à manger ET (date unique OU date choisie) */}
                     {event.category === 'Invitation à déjeuner/dîner' && (!event.isMultiDate || event.status === 'confirmed') && (
                         <EventChecklist eventId={event.id} />
-                    )}
-
-                    {/* Description */}
-                    {event.description && (
-                        <div>
-                            <h4 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-2">Description</h4>
-                            <p className="text-sm whitespace-pre-wrap leading-relaxed">{event.description}</p>
-                        </div>
                     )}
 
                     {/* Fichiers joints */}
@@ -156,8 +159,8 @@ export function EventDetailsModal({ event, isOpen, onClose, users, proposalsData
                         </div>
                     )}
 
-                    {/* Section Votes (Propositions uniquement) */}
-                    {event.status === 'proposed' && (
+                    {/* Section Votes (Propositions Date Unique uniquement) */}
+                    {event.status === 'proposed' && !event.isMultiDate && (
                         <div>
                             <h4 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-3">Disponibilités</h4>
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

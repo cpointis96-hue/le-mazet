@@ -36,9 +36,11 @@ const eventSchema = z.object({
     isMultiDate: z.boolean().optional(),
     proposals: z.array(z.object({
         startDate: z.string().min(1, "Date requise"),
+        endDate: z.string().optional(),
         startTime: z.string().optional(),
         comment: z.string().optional()
     })).optional(),
+    pollDeadline: z.string().optional(),
 });
 
 type EventFormValues = z.infer<typeof eventSchema>;
@@ -75,7 +77,7 @@ export function EventForm({ initialData, onSubmit, isProposal = false }: EventFo
             category: initialData?.category || CATEGORIES[0],
             status: initialData?.status || (isProposal ? "proposed" : "confirmed"),
             isMultiDate: false,
-            proposals: [{ startDate: todayStr, startTime: "19:00", comment: "" }],
+            proposals: [{ startDate: todayStr, endDate: todayStr, startTime: "19:00", comment: "" }],
         },
     });
 
@@ -143,6 +145,19 @@ export function EventForm({ initialData, onSubmit, isProposal = false }: EventFo
                     <Label htmlFor="isMultiDate">Proposer plusieurs dates/heures (Mode Sondage)</Label>
                 </div>
 
+                {/* Date de fin de sondage (si isMultiDate) */}
+                {isMultiDate && (
+                    <div className="bg-amber-50/50 dark:bg-amber-950/20 p-4 rounded-xl border border-amber-100 dark:border-amber-900/30">
+                        <Label htmlFor="pollDeadline" className="text-amber-800 dark:text-amber-500 font-semibold mb-2 block">
+                            Date limite de réponse au sondage (Optionnel)
+                        </Label>
+                        <Input id="pollDeadline" type="date" {...register("pollDeadline")} className="mt-1 max-w-sm" />
+                        <p className="text-xs text-muted-foreground mt-2">
+                            Si renseignée, une indication visuelle rappellera aux invités de voter avant cette date.
+                        </p>
+                    </div>
+                )}
+
                 {/* Date fields */}
                 {!isMultiDate && (
                     isVacation ? (
@@ -181,7 +196,12 @@ export function EventForm({ initialData, onSubmit, isProposal = false }: EventFo
                                         <Label className="text-xs text-muted-foreground">Date</Label>
                                         <Input type="date" className="w-full" {...register(`proposals.${index}.startDate` as const)} />
                                     </div>
-                                    {!isVacation && (
+                                    {isVacation ? (
+                                        <div className="flex-1 w-full">
+                                            <Label className="text-xs text-muted-foreground">Date de fin</Label>
+                                            <Input type="date" className="w-full" {...register(`proposals.${index}.endDate` as const)} />
+                                        </div>
+                                    ) : (
                                         <div className="flex-1 w-full sm:max-w-[120px]">
                                             <Label className="text-xs text-muted-foreground">Heure</Label>
                                             <Input type="time" className="w-full" {...register(`proposals.${index}.startTime` as const)} />
@@ -210,7 +230,7 @@ export function EventForm({ initialData, onSubmit, isProposal = false }: EventFo
                             variant="outline"
                             size="sm"
                             className="mt-4 w-full"
-                            onClick={() => appendProposal({ startDate: todayStr, startTime: "19:00", comment: "" })}
+                            onClick={() => appendProposal({ startDate: todayStr, endDate: todayStr, startTime: "19:00", comment: "" })}
                         >
                             <Plus className="w-4 h-4 mr-2" /> Ajouter une option
                         </Button>

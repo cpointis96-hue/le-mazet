@@ -41,25 +41,27 @@ export function MonthViewShared({
             </div>
 
             {/* Calendar Grid */}
-            <div className="flex-1 grid grid-cols-7 auto-rows-fr">
-                {days.map((date) => {
-                    // Filter SharedEventDisplay for this day
-                    const dStr = format(date, 'yyyy-MM-dd');
-                    const dayEvents = events.filter((e) => e.date === dStr);
-                    const dayAvailabilities = availabilities.filter(a => a.date === dStr);
+            <div className="flex-1 overflow-y-auto">
+                <div className="grid grid-cols-7 auto-rows-[minmax(100px,1fr)] min-h-full">
+                    {days.map((date) => {
+                        // Filter SharedEventDisplay for this day
+                        const dStr = format(date, 'yyyy-MM-dd');
+                        const dayEvents = events.filter((e) => e.date === dStr);
+                        const dayAvailabilities = availabilities.filter(a => a.date === dStr);
 
-                    return (
-                        <MonthViewSharedDay
-                            key={date.toISOString()}
-                            date={date}
-                            currentMonth={currentDate}
-                            events={dayEvents}
-                            availabilities={dayAvailabilities}
-                            onDayClick={onDayClick}
-                            onEventClick={onEventClick}
-                        />
-                    );
-                })}
+                        return (
+                            <MonthViewSharedDay
+                                key={date.toISOString()}
+                                date={date}
+                                currentMonth={currentDate}
+                                events={dayEvents}
+                                availabilities={dayAvailabilities}
+                                onDayClick={onDayClick}
+                                onEventClick={onEventClick}
+                            />
+                        );
+                    })}
+                </div>
             </div>
         </div>
     );

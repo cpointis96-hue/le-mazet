@@ -37,7 +37,7 @@ export default function MessageriePage() {
     return (
         <div className="h-full flex flex-col bg-card rounded-xl border shadow-sm overflow-hidden">
             {/* Header */}
-            <div className="flex h-16 items-center border-b px-6 shrink-0 bg-muted/10">
+            <div className="flex h-16 items-center border-b pr-6 pl-14 lg:px-6 shrink-0 bg-muted/10">
                 <div className="flex items-center gap-2">
                     <div className="flex items-center justify-center w-10 h-10 rounded-full bg-primary/10 text-primary">
                         <Hash className="w-5 h-5" />

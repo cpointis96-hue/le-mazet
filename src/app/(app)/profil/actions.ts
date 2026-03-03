@@ -14,6 +14,7 @@ const changeEmailSchema = z.object({
 });
 
 const changePasswordSchema = z.object({
+    currentPassword: z.string().min(1, 'Le mot de passe actuel est requis'),
     newPassword: z.string().min(8, 'Minimum 8 caractères'),
     confirmPassword: z.string().min(1, 'Confirmation requise'),
 }).refine((data) => data.newPassword === data.confirmPassword, {
@@ -65,7 +66,8 @@ export async function changeEmail(formData: FormData) {
         return { error: 'C\'est déjà votre adresse email actuelle' };
     }
 
-    const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000';
+    // Netlify fournit process.env.URL, sinon on utilise l'URL de prod directement.
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL || process.env.URL || 'https://le-mazet.netlify.app';
 
     const { error } = await supabase.auth.updateUser(
         { email: parsed.data.newEmail },
@@ -87,12 +89,24 @@ export async function changePassword(formData: FormData) {
     if (!user) return { error: 'Non autorisé' };
 
     const parsed = changePasswordSchema.safeParse({
+        currentPassword: formData.get('currentPassword'),
         newPassword: formData.get('newPassword'),
         confirmPassword: formData.get('confirmPassword'),
     });
 
     if (!parsed.success) return { error: parsed.error.issues[0].message };
 
+    // 1. Vérification du mot de passe actuel
+    const { error: signInError } = await supabase.auth.signInWithPassword({
+        email: user.email!,
+        password: parsed.data.currentPassword,
+    });
+
+    if (signInError) {
+        return { error: 'Le mot de passe actuel est incorrect' };
+    }
+
+    // 2. Si l'ancien mot de passe est bon, on met à jour
     const { error } = await supabase.auth.updateUser({
         password: parsed.data.newPassword,
     });

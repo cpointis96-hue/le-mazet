@@ -40,13 +40,13 @@ export default function CalendrierCommunPage() {
 
     return (
         <div className="h-full flex flex-col gap-4">
-            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-3 pl-10 lg:pl-0">
                 <div>
-                    <h1 className="text-2xl font-bold tracking-tight">Calendrier Commun</h1>
-                    <p className="text-muted-foreground text-sm">Tous les événements publics sont visibles ici !</p>
+                    <h1 className="text-xl sm:text-2xl font-bold tracking-tight">Calendrier Commun</h1>
+                    <p className="text-muted-foreground text-xs sm:text-sm hidden sm:block">Tous les événements publics sont visibles ici !</p>
                 </div>
 
-                <div className="flex items-center gap-3 w-full sm:w-auto justify-between sm:justify-end flex-wrap">
+                <div className="flex items-center gap-2 sm:gap-3 w-auto self-end md:self-auto flex-wrap">
                     {/* Sélecteur mois / année */}
                     <div className="flex items-center rounded-lg border overflow-hidden">
                         <button
@@ -151,8 +151,8 @@ export default function CalendrierCommunPage() {
                                     const dStr = selectedDate ? format(selectedDate, 'yyyy-MM-dd') : '';
                                     return availabilities.some(a => a.userId === user.id && a.date === dStr && (a.status === 'available' || a.status === 'busy'));
                                 }).length === 0 && (
-                                    <p className="text-center text-muted-foreground text-sm py-4">Personne n'a encore indiqué sa disponibilité pour ce jour.</p>
-                                )}
+                                        <p className="text-center text-muted-foreground text-sm py-4">Personne n'a encore indiqué sa disponibilité pour ce jour.</p>
+                                    )}
                             </div>
                         </div>
 

@@ -56,13 +56,13 @@ export default function MonCalendrierPage() {
 
     return (
         <div className="h-full flex flex-col gap-4">
-            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-3 pl-10 lg:pl-0">
                 <div>
-                    <h1 className="text-2xl font-bold tracking-tight">Mon Calendrier</h1>
-                    <p className="text-muted-foreground text-sm">Gérez vos événements personnels</p>
+                    <h1 className="text-xl sm:text-2xl font-bold tracking-tight">Mon Calendrier</h1>
+                    <p className="text-muted-foreground text-xs sm:text-sm hidden sm:block">Gérez vos événements personnels</p>
                 </div>
 
-                <div className="flex items-center gap-4 align-self-end sm:self-auto w-full sm:w-auto justify-between sm:justify-end">
+                <div className="flex items-center gap-2 sm:gap-4 self-end md:self-auto w-auto">
                     <CalendarNavigation
                         label={navigationLabel}
                         onPrev={handlePrev}

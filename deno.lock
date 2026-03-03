@@ -42,7 +42,12 @@
         "npm:tailwindcss@4",
         "npm:typescript@5",
         "npm:zod@^4.3.6"
-      ]
+      ],
+      "overrides": {
+        "rollup": ">=4.59.0",
+        "minimatch": ">=5.1.8",
+        "ajv": ">=8.18.0"
+      }
     }
   }
 }

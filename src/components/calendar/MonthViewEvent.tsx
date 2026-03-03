@@ -30,7 +30,7 @@ export function MonthViewEvent({ event, onClick }: MonthViewEventProps) {
                         <span className="truncate">{event.title}</span>
                         {!event.allDay && event.startTime && (
                             <span className="ml-1 text-[10px] opacity-90 shrink-0">
-                                {event.startTime}
+                                {event.startTime.slice(0, 5)}
                             </span>
                         )}
                     </div>

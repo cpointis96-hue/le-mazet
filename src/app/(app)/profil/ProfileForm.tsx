@@ -92,18 +92,6 @@ export function ProfileForm({ initialData }: ProfileFormProps) {
 
                 <form action={handleProfileSubmit} className="space-y-4">
                     <div className="space-y-2">
-                        <Label htmlFor="email-display">Adresse email</Label>
-                        <Input
-                            id="email-display"
-                            type="email"
-                            defaultValue={initialData.email}
-                            disabled
-                            className="bg-muted/50 cursor-not-allowed"
-                        />
-                        <p className="text-xs text-muted-foreground">Pour changer l'email, utilisez la section ci-dessous.</p>
-                    </div>
-
-                    <div className="space-y-2">
                         <Label htmlFor="displayName">Nom d'affichage</Label>
                         <Input
                             id="displayName"
@@ -130,8 +118,8 @@ export function ProfileForm({ initialData }: ProfileFormProps) {
                     <h2 className="font-semibold text-lg">Changer d'adresse email</h2>
                 </div>
 
-                <p className="text-sm text-muted-foreground">
-                    Un lien de confirmation sera envoyé à la <strong>nouvelle adresse</strong>. Le changement ne sera effectif qu'après validation.
+                <p className="text-sm text-muted-foreground mb-4">
+                    Votre adresse actuelle est <strong>{initialData.email}</strong>. Un lien de confirmation sera envoyé à la <strong>nouvelle adresse</strong>. Le changement ne sera effectif qu'après validation.
                 </p>
 
                 <form action={handleEmailSubmit} className="space-y-4">
@@ -165,6 +153,16 @@ export function ProfileForm({ initialData }: ProfileFormProps) {
                 </div>
 
                 <form onSubmit={handlePasswordSubmit} className="space-y-4">
+                    <div className="space-y-2">
+                        <Label htmlFor="currentPassword">Mot de passe actuel</Label>
+                        <Input
+                            id="currentPassword"
+                            name="currentPassword"
+                            type="password"
+                            required
+                        />
+                    </div>
+
                     <div className="space-y-2">
                         <Label htmlFor="newPassword">Nouveau mot de passe</Label>
                         <Input

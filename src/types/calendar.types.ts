@@ -10,9 +10,10 @@ export interface CalendarEvent {
     description?: string;
     location?: string;
     startDate: string; // ISO date YYYY-MM-DD
-    endDate: string;
-    startTime?: string; // HH:mm
-    endTime?: string;
+    endDate: string; // ISO string
+    startTime?: string | null; // HH:mm
+    endTime?: string | null;
+    pollDeadline?: string | null;
     allDay: boolean;
     color: string;
     icon?: string;
@@ -28,6 +29,7 @@ export interface EventDateProposal {
     id: string;
     eventId: string;
     startDate: string;
+    endDate?: string; // pour les propositions vacances (plage de dates)
     startTime?: string;
     comment?: string;
 }
