@@ -40,7 +40,7 @@ export default function CalendrierCommunPage() {
 
     return (
         <div className="h-full flex flex-col gap-4">
-            <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-3 pl-10 lg:pl-0">
+            <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-3">
                 <div>
                     <h1 className="text-xl sm:text-2xl font-bold tracking-tight">Calendrier Commun</h1>
                     <p className="text-muted-foreground text-xs sm:text-sm hidden sm:block">Tous les événements publics sont visibles ici !</p>
