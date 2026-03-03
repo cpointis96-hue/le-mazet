@@ -164,31 +164,25 @@ export function EventDetailsModal({ event, isOpen, onClose, users, proposalsData
                         <div>
                             <h4 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-3">Disponibilités</h4>
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                <div className="p-4 rounded-xl border bg-green-50/50 dark:bg-green-950/20 border-green-100 dark:border-green-900/30">
-                                    <h5 className="font-semibold text-green-700 dark:text-green-500 flex items-center gap-2 mb-3">
-                                        <span className="w-2 h-2 rounded-full bg-green-500" /> Disponibles ({availableUsers.length})
+                                <div className="p-4 rounded-xl border border-green-900/30 bg-black">
+                                    <h5 className="font-semibold text-green-500 flex items-center gap-2 mb-2">
+                                        <span className="w-2 h-2 rounded-full bg-green-500" /> Disponibles
                                     </h5>
-                                    <div className="flex flex-wrap gap-2">
+                                    <div className="flex flex-col gap-0.5">
                                         {availableUsers.map((u: UserProfile | undefined) => u && (
-                                            <div key={u.id} className="flex items-center px-2 py-1 bg-white dark:bg-slate-900 rounded-md shadow-sm border text-xs">
-                                                <UserAvatar user={u} />
-                                            </div>
+                                            <span key={u.id} className="text-xs text-white/70">{u.displayName}</span>
                                         ))}
-                                        {availableUsers.length === 0 && <span className="text-sm text-muted-foreground">Personne pour le moment</span>}
                                     </div>
                                 </div>
 
-                                <div className="p-4 rounded-xl border bg-red-50/50 dark:bg-red-950/20 border-red-100 dark:border-red-900/30">
-                                    <h5 className="font-semibold text-red-700 dark:text-red-500 flex items-center gap-2 mb-3">
-                                        <span className="w-2 h-2 rounded-full bg-red-500" /> Pas dispos ({unavailableUsers.length})
+                                <div className="p-4 rounded-xl border border-red-900/30 bg-black">
+                                    <h5 className="font-semibold text-red-500 flex items-center gap-2 mb-2">
+                                        <span className="w-2 h-2 rounded-full bg-red-500" /> Pas dispos
                                     </h5>
-                                    <div className="flex flex-wrap gap-2">
+                                    <div className="flex flex-col gap-0.5">
                                         {unavailableUsers.map((u: UserProfile | undefined) => u && (
-                                            <div key={u.id} className="flex items-center px-2 py-1 bg-white dark:bg-slate-900 rounded-md shadow-sm border text-xs">
-                                                <UserAvatar user={u} />
-                                            </div>
+                                            <span key={u.id} className="text-xs text-white/40 line-through">{u.displayName}</span>
                                         ))}
-                                        {unavailableUsers.length === 0 && <span className="text-sm text-muted-foreground">Personne pour le moment</span>}
                                     </div>
                                 </div>
                             </div>
