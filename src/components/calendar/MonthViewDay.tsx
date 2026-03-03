@@ -1,8 +1,7 @@
 import { CalendarEvent, UserAvailability } from "@/types/calendar.types";
-import { isSameDay, isSameMonth, isToday } from "date-fns";
+import { isSameMonth, isToday } from "date-fns";
 import { formatDayNumber } from "@/lib/date-utils";
 import { cn } from "@/lib/utils";
-import { MonthViewEvent } from "./MonthViewEvent";
 
 interface MonthViewDayProps {
     date: Date;
@@ -26,74 +25,63 @@ export function MonthViewDay({
     const isCurrentMonth = isSameMonth(date, currentMonth);
     const isCurrentDay = isToday(date);
 
-    // Sort events (all-day first, then by time)
-    const sortedEvents = [...events].sort((a, b) => {
-        if (a.allDay && !b.allDay) return -1;
-        if (!a.allDay && b.allDay) return 1;
-        if (a.startTime && b.startTime) return a.startTime.localeCompare(b.startTime);
-        return 0;
-    });
-
-    const displayLimit = 3;
-    const visibleEvents = sortedEvents.slice(0, displayLimit);
-    const hiddenCount = sortedEvents.length - displayLimit;
-
     return (
         <div
             onClick={() => onDayClick?.(date)}
             className={cn(
-                "min-h-[100px] border-b border-r border-white/5 p-1 flex flex-col transition-colors cursor-pointer hover:bg-white/3",
-                !isCurrentMonth && "opacity-30",
+                "border-b border-r border-white/5 p-1 flex flex-col gap-0.5 transition-colors cursor-pointer hover:bg-white/3",
+                !isCurrentMonth && "opacity-25",
                 isCurrentDay && "bg-primary/5"
             )}
         >
-            <div className="flex justify-between items-start px-1 mb-1">
-                <span
-                    className={cn(
-                        "text-sm font-medium w-6 h-6 flex items-center justify-center rounded-full shrink-0",
-                        isCurrentDay
-                            ? "bg-primary text-primary-foreground"
-                            : "text-zinc-300"
-                    )}
-                >
+            {/* Numéro + pastille dispo */}
+            <div className="flex justify-between items-center px-0.5">
+                <span className={cn(
+                    "text-xs font-medium w-5 h-5 flex items-center justify-center rounded-full shrink-0",
+                    isCurrentDay ? "bg-primary text-primary-foreground" : "text-zinc-400"
+                )}>
                     {formatDayNumber(date)}
                 </span>
 
-                {/* Availability dot */}
                 <button
                     onClick={(e) => {
                         e.stopPropagation();
                         onToggleAvailability?.();
                     }}
                     className={cn(
-                        "w-3.5 h-3.5 rounded-full mt-1 shrink-0 transition-colors border focus:outline-none",
-                        !availability?.status && "bg-white/10 border-white/10 hover:bg-white/20",
-                        availability?.status === 'available' && "bg-emerald-500 border-emerald-600",
-                        availability?.status === 'busy' && "bg-red-500 border-red-700"
+                        "w-2 h-2 rounded-full transition-colors focus:outline-none shrink-0",
+                        !availability?.status && "bg-white/10 hover:bg-white/25",
+                        availability?.status === 'available' && "bg-emerald-500",
+                        availability?.status === 'busy' && "bg-red-500"
                     )}
                     title={
                         availability?.status === 'available' ? "Disponible" :
-                            availability?.status === 'busy' ? "Occupé" :
-                                "Définir la disponibilité"
+                        availability?.status === 'busy' ? "Occupé" :
+                        "Définir la disponibilité"
                     }
                 />
             </div>
 
-            <div className="flex-1 flex flex-col gap-px overflow-y-auto">
-                {visibleEvents.map((event) => (
-                    <MonthViewEvent
-                        key={event.id}
-                        event={event}
-                        onClick={onEventClick}
-                    />
-                ))}
-
-                {hiddenCount > 0 && (
-                    <div className="text-[10px] text-zinc-600 font-medium px-1 mt-0.5 hover:text-zinc-400">
-                        +{hiddenCount} autres
-                    </div>
-                )}
-            </div>
+            {/* Dots événements */}
+            {events.length > 0 && (
+                <div className="flex flex-wrap gap-0.5 px-0.5">
+                    {events.slice(0, 6).map(event => (
+                        <button
+                            key={event.id}
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                onEventClick?.(event);
+                            }}
+                            className="w-1.5 h-1.5 rounded-full shrink-0 focus:outline-none hover:scale-125 transition-transform"
+                            style={{ backgroundColor: event.color || '#7c6ff7' }}
+                            title={event.title}
+                        />
+                    ))}
+                    {events.length > 6 && (
+                        <span className="text-[8px] text-zinc-600 leading-none self-center">+{events.length - 6}</span>
+                    )}
+                </div>
+            )}
         </div>
     );
 }

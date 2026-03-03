@@ -77,7 +77,9 @@ export function EventForm({ initialData, onSubmit, isProposal = false }: EventFo
             category: initialData?.category || CATEGORIES[0],
             status: initialData?.status || (isProposal ? "proposed" : "confirmed"),
             isMultiDate: false,
-            proposals: [{ startDate: todayStr, endDate: todayStr, startTime: "19:00", comment: "" }],
+            proposals: initialData?.startDate
+                ? [{ startDate: initialData.startDate, endDate: initialData.endDate || initialData.startDate, startTime: initialData.startTime || "19:00", comment: "" }]
+                : [{ startDate: todayStr, endDate: todayStr, startTime: "19:00", comment: "" }],
         },
     });
 
@@ -92,7 +94,10 @@ export function EventForm({ initialData, onSubmit, isProposal = false }: EventFo
     const submitHandler = (data: EventFormValues) => {
         data.allDay = data.isVacation;
 
-        if (!data.isVacation) {
+        if (data.isVacation && !data.isMultiDate && data.proposals?.length) {
+            data.startDate = data.proposals[0].startDate;
+            data.endDate = data.proposals[0].endDate || data.proposals[0].startDate;
+        } else if (!data.isVacation && !data.isMultiDate) {
             data.endDate = data.startDate;
             data.endTime = data.startTime;
         }
@@ -147,93 +152,84 @@ export function EventForm({ initialData, onSubmit, isProposal = false }: EventFo
 
                 {/* Date de fin de sondage (si isMultiDate) */}
                 {isMultiDate && (
-                    <div className="bg-amber-50/50 dark:bg-amber-950/20 p-4 rounded-xl border border-amber-100 dark:border-amber-900/30">
-                        <Label htmlFor="pollDeadline" className="text-amber-800 dark:text-amber-500 font-semibold mb-2 block">
-                            Date limite de réponse au sondage (Optionnel)
-                        </Label>
-                        <Input id="pollDeadline" type="date" {...register("pollDeadline")} className="mt-1 max-w-sm" />
-                        <p className="text-xs text-muted-foreground mt-2">
-                            Si renseignée, une indication visuelle rappellera aux invités de voter avant cette date.
-                        </p>
+                    <div className="flex items-center gap-3 flex-wrap">
+                        <Label htmlFor="pollDeadline" className="text-sm text-muted-foreground shrink-0">Fin du sondage (optionnel) :</Label>
+                        <Input id="pollDeadline" type="date" {...register("pollDeadline")} className="flex-1 min-w-[160px] max-w-[200px]" />
                     </div>
                 )}
 
-                {/* Date fields */}
-                {!isMultiDate && (
-                    isVacation ? (
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div>
-                                <Label htmlFor="startDate">Date de début</Label>
-                                <Input id="startDate" type="date" {...register("startDate")} className="mt-1" />
-                            </div>
-                            <div>
-                                <Label htmlFor="endDate">Date de fin</Label>
-                                <Input id="endDate" type="date" {...register("endDate")} className="mt-1" />
-                            </div>
+                {/* Date fields — événement normal */}
+                {!isMultiDate && !isVacation && (
+                    <div className="grid grid-cols-2 gap-3">
+                        <div>
+                            <Label htmlFor="startDate">Date</Label>
+                            <Input id="startDate" type="date" {...register("startDate")} className="mt-1" />
                         </div>
-                    ) : (
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div>
-                                <Label htmlFor="startDate">Date</Label>
-                                <Input id="startDate" type="date" {...register("startDate")} className="mt-1" />
-                            </div>
-                            <div>
-                                <Label htmlFor="startTime">Heure</Label>
-                                <Input id="startTime" type="time" {...register("startTime")} className="mt-1" />
-                            </div>
+                        <div>
+                            <Label htmlFor="startTime">Heure</Label>
+                            <Input id="startTime" type="time" {...register("startTime")} className="mt-1" />
                         </div>
-                    )
+                    </div>
+                )}
+
+                {/* Date fields — vacances (périodes multiples) */}
+                {!isMultiDate && isVacation && (
+                    <div className="space-y-2">
+                        {proposalFields.map((field, index) => (
+                            <div key={field.id} className="flex items-center gap-2">
+                                <Input type="date" className="flex-1 text-sm" {...register(`proposals.${index}.startDate` as const)} />
+                                <span className="text-muted-foreground text-xs shrink-0">→</span>
+                                <Input type="date" className="flex-1 text-sm" {...register(`proposals.${index}.endDate` as const)} />
+                                {index > 0 && (
+                                    <button
+                                        type="button"
+                                        onClick={() => removeProposal(index)}
+                                        className="text-muted-foreground hover:text-destructive transition-colors shrink-0 p-1"
+                                    >
+                                        <Trash2 className="w-3.5 h-3.5" />
+                                    </button>
+                                )}
+                            </div>
+                        ))}
+                        <button
+                            type="button"
+                            onClick={() => appendProposal({ startDate: todayStr, endDate: todayStr, startTime: "09:00", comment: "" })}
+                            className="flex items-center gap-1.5 text-xs text-primary hover:text-primary/80 transition-colors mt-1"
+                        >
+                            <Plus className="w-3.5 h-3.5" /> Ajouter une période
+                        </button>
+                    </div>
                 )}
 
                 {/* Proposals (sondage mode) */}
                 {isMultiDate && (
-                    <div className="space-y-4 bg-muted/20 p-4 rounded-xl border border-border/50">
-                        <Label>Dates proposées</Label>
-                        <div className="space-y-3 mt-2">
+                    <div className="space-y-3">
+                        <Label className="text-sm font-semibold">Dates proposées</Label>
+                        <div className="space-y-2">
                             {proposalFields.map((field, index) => (
-                                <div key={field.id} className="flex flex-col sm:flex-row gap-3 items-start sm:items-end pt-6 sm:pt-0 p-3 sm:p-0 border sm:border-0 rounded-lg sm:rounded-none bg-background sm:bg-transparent relative">
-                                    <div className="flex-1 w-full">
-                                        <Label className="text-xs text-muted-foreground">Date</Label>
-                                        <Input type="date" className="w-full" {...register(`proposals.${index}.startDate` as const)} />
-                                    </div>
-                                    {isVacation ? (
-                                        <div className="flex-1 w-full">
-                                            <Label className="text-xs text-muted-foreground">Date de fin</Label>
-                                            <Input type="date" className="w-full" {...register(`proposals.${index}.endDate` as const)} />
-                                        </div>
-                                    ) : (
-                                        <div className="flex-1 w-full sm:max-w-[120px]">
-                                            <Label className="text-xs text-muted-foreground">Heure</Label>
-                                            <Input type="time" className="w-full" {...register(`proposals.${index}.startTime` as const)} />
-                                        </div>
-                                    )}
-                                    <div className="flex-[2] w-full">
-                                        <Label className="text-xs text-muted-foreground">Commentaire (optionnel)</Label>
-                                        <Input type="text" className="w-full" placeholder="Ex: Début de soirée..." {...register(`proposals.${index}.comment` as const)} />
-                                    </div>
+                                <div key={field.id} className="flex flex-wrap gap-2 items-center">
+                                    <Input type="date" className="flex-1 min-w-[130px] text-sm" {...register(`proposals.${index}.startDate` as const)} />
+                                    <Input type="time" className="w-[108px] shrink-0 text-sm" {...register(`proposals.${index}.startTime` as const)} />
+                                    <Input type="text" className="flex-[2] min-w-[100px] text-sm" placeholder="Commentaire..." {...register(`proposals.${index}.comment` as const)} />
                                     {proposalFields.length > 1 && (
-                                        <Button
+                                        <button
                                             type="button"
-                                            variant="ghost"
-                                            size="icon"
-                                            className="absolute top-1 right-1 sm:static sm:top-auto sm:right-auto text-muted-foreground hover:text-red-500 shrink-0 h-6 w-6 sm:h-10 sm:w-10"
                                             onClick={() => removeProposal(index)}
+                                            className="text-muted-foreground hover:text-destructive transition-colors p-1 shrink-0"
                                         >
-                                            <Trash2 className="w-4 h-4 sm:w-5 sm:h-5" />
-                                        </Button>
+                                            <Trash2 className="w-3.5 h-3.5" />
+                                        </button>
                                     )}
                                 </div>
                             ))}
                         </div>
-                        <Button
+                        <button
                             type="button"
-                            variant="outline"
-                            size="sm"
-                            className="mt-4 w-full"
                             onClick={() => appendProposal({ startDate: todayStr, endDate: todayStr, startTime: "19:00", comment: "" })}
+                            className="flex items-center gap-1.5 text-xs text-primary hover:text-primary/80 transition-colors"
                         >
-                            <Plus className="w-4 h-4 mr-2" /> Ajouter une option
-                        </Button>
+                            <Plus className="w-3.5 h-3.5" /> Ajouter une option
+                        </button>
                     </div>
                 )}
 
