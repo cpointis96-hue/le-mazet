@@ -344,21 +344,50 @@ function EventCard({ event, users, proposalsData, isConfirmed = false, onClick }
                         <div className="flex items-center gap-1 text-[10px] font-semibold text-amber-500 pointer-events-none">
                             Choisir <ChevronRight className="w-3 h-3" />
                         </div>
-                    ) : (
+                    ) : userResponse ? (
                         <div
                             onClick={e => e.stopPropagation()}
-                            className="flex gap-1.5 shrink-0 ml-2"
+                            className="flex gap-1.5"
                         >
                             <button
                                 onClick={() => proposalsData.setResponse(event.id, 'available', userResponse)}
                                 className={cn(
-                                    "px-3 py-1.5 rounded-lg text-xs font-semibold transition-all border flex items-center justify-center min-w-[36px]",
+                                    "px-2.5 py-1 rounded-lg text-[10px] font-semibold transition-all border",
                                     userResponse === 'available'
-                                        ? 'bg-emerald-500 border-emerald-500 text-background shadow-[0_0_10px_rgba(16,185,129,0.3)]'
-                                        : 'bg-white/5 border-white/10 text-muted-foreground hover:border-emerald-500/40 hover:text-emerald-400'
+                                        ? 'bg-emerald-500/20 border-emerald-500/40 text-emerald-400'
+                                        : 'border-white/10 text-muted-foreground hover:border-emerald-500/30 hover:text-emerald-500'
                                 )}
                             >
-                                <Check className="w-4 h-4" />
+                                ✓
+                            </button>
+                            <button
+                                onClick={() => proposalsData.setResponse(event.id, 'unavailable', userResponse)}
+                                className={cn(
+                                    "px-2.5 py-1 rounded-lg text-[10px] font-semibold transition-all border",
+                                    userResponse === 'unavailable'
+                                        ? 'bg-red-500/20 border-red-500/40 text-red-400'
+                                        : 'border-white/10 text-muted-foreground hover:border-red-500/30 hover:text-red-500'
+                                )}
+                            >
+                                ✗
+                            </button>
+                        </div>
+                    ) : (
+                        <div
+                            onClick={e => e.stopPropagation()}
+                            className="flex gap-1.5"
+                        >
+                            <button
+                                onClick={() => proposalsData.setResponse(event.id, 'available', userResponse)}
+                                className="px-2.5 py-1 rounded-lg text-[10px] font-semibold border border-white/10 text-muted-foreground hover:border-emerald-500/40 hover:text-emerald-400 transition-all"
+                            >
+                                ✓ Présent
+                            </button>
+                            <button
+                                onClick={() => proposalsData.setResponse(event.id, 'unavailable', userResponse)}
+                                className="px-2.5 py-1 rounded-lg text-[10px] font-semibold border border-white/10 text-muted-foreground hover:border-red-500/40 hover:text-red-400 transition-all"
+                            >
+                                ✗ Pas là
                             </button>
                         </div>
                     )}
