@@ -110,12 +110,7 @@ export function AgendaView({ events, onEventClick }: AgendaViewProps) {
                                         )}
                                     </div>
 
-                                    {event.isMultiDate && event.status === "proposed" ? (
-                                        <div className="flex items-center gap-1 mt-1 text-xs text-amber-500 font-medium">
-                                            <CalendarDays className="w-3 h-3" />
-                                            <span>Sondage de dates en cours</span>
-                                        </div>
-                                    ) : (
+                                    {event.isMultiDate && event.status === "proposed" ? null : (
                                         !event.allDay && event.startTime && (
                                             <div className="flex items-center gap-1 mt-1 text-xs text-muted-foreground">
                                                 <Clock className="w-3 h-3" />

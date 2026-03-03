@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
-import { generateMonthGrid, formatDayName } from "@/lib/date-utils";
+import { generateMonthGrid, formatShortDayName } from "@/lib/date-utils";
 import { CalendarEvent, UserAvailability, AvailabilityStatus } from "@/types/calendar.types";
 import { MonthViewDay } from "./MonthViewDay";
 import { format } from "date-fns";
@@ -26,7 +26,7 @@ export function MonthView({
     const days = useMemo(() => generateMonthGrid(currentDate), [currentDate]);
 
     // Generate weekday headers from the first 7 days
-    const weekDays = days.slice(0, 7).map((d) => formatDayName(d));
+    const weekDays = days.slice(0, 7).map((d) => formatShortDayName(d));
 
     return (
         <div className="flex flex-col h-full bg-card rounded-xl border border-white/5 overflow-hidden">
