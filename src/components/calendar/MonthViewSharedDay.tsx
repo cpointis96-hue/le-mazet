@@ -1,10 +1,8 @@
 "use client";
 
-import { isSameDay, isSameMonth, format, isToday } from "date-fns";
+import { isSameMonth, isToday, format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { SharedEventDisplay, UserAvailability } from "@/types/calendar.types";
-import { SharedEventPill } from "../shared-calendar/SharedEventPill";
-import { Plus } from "lucide-react";
 import * as React from "react";
 
 interface MonthViewSharedDayProps {
@@ -28,74 +26,56 @@ export const MonthViewSharedDay = React.memo(
         const _isToday = isToday(date);
         const isCurrentMonth = isSameMonth(date, currentMonth);
 
+        const availableCount = availabilities.filter(a => a.status === 'available').length;
+        const busyCount = availabilities.filter(a => a.status === 'busy').length;
+
         return (
             <div
                 onClick={() => onDayClick?.(date)}
                 className={cn(
-                    "min-h-[120px] border-b border-r p-2 transition-colors relative group",
-                    !isCurrentMonth ? "bg-muted/10 text-muted-foreground/50" : "bg-card hover:bg-muted/20 cursor-pointer",
-                    _isToday && "bg-primary/5" // Slight highlight for today
+                    "border-b border-r border-white/5 p-1 flex flex-col gap-0.5 transition-colors cursor-pointer hover:bg-white/3",
+                    !isCurrentMonth && "opacity-25",
+                    _isToday && "bg-primary/5"
                 )}
             >
-                {/* Header of the day (Date number et résumé disponibilités) */}
-                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-2 gap-1 sm:gap-0">
-                    <div className="flex items-center gap-1.5 flex-wrap">
-                        <span
-                            className={cn(
-                                "text-sm font-medium w-7 h-7 flex items-center justify-center rounded-full shrink-0",
-                                _isToday
-                                    ? "bg-primary text-primary-foreground shadow-sm"
-                                    : !isCurrentMonth
-                                        ? "text-muted-foreground/50"
-                                        : "text-foreground"
-                            )}
-                        >
-                            {format(date, "d")}
-                        </span>
+                {/* Numéro + pastilles dispo */}
+                <div className="flex justify-between items-center px-0.5">
+                    <span className={cn(
+                        "text-xs font-medium w-5 h-5 flex items-center justify-center rounded-full shrink-0",
+                        _isToday ? "bg-primary text-primary-foreground" : "text-zinc-400"
+                    )}>
+                        {format(date, "d")}
+                    </span>
 
-                        {/* Mini pastilles de résumé */}
-                        {availabilities.length > 0 && (
-                            <div className="flex -space-x-1 shrink-0 overflow-hidden ml-1">
-                                {availabilities.filter(a => a.status === 'available').map((a, i) => (
-                                    <div key={`av-${a.userId}-${i}`} className="w-2.5 h-2.5 rounded-full bg-green-500 border border-card ring-1 ring-card" title="Disponible" />
-                                ))}
-                                {availabilities.filter(a => a.status === 'busy').map((a, i) => (
-                                    <div key={`bu-${a.userId}-${i}`} className="w-2.5 h-2.5 rounded-full bg-red-500 border border-card ring-1 ring-card" title="Occupé" />
-                                ))}
-                            </div>
-                        )}
-                    </div>
-
-                    {/* Add button visible on hover */}
-                    {isCurrentMonth && (
-                        <button
-                            onClick={(e) => {
-                                e.stopPropagation();
-                                onDayClick?.(date);
-                            }}
-                            className="opacity-0 group-hover:opacity-100 p-1 shrink-0 text-muted-foreground hover:text-foreground transition-opacity"
-                            title="Voir les détails / disponibilités"
-                        >
-                            <Plus className="w-4 h-4" />
-                        </button>
+                    {/* Mini pastilles dispo groupées */}
+                    {(availableCount > 0 || busyCount > 0) && (
+                        <div className="flex gap-px shrink-0">
+                            {availableCount > 0 && <div className="w-1.5 h-1.5 rounded-full bg-emerald-500" />}
+                            {busyCount > 0 && <div className="w-1.5 h-1.5 rounded-full bg-red-500" />}
+                        </div>
                     )}
                 </div>
 
-                {/* Event list */}
-                <div className="flex flex-col gap-0.5 max-h-[calc(100%-2rem)] overflow-y-auto hide-scrollbar">
-                    {events.map((event, idx) => {
-                        // Creating a unique key since SharedEventDisplay might not have an id
-                        const eventKey = `${event.userId}-${event.date}-${event.type}-${'title' in event ? event.title : 'occupe'}-${idx}`;
-                        return (
-                            <div key={eventKey} onClick={(e) => {
-                                e.stopPropagation();
-                                onEventClick?.(event);
-                            }}>
-                                <SharedEventPill event={event} />
-                            </div>
-                        );
-                    })}
-                </div>
+                {/* Dots événements */}
+                {events.length > 0 && (
+                    <div className="flex flex-wrap gap-0.5 px-0.5">
+                        {events.slice(0, 6).map((event, idx) => (
+                            <button
+                                key={`${event.userId}-${event.date}-${idx}`}
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    onEventClick?.(event);
+                                }}
+                                className="w-1.5 h-1.5 rounded-full shrink-0 focus:outline-none hover:scale-125 transition-transform"
+                                style={{ backgroundColor: event.color || '#7c6ff7' }}
+                                title={'title' in event ? event.title : 'Occupé'}
+                            />
+                        ))}
+                        {events.length > 6 && (
+                            <span className="text-[8px] text-zinc-600 leading-none self-center">+{events.length - 6}</span>
+                        )}
+                    </div>
+                )}
             </div>
         );
     }

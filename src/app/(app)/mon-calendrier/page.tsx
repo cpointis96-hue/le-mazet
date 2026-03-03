@@ -1,12 +1,14 @@
 "use client";
 
 import { useState } from "react";
+import { Plus } from "lucide-react";
 import { CalendarNavigation } from "@/components/calendar/CalendarNavigation";
 import { CalendarSwitcher } from "@/components/calendar/CalendarSwitcher";
 import { MonthView } from "@/components/calendar/MonthView";
 import { YearView } from "@/components/calendar/YearView";
 import { AgendaView } from "@/components/calendar/AgendaView";
 import { format } from "date-fns";
+import { fr } from "date-fns/locale";
 import { useCalendarView } from "@/hooks/useCalendarView";
 import { useSupabaseEvents } from "@/hooks/useSupabaseEvents";
 import { useAvailabilities } from "@/hooks/useAvailabilities";
@@ -32,12 +34,21 @@ export default function MonCalendrierPage() {
     const [selectedEvent, setSelectedEvent] = useState<CalendarEvent | null>(null);
     const [isFormOpen, setIsFormOpen] = useState(false);
     const [isDetailOpen, setIsDetailOpen] = useState(false);
+    const [isDayListOpen, setIsDayListOpen] = useState(false);
+    const [dayListEvents, setDayListEvents] = useState<CalendarEvent[]>([]);
     // Mobile view mode: 'agenda' | 'mois' | 'annee'
     const [mobileView, setMobileView] = useState<'agenda' | 'mois' | 'annee'>('agenda');
 
     const handleDayClick = (date: Date) => {
+        const dateStr = format(date, 'yyyy-MM-dd');
+        const dayEvents = personalEvents.filter(e => e.startDate <= dateStr && e.endDate >= dateStr);
         setSelectedDate(date);
-        setIsFormOpen(true);
+        if (dayEvents.length > 0) {
+            setDayListEvents(dayEvents);
+            setIsDayListOpen(true);
+        } else {
+            setIsFormOpen(true);
+        }
     };
 
     const handleEventClick = (event: CalendarEvent) => {
@@ -145,6 +156,40 @@ export default function MonCalendrierPage() {
                     )}
                 </div>
             </div>
+
+            {/* Dialog liste des événements du jour */}
+            <Dialog open={isDayListOpen} onOpenChange={setIsDayListOpen}>
+                <DialogContent className="max-w-sm">
+                    <DialogHeader>
+                        <DialogTitle>
+                            {selectedDate ? format(selectedDate, 'EEEE d MMMM', { locale: fr }) : ''}
+                        </DialogTitle>
+                    </DialogHeader>
+                    <div className="flex flex-col gap-3 mt-2">
+                        <button
+                            onClick={() => { setIsDayListOpen(false); setIsFormOpen(true); }}
+                            className="flex items-center gap-2 text-sm font-semibold text-primary hover:text-primary/80 transition-colors py-1"
+                        >
+                            <Plus className="w-4 h-4" /> Créer un événement
+                        </button>
+                        <div className="flex flex-col gap-1.5 border-t pt-3">
+                            {dayListEvents.map(event => (
+                                <button
+                                    key={event.id}
+                                    onClick={() => { setIsDayListOpen(false); setSelectedEvent(event); setIsDetailOpen(true); }}
+                                    className="flex items-center gap-3 p-2.5 rounded-xl border border-border/50 hover:border-border transition-colors text-left w-full"
+                                >
+                                    <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: event.color || '#7c6ff7' }} />
+                                    <span className="text-sm font-medium truncate flex-1">{event.title}</span>
+                                    {!event.allDay && event.startTime && (
+                                        <span className="text-xs text-muted-foreground shrink-0">{event.startTime.slice(0, 5)}</span>
+                                    )}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+                </DialogContent>
+            </Dialog>
 
             {/* Dialog for Creating or Editing Event */}
             <Dialog open={isFormOpen} onOpenChange={(open) => {

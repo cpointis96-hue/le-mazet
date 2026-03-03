@@ -29,7 +29,7 @@ export function MonthViewShared({
     return (
         <div className="flex flex-col h-full bg-card rounded-xl border shadow-sm overflow-hidden">
             {/* Week day headers */}
-            <div className="grid grid-cols-7 border-b bg-muted/30">
+            <div className="grid grid-cols-7 border-b border-white/5">
                 {weekDays.map((dayName, idx) => (
                     <div
                         key={idx}
@@ -42,7 +42,7 @@ export function MonthViewShared({
 
             {/* Calendar Grid */}
             <div className="flex-1 overflow-y-auto">
-                <div className="grid grid-cols-7 auto-rows-[minmax(100px,1fr)] min-h-full">
+                <div className="grid grid-cols-7 auto-rows-[minmax(44px,1fr)] min-h-full">
                     {days.map((date) => {
                         // Filter SharedEventDisplay for this day
                         const dStr = format(date, 'yyyy-MM-dd');
