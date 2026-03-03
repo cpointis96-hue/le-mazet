@@ -9,10 +9,9 @@ import {
     Users,
     Settings,
     User,
-    X,
     Ticket,
     MessageSquare,
-    LogOut
+    LogOut,
 } from "lucide-react";
 import { MemberLegend } from "@/components/shared-calendar/MemberLegend";
 import { useSupabaseUsers } from "@/hooks/useSupabaseUsers";
@@ -21,118 +20,140 @@ interface SidebarProps extends React.HTMLAttributes<HTMLDivElement> {
     onClose?: () => void;
 }
 
+const mainNav = [
+    { name: "Mon Calendrier", href: "/mon-calendrier", icon: CalendarDays },
+    { name: "Calendrier Commun", href: "/calendrier-commun", icon: Users },
+    { name: "Événements", href: "/evenements", icon: Ticket },
+    { name: "Messagerie", href: "/messagerie", icon: MessageSquare },
+];
+
+const bottomNav = [
+    { name: "Profil", href: "/profil", icon: User },
+    { name: "Paramètres", href: "/parametres", icon: Settings },
+];
+
+function NavItem({
+    href,
+    icon: Icon,
+    name,
+    isActive,
+    onClick,
+}: {
+    href: string;
+    icon: React.ElementType;
+    name: string;
+    isActive: boolean;
+    onClick?: () => void;
+}) {
+    return (
+        <Link
+            href={href}
+            onClick={onClick}
+            className={cn(
+                "group flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-sm font-medium transition-all duration-150",
+                isActive
+                    ? "bg-white/8 text-white"
+                    : "text-zinc-400 hover:bg-white/5 hover:text-zinc-200"
+            )}
+        >
+            <Icon
+                className={cn(
+                    "w-4 h-4 shrink-0 transition-colors",
+                    isActive ? "text-white" : "text-zinc-500 group-hover:text-zinc-300"
+                )}
+            />
+            {name}
+            {isActive && (
+                <span className="ml-auto w-1.5 h-1.5 rounded-full bg-primary shrink-0" />
+            )}
+        </Link>
+    );
+}
+
 export function Sidebar({ className, onClose, ...props }: SidebarProps) {
     const pathname = usePathname();
     const { users } = useSupabaseUsers();
 
-    const navigation = [
-        { name: "Mon Calendrier", href: "/mon-calendrier", icon: CalendarDays },
-        { name: "Calendrier Commun", href: "/calendrier-commun", icon: Users },
-        { name: "Événements", href: "/evenements", icon: Ticket },
-        { name: "Messagerie", href: "/messagerie", icon: MessageSquare }
-    ];
-
-    const bottomNavigation = [
-        { name: "Profil", href: "/profil", icon: User },
-        { name: "Paramètres", href: "/parametres", icon: Settings },
-    ];
-
     return (
-        <div className={cn("flex h-full flex-col border-r bg-card text-card-foreground", className)} {...props}>
-            <div className="flex h-14 items-center justify-between px-4 border-b">
-                <Link href="/" className="flex items-center gap-2 font-semibold text-lg text-primary">
-                    <CalendarDays className="h-5 w-5" />
-                    <span>CalenShare</span>
+        <div
+            className={cn(
+                "flex h-full flex-col bg-[#111113] border-r border-white/5",
+                className
+            )}
+            {...props}
+        >
+            {/* Logo */}
+            <div className="flex h-14 items-center px-4 border-b border-white/5">
+                <Link
+                    href="/"
+                    className="flex items-center gap-2 group"
+                    onClick={onClose}
+                >
+                    <div className="w-7 h-7 rounded-lg bg-primary/20 flex items-center justify-center">
+                        <CalendarDays className="w-4 h-4 text-primary" />
+                    </div>
+                    <span className="font-semibold text-sm text-white tracking-tight">
+                        CalenShare
+                    </span>
                 </Link>
-                {onClose && (
-                    <button onClick={onClose} className="md:hidden text-muted-foreground hover:text-foreground">
-                        <X className="h-5 w-5" />
-                    </button>
-                )}
             </div>
 
-            <div className="flex-1 overflow-y-auto py-4">
-                <nav className="space-y-1 px-2">
-                    {navigation.map((item) => {
-                        const isActive = pathname === item.href;
-                        return (
-                            <Link
-                                key={item.href}
-                                href={item.href}
-                                onClick={onClose}
-                                className={cn(
-                                    "group flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors",
-                                    isActive
-                                        ? "bg-primary/10 text-primary"
-                                        : "text-muted-foreground hover:bg-muted hover:text-foreground"
-                                )}
-                            >
-                                <item.icon
-                                    className={cn(
-                                        "mr-3 h-5 w-5 flex-shrink-0 transition-colors",
-                                        isActive ? "text-primary" : "text-muted-foreground group-hover:text-foreground"
-                                    )}
-                                    aria-hidden="true"
-                                />
-                                {item.name}
-                            </Link>
-                        );
-                    })}
-                </nav>
+            {/* Main Navigation */}
+            <div className="flex-1 overflow-y-auto py-3 px-2 flex flex-col gap-1">
 
-                {/* MemberLegend for shared calendar context */}
-                {pathname === '/calendrier-commun' && (
-                    <div className="mt-8 px-4">
-                        <h3 className="px-1 text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">
-                            Membres du groupe
-                        </h3>
-                        <MemberLegend members={users} />
+                <p className="text-[10px] font-semibold uppercase tracking-widest text-zinc-600 px-2.5 mb-1">
+                    Navigation
+                </p>
+
+                {mainNav.map((item) => (
+                    <NavItem
+                        key={item.href}
+                        href={item.href}
+                        icon={item.icon}
+                        name={item.name}
+                        isActive={pathname === item.href}
+                        onClick={onClose}
+                    />
+                ))}
+
+                {/* Member legend — only on shared calendar page */}
+                {pathname === "/calendrier-commun" && users.length > 0 && (
+                    <div className="mt-6">
+                        <p className="text-[10px] font-semibold uppercase tracking-widest text-zinc-600 px-2.5 mb-2">
+                            Membres
+                        </p>
+                        <div className="px-1">
+                            <MemberLegend members={users} />
+                        </div>
                     </div>
                 )}
             </div>
 
-            <div className="border-t p-4">
-                <nav className="space-y-1">
-                    {bottomNavigation.map((item) => {
-                        const isActive = pathname === item.href;
-                        return (
-                            <Link
-                                key={item.href}
-                                href={item.href}
-                                onClick={onClose}
-                                className={cn(
-                                    "group flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors",
-                                    isActive
-                                        ? "bg-primary/10 text-primary"
-                                        : "text-muted-foreground hover:bg-muted hover:text-foreground"
-                                )}
-                            >
-                                <item.icon
-                                    className={cn(
-                                        "mr-3 h-5 w-5 flex-shrink-0 transition-colors",
-                                        isActive ? "text-primary" : "text-muted-foreground group-hover:text-foreground"
-                                    )}
-                                    aria-hidden="true"
-                                />
-                                {item.name}
-                            </Link>
-                        );
-                    })}
-                    <button
-                        onClick={async () => {
-                            if (onClose) onClose();
-                            // Client-side sign out
-                            const { createClient } = await import('@/lib/supabase/client');
-                            const supabase = createClient();
-                            await supabase.auth.signOut();
-                            window.location.href = '/';
-                        }}
-                        className="group flex w-full items-center px-3 py-2 mt-1 text-sm font-medium rounded-md transition-colors text-red-500 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-950/30"
-                    >
-                        <LogOut className="mr-3 h-5 w-5 flex-shrink-0 transition-colors text-red-500 dark:text-red-400" aria-hidden="true" />
-                        Se déconnecter
-                    </button>
-                </nav>
+            {/* Bottom nav */}
+            <div className="border-t border-white/5 py-3 px-2 flex flex-col gap-1">
+                {bottomNav.map((item) => (
+                    <NavItem
+                        key={item.href}
+                        href={item.href}
+                        icon={item.icon}
+                        name={item.name}
+                        isActive={pathname === item.href}
+                        onClick={onClose}
+                    />
+                ))}
+                <button
+                    onClick={async () => {
+                        if (onClose) onClose();
+                        const { createClient } = await import("@/lib/supabase/client");
+                        const supabase = createClient();
+                        await supabase.auth.signOut();
+                        window.location.href = "/";
+                    }}
+                    className="group flex w-full items-center gap-2.5 px-2.5 py-2 rounded-lg text-sm font-medium transition-all duration-150 text-red-500/70 hover:bg-red-500/10 hover:text-red-400"
+                >
+                    <LogOut className="w-4 h-4 shrink-0 text-red-500/50 group-hover:text-red-400 transition-colors" />
+                    Se déconnecter
+                </button>
             </div>
         </div>
     );

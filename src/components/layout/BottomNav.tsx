@@ -19,9 +19,9 @@ export function BottomNav() {
     return (
         <nav className="fixed bottom-0 left-0 right-0 z-50 lg:hidden">
             {/* Blur backdrop */}
-            <div className="absolute inset-0 bg-background/80 backdrop-blur-xl border-t border-border/50" />
+            <div className="absolute inset-0 bg-[#111113]/90 backdrop-blur-xl border-t border-white/5" />
 
-            <div className="relative flex items-stretch h-16 safe-area-pb">
+            <div className="relative flex items-stretch h-16">
                 {navItems.map((item) => {
                     const isActive = pathname === item.href;
                     return (
@@ -31,26 +31,24 @@ export function BottomNav() {
                             className={cn(
                                 "flex flex-1 flex-col items-center justify-center gap-1 text-[10px] font-medium transition-all duration-200 active:scale-95",
                                 isActive
-                                    ? "text-primary"
-                                    : "text-muted-foreground hover:text-foreground"
+                                    ? "text-white"
+                                    : "text-zinc-500 hover:text-zinc-300"
                             )}
                         >
                             <div
                                 className={cn(
                                     "flex items-center justify-center w-10 h-7 rounded-xl transition-all duration-200",
-                                    isActive
-                                        ? "bg-primary/15"
-                                        : "bg-transparent"
+                                    isActive ? "bg-white/10" : "bg-transparent"
                                 )}
                             >
                                 <item.icon
                                     className={cn(
                                         "w-5 h-5 transition-all duration-200",
-                                        isActive ? "stroke-[2.5px]" : "stroke-[1.5px]"
+                                        isActive ? "stroke-[2px] text-primary" : "stroke-[1.5px]"
                                     )}
                                 />
                             </div>
-                            <span className={isActive ? "font-semibold" : ""}>
+                            <span className={isActive ? "font-semibold text-white" : ""}>
                                 {item.name}
                             </span>
                         </Link>
