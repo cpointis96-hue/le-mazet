@@ -6,7 +6,7 @@ import { CalendarEvent } from "@/types/calendar.types";
 import Link from "next/link";
 import { format, isToday, isTomorrow, isThisWeek, parseISO } from "date-fns";
 import { fr } from "date-fns/locale";
-import { Plus, Beer, ChevronRight } from "lucide-react";
+import { Plus, Beer, ChevronRight, Check } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useProposalsData } from "@/hooks/useProposalsData";
 import { useState } from "react";
@@ -326,33 +326,16 @@ function EventCard({ event, users, proposalsData, isConfirmed = false, onClick }
 
                 {/* Ligne basse : facepile + action vote */}
                 <div className="flex items-center justify-between gap-3 pt-1 border-t border-white/5">
-                    {/* Facepile */}
-                    <div className="flex items-center gap-1.5">
-                        {availableVoters.length === 0 && unavailableVoters.length === 0 ? (
-                            <span className="text-[10px] text-muted-foreground/50 italic">Personne n'a encore répondu</span>
+                    {/* Liste des dispos */}
+                    <div className="flex items-center gap-1.5 flex-1 flex-wrap">
+                        {availableVoters.length === 0 ? (
+                            <span className="text-[10px] text-muted-foreground/50 italic">Personne n'est encore dispo</span>
                         ) : (
-                            <div className="flex -space-x-1.5">
-                                {availableVoters.map((u: any) => (
-                                    <div
-                                        key={u.id}
-                                        className="w-5 h-5 rounded-full border-[1.5px] border-emerald-500 flex items-center justify-center text-[8px] font-bold shrink-0 text-white"
-                                        style={{ backgroundColor: u.color || '#7c6ff7' }}
-                                        title={`${u.displayName} · Présent`}
-                                    >
-                                        {u.displayName?.charAt(0).toUpperCase()}
-                                    </div>
-                                ))}
-                                {unavailableVoters.map((u: any) => (
-                                    <div
-                                        key={u.id}
-                                        className="w-5 h-5 rounded-full border-[1.5px] border-red-500 flex items-center justify-center text-[8px] font-bold shrink-0 text-white opacity-50"
-                                        style={{ backgroundColor: u.color || '#7c6ff7' }}
-                                        title={`${u.displayName} · Pas là`}
-                                    >
-                                        {u.displayName?.charAt(0).toUpperCase()}
-                                    </div>
-                                ))}
-                            </div>
+                            availableVoters.map((u: any, i: number) => (
+                                <span key={u.id} className="text-white text-xs font-semibold">
+                                    {u.displayName}{i < availableVoters.length - 1 ? ', ' : ''}
+                                </span>
+                            ))
                         )}
                     </div>
 
@@ -361,50 +344,21 @@ function EventCard({ event, users, proposalsData, isConfirmed = false, onClick }
                         <div className="flex items-center gap-1 text-[10px] font-semibold text-amber-500 pointer-events-none">
                             Choisir <ChevronRight className="w-3 h-3" />
                         </div>
-                    ) : userResponse ? (
-                        <div
-                            onClick={e => e.stopPropagation()}
-                            className="flex gap-1.5"
-                        >
-                            <button
-                                onClick={() => proposalsData.setResponse(event.id, 'available', userResponse)}
-                                className={cn(
-                                    "px-2.5 py-1 rounded-lg text-[10px] font-semibold transition-all border",
-                                    userResponse === 'available'
-                                        ? 'bg-emerald-500/20 border-emerald-500/40 text-emerald-400'
-                                        : 'border-white/10 text-muted-foreground hover:border-emerald-500/30 hover:text-emerald-500'
-                                )}
-                            >
-                                ✓
-                            </button>
-                            <button
-                                onClick={() => proposalsData.setResponse(event.id, 'unavailable', userResponse)}
-                                className={cn(
-                                    "px-2.5 py-1 rounded-lg text-[10px] font-semibold transition-all border",
-                                    userResponse === 'unavailable'
-                                        ? 'bg-red-500/20 border-red-500/40 text-red-400'
-                                        : 'border-white/10 text-muted-foreground hover:border-red-500/30 hover:text-red-500'
-                                )}
-                            >
-                                ✗
-                            </button>
-                        </div>
                     ) : (
                         <div
                             onClick={e => e.stopPropagation()}
-                            className="flex gap-1.5"
+                            className="flex gap-1.5 shrink-0 ml-2"
                         >
                             <button
                                 onClick={() => proposalsData.setResponse(event.id, 'available', userResponse)}
-                                className="px-2.5 py-1 rounded-lg text-[10px] font-semibold border border-white/10 text-muted-foreground hover:border-emerald-500/40 hover:text-emerald-400 transition-all"
+                                className={cn(
+                                    "px-3 py-1.5 rounded-lg text-xs font-semibold transition-all border flex items-center justify-center min-w-[36px]",
+                                    userResponse === 'available'
+                                        ? 'bg-emerald-500 border-emerald-500 text-background shadow-[0_0_10px_rgba(16,185,129,0.3)]'
+                                        : 'bg-white/5 border-white/10 text-muted-foreground hover:border-emerald-500/40 hover:text-emerald-400'
+                                )}
                             >
-                                ✓ Présent
-                            </button>
-                            <button
-                                onClick={() => proposalsData.setResponse(event.id, 'unavailable', userResponse)}
-                                className="px-2.5 py-1 rounded-lg text-[10px] font-semibold border border-white/10 text-muted-foreground hover:border-red-500/40 hover:text-red-400 transition-all"
-                            >
-                                ✗ Pas là
+                                <Check className="w-4 h-4" />
                             </button>
                         </div>
                     )}

@@ -171,25 +171,14 @@ export function EventDetailsModal({ event, isOpen, onClose, users, proposalsData
                     {event.status === 'proposed' && !event.isMultiDate && (
                         <div>
                             <h4 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-3">Disponibilités</h4>
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div className="flex flex-col gap-4">
                                 <div className="p-4 rounded-xl border border-green-900/30 bg-black">
                                     <h5 className="font-semibold text-green-500 flex items-center gap-2 mb-2">
                                         <span className="w-2 h-2 rounded-full bg-green-500" /> Disponibles
                                     </h5>
-                                    <div className="flex flex-col gap-0.5">
+                                    <div className="flex flex-wrap gap-2">
                                         {availableUsers.map((u: UserProfile | undefined) => u && (
-                                            <span key={u.id} className="text-xs text-white/70">{u.displayName}</span>
-                                        ))}
-                                    </div>
-                                </div>
-
-                                <div className="p-4 rounded-xl border border-red-900/30 bg-black">
-                                    <h5 className="font-semibold text-red-500 flex items-center gap-2 mb-2">
-                                        <span className="w-2 h-2 rounded-full bg-red-500" /> Pas dispos
-                                    </h5>
-                                    <div className="flex flex-col gap-0.5">
-                                        {unavailableUsers.map((u: UserProfile | undefined) => u && (
-                                            <span key={u.id} className="text-xs text-white/40 line-through">{u.displayName}</span>
+                                            <span key={u.id} className="text-sm font-medium text-white">{u.displayName}</span>
                                         ))}
                                     </div>
                                 </div>
@@ -211,14 +200,6 @@ export function EventDetailsModal({ event, isOpen, onClose, users, proposalsData
                                 >
                                     <span className={cn("w-2.5 h-2.5 rounded-full", userResponse === 'available' ? 'bg-white' : 'bg-green-500')} />
                                     Je suis dispo
-                                </button>
-                                <button
-                                    onClick={() => proposalsData.setResponse(event.id, 'unavailable', userResponse)}
-                                    className={cn("px-4 py-2 rounded-full border text-sm font-semibold transition-colors flex items-center gap-2",
-                                        userResponse === 'unavailable' ? 'bg-red-500 border-red-600 text-white shadow-sm' : 'bg-card border-border hover:bg-red-50 text-muted-foreground hover:text-red-600 hover:border-red-200')}
-                                >
-                                    <span className={cn("w-2.5 h-2.5 rounded-full", userResponse === 'unavailable' ? 'bg-white' : 'bg-red-500')} />
-                                    Pas possible
                                 </button>
                             </div>
                         </div>

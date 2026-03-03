@@ -116,16 +116,12 @@ export function EventDateProposals({ eventId, creatorId, proposalsData, users, o
                                     )}
                                 </div>
 
-                                {sortedVotes.length > 0 && (
-                                    <div className="flex flex-wrap gap-1 mt-1.5 opacity-90">
-                                        {sortedVotes.map(v => (
-                                            <div key={v.id} className={`flex items-center gap-1 px-1.5 py-0.5 rounded border text-[10px] font-medium shadow-sm transition-colors ${v.status === 'available' ? 'bg-amber-900/20 border-amber-800/50 text-amber-300' :
-                                                v.status === 'unavailable' ? 'bg-red-900/20 border-red-800/50 text-red-400' :
-                                                    'bg-zinc-800/50 border-zinc-700/50 text-zinc-400'
-                                                }`}>
-                                                <UserAvatar user={{ displayName: v.user.displayName, color: '#999' }} className="w-3.5 h-3.5 text-[8px]" />
-                                                <span className="hidden sm:inline opacity-80">{v.status === 'available' ? 'Dispo' : v.status === 'unavailable' ? 'Non' : '?'}</span>
-                                            </div>
+                                {sortedVotes.filter(v => v.status === 'available').length > 0 && (
+                                    <div className="flex flex-wrap items-center gap-2 mt-2">
+                                        {sortedVotes.filter(v => v.status === 'available').map((v, i, arr) => (
+                                            <span key={v.id} className="text-white font-medium text-xs sm:text-sm">
+                                                {v.user.displayName}{i < arr.length - 1 ? ',' : ''}
+                                            </span>
                                         ))}
                                     </div>
                                 )}
@@ -133,22 +129,14 @@ export function EventDateProposals({ eventId, creatorId, proposalsData, users, o
 
                             {/* Right: Actions */}
                             <div className="flex items-center gap-2 z-10 shrink-0">
-                                {/* Voting Buttons (Inline) */}
-                                <div className="flex items-center bg-zinc-900/80 rounded border border-zinc-800 overflow-hidden shadow-inner">
+                                {/* Voting Buttons (Inline Toggle) */}
+                                <div className="flex items-center">
                                     <button
                                         onClick={() => handleVote(proposal.id, 'available')}
-                                        className={`flex items-center justify-center w-8 h-8 transition-all ${myVote === 'available' ? 'bg-amber-500 text-zinc-950 shadow-[0_0_10px_rgba(245,158,11,0.3)]' : 'text-zinc-400 hover:text-amber-500 hover:bg-zinc-800'}`}
+                                        className={`flex items-center justify-center w-8 h-8 md:w-9 md:h-9 rounded border transition-all ${myVote === 'available' ? 'bg-amber-500 border-amber-500 text-zinc-950 shadow-[0_0_10px_rgba(245,158,11,0.3)]' : 'bg-zinc-900/80 border-zinc-800 text-zinc-400 hover:text-amber-500 hover:bg-zinc-800'}`}
                                         title="Disponible"
                                     >
-                                        <Check className="w-4 h-4" />
-                                    </button>
-                                    <div className="w-px h-4 bg-zinc-800"></div>
-                                    <button
-                                        onClick={() => handleVote(proposal.id, 'unavailable')}
-                                        className={`flex items-center justify-center w-8 h-8 transition-all ${myVote === 'unavailable' ? 'bg-red-900/80 text-red-200' : 'text-zinc-500 hover:text-red-400 hover:bg-zinc-800'}`}
-                                        title="Indisponible"
-                                    >
-                                        <X className="w-4 h-4" />
+                                        <Check className="w-4 h-4 md:w-5 md:h-5" />
                                     </button>
                                 </div>
 
