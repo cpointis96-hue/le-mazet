@@ -114,10 +114,14 @@ export default function MonCalendrierPage() {
             {viewMode === 'mois' ? (
                 <div className="flex-1 min-h-0 overflow-y-auto flex flex-col gap-4">
                     <div
-                        className="h-[280px] shrink-0"
+                        className="shrink-0"
                         onTouchStart={handleTouchStart}
                         onTouchEnd={handleTouchEnd}
                     >
+                        <p className="text-sm font-semibold capitalize mb-2 px-1">
+                            {format(currentDate, 'MMMM yyyy', { locale: fr })}
+                        </p>
+                        <div className="h-[280px]">
                         <MonthView
                             key={`month-${eventsKey}-${availabilities.length}`}
                             currentDate={currentDate}
@@ -127,6 +131,7 @@ export default function MonCalendrierPage() {
                             onDayClick={handleDayClick}
                             onEventClick={handleEventClick}
                         />
+                        </div>
                     </div>
                     <div className="flex-1 pb-4">
                         <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-3 px-1">À venir</p>

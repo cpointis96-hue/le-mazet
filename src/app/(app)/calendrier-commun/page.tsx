@@ -83,30 +83,38 @@ export default function CalendrierCommunPage() {
             </div>
 
             {/* Contenu calendrier */}
-            <div
-                className={cn(
-                    "flex-1 min-h-0",
-                    viewMode === 'annee' ? "overflow-y-auto" : "relative"
-                )}
-                onTouchStart={handleTouchStart}
-                onTouchEnd={handleTouchEnd}
-            >
-                {viewMode === 'mois' ? (
-                    <MonthViewShared
-                        currentDate={currentDate}
-                        events={sharedEvents}
-                        availabilities={availabilities}
-                        onDayClick={handleDayClick}
-                    />
-                ) : (
+            {viewMode === 'mois' ? (
+                <div
+                    className="flex-1 min-h-0 flex flex-col gap-2"
+                    onTouchStart={handleTouchStart}
+                    onTouchEnd={handleTouchEnd}
+                >
+                    <p className="text-sm font-semibold capitalize shrink-0 px-1">
+                        {format(currentDate, 'MMMM yyyy', { locale: fr })}
+                    </p>
+                    <div className="flex-1 min-h-0 relative">
+                        <MonthViewShared
+                            currentDate={currentDate}
+                            events={sharedEvents}
+                            availabilities={availabilities}
+                            onDayClick={handleDayClick}
+                        />
+                    </div>
+                </div>
+            ) : (
+                <div
+                    className="flex-1 min-h-0 overflow-y-auto"
+                    onTouchStart={handleTouchStart}
+                    onTouchEnd={handleTouchEnd}
+                >
                     <YearViewShared
                         currentYear={currentDate}
                         sharedEvents={sharedEvents}
                         availabilities={availabilities}
                         onDayClick={handleDayClick}
                     />
-                )}
-            </div>
+                </div>
+            )}
 
             {/* Modale des Disponibilités */}
             <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
