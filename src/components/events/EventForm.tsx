@@ -19,6 +19,7 @@ import {
     SelectValue
 } from "@/components/ui/Select";
 import { EVENT_COLORS, CATEGORIES } from "@/lib/constants";
+import { cn } from "@/lib/utils";
 
 const eventSchema = z.object({
     title: z.string().min(1, "Le titre est requis"),
@@ -49,17 +50,18 @@ type EventFormValues = z.infer<typeof eventSchema>;
 interface EventFormProps {
     initialData?: CalendarEvent;
     onSubmit?: (data: EventFormValues, files?: File[]) => void;
+    onCancel?: () => void;
     isProposal?: boolean;
 }
 
-export function EventForm({ initialData, onSubmit, isProposal = false }: EventFormProps) {
+export function EventForm({ initialData, onSubmit, onCancel, isProposal = false }: EventFormProps) {
     const router = useRouter();
 
     const todayStr = new Date().toLocaleDateString('en-CA');
     const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
 
     const isVacationInitial = initialData
-        ? (initialData.allDay && !!initialData.endDate && initialData.endDate > initialData.startDate)
+        ? (Boolean(initialData.allDay) && !!initialData.endDate && initialData.endDate > initialData.startDate)
         : false;
 
     const { register, handleSubmit, control, watch, setValue, formState: { errors } } = useForm<EventFormValues>({
@@ -78,7 +80,7 @@ export function EventForm({ initialData, onSubmit, isProposal = false }: EventFo
             category: initialData?.category || CATEGORIES[0],
             privacy: (initialData?.privacy as "prive" | "public" | "public_details") || "public_details",
             status: initialData?.status || (isProposal ? "proposed" : "confirmed"),
-            isMultiDate: false,
+            isMultiDate: initialData?.isMultiDate ?? false,
             proposals: initialData?.startDate
                 ? [{ startDate: initialData.startDate, endDate: initialData.endDate || initialData.startDate, startTime: initialData.startTime || "19:00", comment: "" }]
                 : [{ startDate: todayStr, endDate: todayStr, startTime: "19:00", comment: "" }],
@@ -96,13 +98,43 @@ export function EventForm({ initialData, onSubmit, isProposal = false }: EventFo
     const submitHandler = (data: EventFormValues) => {
         data.allDay = data.isVacation;
 
-        if (data.isVacation && !data.isMultiDate && data.proposals?.length) {
-            data.startDate = data.proposals[0].startDate;
-            data.endDate = data.proposals[0].endDate || data.proposals[0].startDate;
+        // Calculer si on a plusieurs dates/périodes
+        const hasMultipleDates = data.proposals && data.proposals.length > 1;
+
+        if (data.isVacation && data.proposals?.length) {
+            data.startDate = data.proposals[0].startDate || todayStr;
+            data.endDate = data.proposals[0].endDate || data.startDate;
+            data.category = "Vacances";
+            // Si c'est multi-période, on transforme en sondage (Doodle)
+            if (hasMultipleDates) {
+                data.isMultiDate = true;
+                data.status = "proposed";
+            } else {
+                data.isMultiDate = false;
+                // Si une seule période, on peut être confirmed dès le départ si on veut, 
+                // mais le défaut est 'proposed' pour passer par le flux de validation du groupe par défaut
+            }
+        } else if (data.isMultiDate && data.proposals?.length) {
+            data.startDate = data.proposals[0].startDate || todayStr;
+            data.endDate = data.proposals[0].endDate || data.startDate;
+            data.startTime = data.proposals[0].startTime || undefined;
+            data.endTime = undefined;
+            data.status = "proposed"; // Multi-date est TOUJOURS une proposition au début
         } else if (!data.isVacation && !data.isMultiDate) {
-            data.endDate = data.startDate;
-            data.endTime = data.startTime;
+            data.endDate = data.startDate || todayStr;
+            data.startDate = data.startDate || todayStr;
         }
+
+        // Sécurité supplémentaire : s'il y a plusieurs propositions, c'est forcément un sondage multi-dates
+        if (hasMultipleDates) {
+            data.isMultiDate = true;
+            data.status = "proposed";
+        }
+
+        // Nettoyage final pour Postgres
+        if (data.pollDeadline === "") data.pollDeadline = undefined;
+        if (data.startDate === "") data.startDate = todayStr;
+        if (data.endDate === "") data.endDate = data.startDate || todayStr;
 
         if (onSubmit) {
             onSubmit(data, selectedFiles);
@@ -120,48 +152,80 @@ export function EventForm({ initialData, onSubmit, isProposal = false }: EventFo
                     {errors.title && <p className="text-sm text-destructive mt-1">{errors.title.message}</p>}
                 </div>
 
-                {/* Vacances toggle */}
-                <div className="flex items-center space-x-2">
-                    <Controller
-                        control={control}
-                        name="isVacation"
-                        render={({ field }) => (
-                            <Switch
-                                id="isVacation"
-                                checked={field.value}
-                                onCheckedChange={(val) => {
-                                    field.onChange(val);
-                                    if (val) {
-                                        setValue("isMultiDate", false);
-                                        replaceProposals([{ startDate: todayStr, endDate: todayStr, startTime: "09:00", comment: "" }]);
-                                    }
-                                }}
-                            />
-                        )}
-                    />
-                    <Label htmlFor="isVacation">Vacances</Label>
+                {/* Toggles : Vacances & Date multiple */}
+                <div className="flex items-center gap-6 pb-4 border-b">
+                    <div className="flex items-center space-x-2">
+                        <Controller
+                            control={control}
+                            name="isVacation"
+                            render={({ field }) => (
+                                <Switch
+                                    id="isVacation"
+                                    checked={field.value}
+                                    onCheckedChange={(val) => {
+                                        field.onChange(val);
+                                        if (val) {
+                                            setValue("isMultiDate", false);
+                                            setValue("category", "Vacances", { shouldValidate: true, shouldDirty: true });
+                                            replaceProposals([{ startDate: todayStr, endDate: todayStr, startTime: "09:00", comment: "" }]);
+                                        } else {
+                                            setValue("category", CATEGORIES[0], { shouldValidate: true, shouldDirty: true });
+                                        }
+                                    }}
+                                />
+                            )}
+                        />
+                        <Label htmlFor="isVacation">Vacances</Label>
+                    </div>
+
+                    <div className="flex items-center space-x-2">
+                        <Controller
+                            control={control}
+                            name="isMultiDate"
+                            render={({ field }) => (
+                                <Switch
+                                    id="isMultiDate"
+                                    checked={field.value}
+                                    onCheckedChange={(val) => {
+                                        field.onChange(val);
+                                        if (val) {
+                                            setValue("isVacation", false);
+                                            setValue("category", CATEGORIES[0], { shouldValidate: true, shouldDirty: true });
+                                            setValue("status", "proposed");
+                                            replaceProposals([{ startDate: todayStr, endDate: todayStr, startTime: "19:00", comment: "" }]);
+                                        }
+                                    }}
+                                />
+                            )}
+                        />
+                        <Label htmlFor="isMultiDate">Dates multiples</Label>
+                    </div>
                 </div>
 
-                {/* Sondage toggle */}
-                <div className="flex items-center space-x-2 pb-4 border-b">
+                {/* Catégorie juste en dessous */}
+                <div className="pb-4 border-b">
+                    <Label className={cn(isVacation && "text-muted-foreground")}>Catégorie</Label>
                     <Controller
                         control={control}
-                        name="isMultiDate"
+                        name="category"
                         render={({ field }) => (
-                            <Switch
-                                id="isMultiDate"
-                                checked={field.value}
-                                onCheckedChange={(val) => {
-                                    field.onChange(val);
-                                    if (val) {
-                                        setValue("isVacation", false);
-                                        replaceProposals([{ startDate: todayStr, endDate: todayStr, startTime: "19:00", comment: "" }]);
-                                    }
-                                }}
-                            />
+                            <Select
+                                onValueChange={field.onChange}
+                                value={field.value}
+                                disabled={isVacation}
+                            >
+                                <SelectTrigger className="mt-1">
+                                    <SelectValue placeholder="Choisir..." />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    {!isVacation && CATEGORIES.map(c => (
+                                        <SelectItem key={c} value={c}>{c}</SelectItem>
+                                    ))}
+                                    {isVacation && <SelectItem value="Vacances">Vacances</SelectItem>}
+                                </SelectContent>
+                            </Select>
                         )}
                     />
-                    <Label htmlFor="isMultiDate">Dates multiples</Label>
                 </div>
 
                 {/* Date de fin de sondage (si isMultiDate) */}
@@ -290,27 +354,7 @@ export function EventForm({ initialData, onSubmit, isProposal = false }: EventFo
                     )}
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                        <Label>Catégorie</Label>
-                        <Controller
-                            control={control}
-                            name="category"
-                            render={({ field }) => (
-                                <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                    <SelectTrigger className="mt-1">
-                                        <SelectValue placeholder="Choisir..." />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        {CATEGORIES.map(c => (
-                                            <SelectItem key={c} value={c}>{c}</SelectItem>
-                                        ))}
-                                    </SelectContent>
-                                </Select>
-                            )}
-                        />
-                    </div>
-
+                <div className="grid grid-cols-1 gap-4">
                     <div>
                         <Label>Couleur</Label>
                         <Controller
@@ -359,13 +403,13 @@ export function EventForm({ initialData, onSubmit, isProposal = false }: EventFo
             </div>
 
             <div className="flex items-center justify-end gap-3 border-t pt-6">
-                <Button variant="outline" type="button" onClick={() => router.back()}>
+                <Button variant="outline" type="button" onClick={() => onCancel ? onCancel() : router.back()}>
                     Annuler
                 </Button>
                 <Button type="submit">
                     Enregistrer
                 </Button>
             </div>
-        </form>
+        </form >
     );
 }

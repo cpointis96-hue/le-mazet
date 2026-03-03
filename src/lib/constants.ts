@@ -3,7 +3,6 @@ export const CATEGORIES = [
     'Sport',
     'Restaurant',
     'Une mousse',
-    'Vacances',
     'Autres'
 ];
 

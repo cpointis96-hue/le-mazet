@@ -37,8 +37,8 @@ function eventToRow(event: Omit<CalendarEvent, 'id' | 'userId'>, userId: string)
         location: event.location ?? null,
         start_date: event.startDate,
         end_date: event.endDate,
-        start_time: event.startTime ?? null,
-        end_time: event.endTime ?? null,
+        start_time: (event.startTime && event.startTime !== "") ? event.startTime : null,
+        end_time: (event.endTime && event.endTime !== "") ? event.endTime : null,
         all_day: event.allDay,
         color: event.color,
         icon: event.icon ?? null,
@@ -48,7 +48,7 @@ function eventToRow(event: Omit<CalendarEvent, 'id' | 'userId'>, userId: string)
         recurrence_end: event.recurrenceEnd ?? null,
         reminder_minutes: event.reminderMinutes ?? null,
         is_multi_date: event.isMultiDate ?? false,
-        poll_deadline: event.pollDeadline ?? null,
+        poll_deadline: (event.pollDeadline && event.pollDeadline !== "") ? event.pollDeadline : null,
     };
 }
 
@@ -92,15 +92,31 @@ export async function createDateProposals(
     const rows = proposals.map(p => ({
         event_id: eventId,
         start_date: p.startDate,
-        end_date: p.endDate || null,
-        start_time: p.startTime || null,
-        comment: p.comment || null
+        end_date: (p.endDate && p.endDate !== "") ? p.endDate : null,
+        start_time: (p.startTime && p.startTime !== "") ? p.startTime : null,
+        comment: (p.comment && p.comment !== "") ? p.comment : null
     }));
 
     const { error } = await supabase.from('event_date_proposals').insert(rows);
 
     if (error) {
         console.error('createDateProposals error:', error.message);
+        return false;
+    }
+    return true;
+}
+
+export async function deleteEventDateProposals(
+    supabase: SupabaseClient,
+    eventId: string
+): Promise<boolean> {
+    const { error } = await supabase
+        .from('event_date_proposals')
+        .delete()
+        .eq('event_id', eventId);
+
+    if (error) {
+        console.error('deleteEventDateProposals error:', error.message);
         return false;
     }
     return true;
@@ -258,6 +274,7 @@ export async function updateEvent(
     if (updates.recurrenceEnd !== undefined) dbUpdates.recurrence_end = updates.recurrenceEnd;
     if (updates.reminderMinutes !== undefined) dbUpdates.reminder_minutes = updates.reminderMinutes;
     if (updates.pollDeadline !== undefined) dbUpdates.poll_deadline = updates.pollDeadline;
+    if (updates.isMultiDate !== undefined) dbUpdates.is_multi_date = updates.isMultiDate;
     dbUpdates.updated_at = new Date().toISOString();
 
     const { data, error } = await supabase

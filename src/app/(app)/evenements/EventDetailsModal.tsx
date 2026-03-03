@@ -4,7 +4,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import { CalendarEvent } from "@/types/calendar.types";
-import { UserProfile } from "@/hooks/useSupabaseUsers";
+import { UserProfile, useSupabaseUsers } from "@/hooks/useSupabaseUsers";
 import { MapPin, FileText, Download, Send, Calendar } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useState, useEffect } from "react";
@@ -24,9 +24,12 @@ interface EventDetailsModalProps {
     users: UserProfile[];
     proposalsData: any;
     isConfirmed?: boolean;
+    onEdit?: () => void;
+    onDelete?: () => void;
 }
 
-export function EventDetailsModal({ event, isOpen, onClose, users, proposalsData, isConfirmed = false }: EventDetailsModalProps) {
+export function EventDetailsModal({ event, isOpen, onClose, users, proposalsData, isConfirmed = false, onEdit, onDelete }: EventDetailsModalProps) {
+    const { currentUser } = useSupabaseUsers();
     const creator = users.find(u => u.id === event.userId);
     const dateFormatted = format(new Date(event.startDate), "EEEE d MMMM yyyy", { locale: fr });
     const fmtT = (t?: string | null) => t ? t.slice(0, 5) : null;
@@ -84,7 +87,7 @@ export function EventDetailsModal({ event, isOpen, onClose, users, proposalsData
                             {event.title}
                             {event.status === 'proposed' && (
                                 <span className="ml-2 text-xs font-semibold px-2.5 py-1 bg-amber-100 text-amber-800 rounded-full border border-amber-200">
-                                    En proposition
+                                    {event.isMultiDate ? "Sondage" : "Proposition"}
                                 </span>
                             )}
                         </DialogTitle>
@@ -214,6 +217,32 @@ export function EventDetailsModal({ event, isOpen, onClose, users, proposalsData
                                 </button>
                             </div>
                         </div>
+                    </div>
+                )}
+                {/* Actions pour le créateur (Modifier / Supprimer) */}
+                {currentUser?.id === event.userId && (onEdit || onDelete) && (
+                    <div className="p-4 sm:p-5 border-t bg-muted/20 flex items-center justify-end gap-3 shrink-0">
+                        {onDelete && (
+                            <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={onDelete}
+                                className="text-destructive hover:bg-destructive/10 hover:text-destructive text-xs font-semibold"
+                            >
+                                <Icons.Trash2 className="w-3.5 h-3.5 mr-1.5" />
+                                Supprimer
+                            </Button>
+                        )}
+                        {onEdit && (
+                            <Button
+                                size="sm"
+                                onClick={onEdit}
+                                className="bg-primary text-primary-foreground text-xs font-semibold px-4"
+                            >
+                                <Icons.Edit2 className="w-3.5 h-3.5 mr-1.5" />
+                                Modifier
+                            </Button>
+                        )}
                     </div>
                 )}
             </DialogContent>

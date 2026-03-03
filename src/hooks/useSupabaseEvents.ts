@@ -8,7 +8,8 @@ import {
     createEvent,
     updateEvent as updateEventQuery,
     deleteEvent as deleteEventQuery,
-    createDateProposals
+    createDateProposals,
+    deleteEventDateProposals
 } from '@/lib/supabase/queries';
 import { uploadEventAttachments } from '@/lib/supabase/attachments';
 
@@ -113,7 +114,8 @@ export function useSupabaseEvents(eventResponses?: { eventId: string, userId: st
 
             const created = await createEvent(supabaseForWrite, eventData as Omit<CalendarEvent, 'id' | 'userId'>, currentUserId);
             if (created) {
-                if (eventData.isMultiDate && proposals && proposals.length > 0) {
+                // On enregistre les propositions si elles existent (sondage ou vacances multi-périodes)
+                if (proposals && proposals.length > 0) {
                     await createDateProposals(supabaseForWrite, created.id, proposals);
                 }
                 if (files && files.length > 0) {
@@ -125,10 +127,18 @@ export function useSupabaseEvents(eventResponses?: { eventId: string, userId: st
         [currentUserId]
     );
 
-    const updateEvent = useCallback(async (id: string, updates: Partial<CalendarEvent>, files?: File[]) => {
+    const updateEvent = useCallback(async (id: string, updates: Partial<CalendarEvent & { proposals?: any[] }>, files?: File[]) => {
         const supabaseForWrite = createClient();
-        const updated = await updateEventQuery(supabaseForWrite, id, updates);
+        const { proposals, ...eventUpdates } = updates;
+
+        const updated = await updateEventQuery(supabaseForWrite, id, eventUpdates as Partial<CalendarEvent>);
         if (updated) {
+            if (proposals) {
+                await deleteEventDateProposals(supabaseForWrite, id);
+                if (proposals.length > 0) {
+                    await createDateProposals(supabaseForWrite, id, proposals);
+                }
+            }
             if (files && files.length > 0 && currentUserId) {
                 await uploadEventAttachments(supabaseForWrite, id, files, currentUserId);
             }

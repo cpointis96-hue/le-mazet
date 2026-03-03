@@ -105,19 +105,26 @@ export function AgendaView({ events, onEventClick }: AgendaViewProps) {
                                         </p>
                                         {event.status === "proposed" && (
                                             <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400 uppercase tracking-wide shrink-0">
-                                                Proposition
+                                                {event.isMultiDate ? "Sondage" : "Proposition"}
                                             </span>
                                         )}
                                     </div>
 
-                                    {!event.allDay && event.startTime && (
-                                        <div className="flex items-center gap-1 mt-1 text-xs text-muted-foreground">
-                                            <Clock className="w-3 h-3" />
-                                            <span>
-                                                {event.startTime.slice(0, 5)}
-                                                {event.endTime && ` → ${event.endTime.slice(0, 5)}`}
-                                            </span>
+                                    {event.isMultiDate && event.status === "proposed" ? (
+                                        <div className="flex items-center gap-1 mt-1 text-xs text-amber-500 font-medium">
+                                            <CalendarDays className="w-3 h-3" />
+                                            <span>Sondage de dates en cours</span>
                                         </div>
+                                    ) : (
+                                        !event.allDay && event.startTime && (
+                                            <div className="flex items-center gap-1 mt-1 text-xs text-muted-foreground">
+                                                <Clock className="w-3 h-3" />
+                                                <span>
+                                                    {event.startTime.slice(0, 5)}
+                                                    {event.endTime && ` → ${event.endTime.slice(0, 5)}`}
+                                                </span>
+                                            </div>
+                                        )
                                     )}
 
                                     {event.description && (

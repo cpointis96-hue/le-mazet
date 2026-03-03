@@ -20,11 +20,13 @@ import {
     DialogTitle,
 } from "@/components/ui/Dialog";
 import { EventForm } from "@/components/events/EventForm";
-import { EventDetail } from "@/components/events/EventDetail";
+import { EventDetailsModal } from "../evenements/EventDetailsModal";
+import { useSupabaseUsers } from "@/hooks/useSupabaseUsers";
 
 export default function MonCalendrierPage() {
     const { viewMode, setViewMode, currentDate, handlePrev, handleNext, navigationLabel } = useCalendarView("mois");
     const { availabilities, currentUserId, toggleAvailability } = useAvailabilities();
+    const { users } = useSupabaseUsers();
     const proposalsData = useProposalsData();
     const { personalEvents, addEvent, updateEvent, deleteEvent } = useSupabaseEvents(proposalsData.responses);
 
@@ -122,15 +124,15 @@ export default function MonCalendrierPage() {
                             {format(currentDate, 'MMMM yyyy', { locale: fr })}
                         </p>
                         <div className="h-[280px]">
-                        <MonthView
-                            key={`month-${eventsKey}-${availabilities.length}`}
-                            currentDate={currentDate}
-                            events={personalEvents}
-                            availabilities={availabilities.filter(a => a.userId === currentUserId)}
-                            onToggleAvailability={(date, status) => toggleAvailability(date, status)}
-                            onDayClick={handleDayClick}
-                            onEventClick={handleEventClick}
-                        />
+                            <MonthView
+                                key={`month-${eventsKey}-${availabilities.length}`}
+                                currentDate={currentDate}
+                                events={personalEvents}
+                                availabilities={availabilities.filter(a => a.userId === currentUserId)}
+                                onToggleAvailability={(date, status) => toggleAvailability(date, status)}
+                                onDayClick={handleDayClick}
+                                onEventClick={handleEventClick}
+                            />
                         </div>
                     </div>
                     <div className="flex-1 pb-4">
@@ -208,46 +210,37 @@ export default function MonCalendrierPage() {
                                 status: 'proposed',
                             } as any}
                             onSubmit={handleFormSubmit}
+                            onCancel={() => {
+                                setIsFormOpen(false);
+                                setSelectedEvent(null);
+                            }}
                         />
                     </div>
                 </DialogContent>
             </Dialog>
 
             {/* Dialog for Viewing Event */}
-            <Dialog open={isDetailOpen} onOpenChange={setIsDetailOpen}>
-                <DialogContent>
-                    <DialogHeader>
-                        <DialogTitle>Détails</DialogTitle>
-                    </DialogHeader>
-                    <div className="mt-4">
-                        {selectedEvent && (
-                            <>
-                                <EventDetail event={selectedEvent} />
-                                <div className="flex gap-2 justify-end mt-6 border-t pt-4">
-                                    <button
-                                        onClick={() => {
-                                            deleteEvent(selectedEvent.id);
-                                            setIsDetailOpen(false);
-                                        }}
-                                        className="text-sm px-4 py-2 text-destructive hover:bg-destructive/10 rounded-md font-medium transition-colors"
-                                    >
-                                        Supprimer
-                                    </button>
-                                    <button
-                                        onClick={() => {
-                                            setIsDetailOpen(false);
-                                            setIsFormOpen(true);
-                                        }}
-                                        className="text-sm px-4 py-2 bg-primary text-primary-foreground hover:bg-primary/90 rounded-md font-medium transition-colors"
-                                    >
-                                        Modifier
-                                    </button>
-                                </div>
-                            </>
-                        )}
-                    </div>
-                </DialogContent>
-            </Dialog>
+            {selectedEvent && (
+                <EventDetailsModal
+                    event={selectedEvent}
+                    isOpen={isDetailOpen}
+                    onClose={() => {
+                        setIsDetailOpen(false);
+                        setSelectedEvent(null);
+                    }}
+                    users={users}
+                    proposalsData={proposalsData}
+                    onEdit={() => {
+                        setIsDetailOpen(false);
+                        setIsFormOpen(true);
+                    }}
+                    onDelete={() => {
+                        deleteEvent(selectedEvent.id);
+                        setIsDetailOpen(false);
+                        setSelectedEvent(null);
+                    }}
+                />
+            )}
         </div>
     );
 }
