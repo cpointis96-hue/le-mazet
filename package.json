@@ -50,5 +50,8 @@
     "prettier-plugin-tailwindcss": "^0.7.2",
     "tailwindcss": "^4",
     "typescript": "^5"
+  },
+  "optionalDependencies": {
+    "@rollup/rollup-android-arm-eabi": "4.52.2"
   }
 }
