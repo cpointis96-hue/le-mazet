@@ -276,7 +276,11 @@ export function EventForm({ initialData, onSubmit, onCancel, isProposal = false 
                         ))}
                         <button
                             type="button"
-                            onClick={() => appendProposal({ startDate: todayStr, endDate: todayStr, startTime: "09:00", comment: "" })}
+                            onClick={() => {
+                                const currentP = getValues("proposals");
+                                const lastDate = currentP && currentP.length > 0 ? currentP[currentP.length - 1].startDate : todayStr;
+                                appendProposal({ startDate: lastDate, endDate: lastDate, startTime: "09:00", comment: "" });
+                            }}
                             className="flex items-center gap-1.5 text-xs text-primary hover:text-primary/80 transition-colors mt-1"
                         >
                             <Plus className="w-3.5 h-3.5" /> Ajouter une période
@@ -308,7 +312,11 @@ export function EventForm({ initialData, onSubmit, onCancel, isProposal = false 
                         </div>
                         <button
                             type="button"
-                            onClick={() => appendProposal({ startDate: todayStr, endDate: todayStr, startTime: "19:00", comment: "" })}
+                            onClick={() => {
+                                const currentP = getValues("proposals");
+                                const lastDate = currentP && currentP.length > 0 ? currentP[currentP.length - 1].startDate : todayStr;
+                                appendProposal({ startDate: lastDate, endDate: lastDate, startTime: "19:00", comment: "" });
+                            }}
                             className="flex items-center gap-1.5 text-xs text-primary hover:text-primary/80 transition-colors"
                         >
                             <Plus className="w-3.5 h-3.5" /> Ajouter une option

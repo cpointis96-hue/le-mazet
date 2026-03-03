@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { EventDateProposal, EventDateVote } from "@/types/calendar.types";
 import { useSupabaseUsers } from "@/hooks/useSupabaseUsers";
 import { createClient } from "@/lib/supabase/client";
@@ -11,7 +11,7 @@ import { Check, X, HelpCircle, Trophy } from "lucide-react";
 
 export function EventDateProposals({ eventId, creatorId, onConfirmed }: { eventId: string, creatorId: string, onConfirmed: () => void }) {
     const { currentUser } = useSupabaseUsers();
-    const supabase = createClient();
+    const supabase = useMemo(() => createClient(), []);
 
     const [proposals, setProposals] = useState<EventDateProposal[]>([]);
     const [votes, setVotes] = useState<(EventDateVote & { user: { displayName: string, avatarId: string | null } })[]>([]);

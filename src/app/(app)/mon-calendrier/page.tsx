@@ -61,6 +61,7 @@ export default function MonCalendrierPage() {
             setDayListEvents(dayEvents);
             setIsDayListOpen(true);
         } else {
+            setSelectedDate(date);
             setIsFormOpen(true);
         }
     };
