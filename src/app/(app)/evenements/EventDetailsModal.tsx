@@ -94,8 +94,13 @@ export function EventDetailsModal({ event, isOpen, onClose, users, proposalsData
                         <DialogDescription asChild>
                             <div className="mt-2 text-foreground/80 font-medium">
                                 {event.isMultiDate && event.status === 'proposed' ? (
-                                    <div className="mb-1 text-amber-600 dark:text-amber-500 font-semibold flex items-center gap-2">
-                                        <Calendar className="w-4 h-4" /> Sondage de dates en cours
+                                    <div className="mb-1 flex items-center justify-between w-full">
+                                        <div className="text-amber-600 dark:text-amber-500 font-semibold flex items-center gap-2">
+                                            <Calendar className="w-4 h-4" /> Sondage en cours
+                                        </div>
+                                        <Button size="sm" onClick={onClose} className="rounded-full bg-amber-500 hover:bg-amber-600 text-black font-bold h-8 px-4 text-xs transition-colors shadow-sm">
+                                            Valider
+                                        </Button>
                                     </div>
                                 ) : (
                                     <div className="flex items-center gap-2 mb-1">
@@ -128,7 +133,7 @@ export function EventDetailsModal({ event, isOpen, onClose, users, proposalsData
 
                     {/* Sondage de dates (Mullti-dates Doodle) */}
                     {event.isMultiDate && event.status === 'proposed' && (
-                        <EventDateProposals eventId={event.id} creatorId={event.userId} proposalsData={proposalsData} onConfirmed={onClose} />
+                        <EventDateProposals eventId={event.id} creatorId={event.userId} proposalsData={proposalsData} users={users} onConfirmed={onClose} />
                     )}
 
                     {/* Checklist "Ce qu'on ramène" uniquement pour l'invitation à manger ET (date unique OU date choisie) */}

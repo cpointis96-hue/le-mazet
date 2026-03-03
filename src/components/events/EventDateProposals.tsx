@@ -2,16 +2,16 @@
 
 import { useState, useEffect, useMemo } from "react";
 import { EventDateProposal, EventDateVote } from "@/types/calendar.types";
-import { useSupabaseUsers } from "@/hooks/useSupabaseUsers";
+import { UserProfile } from "@/hooks/useSupabaseUsers";
 import { createClient } from "@/lib/supabase/client";
 import { getEventDateProposals, getEventDateVotes, voteForDateProposal, confirmWinningDate, deleteDateVote } from "@/lib/supabase/queries";
 import { Button } from "@/components/ui/Button";
 import { UserAvatar } from "@/components/ui/UserAvatar";
 import { Check, X, Crown, Trophy } from "lucide-react";
 
-export function EventDateProposals({ eventId, creatorId, proposalsData, onConfirmed }: { eventId: string, creatorId: string, proposalsData: any, onConfirmed: () => void }) {
-    const { currentUser } = useSupabaseUsers();
+export function EventDateProposals({ eventId, creatorId, proposalsData, users, onConfirmed }: { eventId: string, creatorId: string, proposalsData: any, users: UserProfile[], onConfirmed: () => void }) {
     const supabase = useMemo(() => createClient(), []);
+    const currentUser = useMemo(() => users.find(u => u.id === proposalsData?.currentUserId), [users, proposalsData?.currentUserId]);
 
     const [proposals, setProposals] = useState<EventDateProposal[]>([]);
     const [votes, setVotes] = useState<(EventDateVote & { user: { displayName: string, avatarId: string | null } })[]>([]);
