@@ -32,6 +32,7 @@ const eventSchema = z.object({
     isVacation: z.boolean(),
     color: z.string(),
     category: z.string().optional(),
+    privacy: z.enum(["prive", "public", "public_details"]),
     status: z.enum(["proposed", "confirmed"]),
     isMultiDate: z.boolean().optional(),
     proposals: z.array(z.object({
@@ -75,6 +76,7 @@ export function EventForm({ initialData, onSubmit, isProposal = false }: EventFo
             isVacation: isVacationInitial,
             color: initialData?.color || EVENT_COLORS[0].value,
             category: initialData?.category || CATEGORIES[0],
+            privacy: (initialData?.privacy as "prive" | "public" | "public_details") || "public_details",
             status: initialData?.status || (isProposal ? "proposed" : "confirmed"),
             isMultiDate: false,
             proposals: initialData?.startDate
@@ -333,6 +335,26 @@ export function EventForm({ initialData, onSubmit, isProposal = false }: EventFo
                             )}
                         />
                     </div>
+                </div>
+
+                <div>
+                    <Label>Visibilité dans le calendrier commun</Label>
+                    <Controller
+                        control={control}
+                        name="privacy"
+                        render={({ field }) => (
+                            <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                <SelectTrigger className="mt-1">
+                                    <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="public_details">Détails visibles</SelectItem>
+                                    <SelectItem value="public">Titre visible (détails cachés)</SelectItem>
+                                    <SelectItem value="prive">Privé (juste "occupé")</SelectItem>
+                                </SelectContent>
+                            </Select>
+                        )}
+                    />
                 </div>
             </div>
 

@@ -10,8 +10,8 @@ export default function NouvelEvenementPage() {
     const isProposal = searchParams.get('type') === 'proposal';
     const { addEvent } = useSupabaseEvents();
 
-    const handleSubmit = (data: any, files?: File[]) => {
-        addEvent(data, files);
+    const handleSubmit = async (data: any, files?: File[]) => {
+        await addEvent(data, files);
         if (isProposal) {
             router.push('/evenements');
         } else {
