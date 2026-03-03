@@ -1,9 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
-import { CalendarNavigation } from "@/components/calendar/CalendarNavigation";
 import { MonthViewShared } from "@/components/calendar/MonthViewShared";
 import { YearViewShared } from "@/components/calendar/YearViewShared";
 import { useCalendarView } from "@/hooks/useCalendarView";
@@ -33,6 +32,22 @@ export default function CalendrierCommunPage() {
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const [selectedEventDetails, setSelectedEventDetails] = useState<CalendarEvent | null>(null);
 
+    const touchStartX = useRef<number>(0);
+    const touchStartY = useRef<number>(0);
+
+    const handleTouchStart = (e: React.TouchEvent) => {
+        touchStartX.current = e.touches[0].clientX;
+        touchStartY.current = e.touches[0].clientY;
+    };
+
+    const handleTouchEnd = (e: React.TouchEvent) => {
+        const dx = e.changedTouches[0].clientX - touchStartX.current;
+        const dy = e.changedTouches[0].clientY - touchStartY.current;
+        if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 50) {
+            dx < 0 ? handleNext() : handlePrev();
+        }
+    };
+
     const handleDayClick = (date: Date) => {
         setSelectedDate(date);
         setIsDialogOpen(true);
@@ -46,46 +61,36 @@ export default function CalendrierCommunPage() {
                     <p className="text-muted-foreground text-xs sm:text-sm hidden sm:block">Tous les événements publics sont visibles ici !</p>
                 </div>
 
-                <div className="flex items-center gap-2 sm:gap-3 w-auto self-end md:self-auto flex-wrap">
-                    {/* Sélecteur mois / année */}
-                    <div className="flex items-center rounded-lg border overflow-hidden">
-                        <button
-                            onClick={() => setViewMode('mois')}
-                            className={cn(
-                                "px-3 py-1.5 text-sm font-medium transition-colors",
-                                viewMode === 'mois'
-                                    ? "bg-primary text-primary-foreground"
-                                    : "hover:bg-muted text-muted-foreground"
-                            )}
-                        >
-                            Mois
-                        </button>
-                        <button
-                            onClick={() => setViewMode('annee')}
-                            className={cn(
-                                "px-3 py-1.5 text-sm font-medium transition-colors",
-                                viewMode === 'annee'
-                                    ? "bg-primary text-primary-foreground"
-                                    : "hover:bg-muted text-muted-foreground"
-                            )}
-                        >
-                            Année
-                        </button>
+                <div className="flex items-center gap-3 self-end md:self-auto">
+                    <span className="text-sm font-medium text-muted-foreground capitalize hidden sm:inline">{navigationLabel}</span>
+                    <div className="flex items-center rounded-xl border overflow-hidden bg-muted/30 p-0.5 gap-0.5">
+                        {(['mois', 'annee'] as const).map(mode => (
+                            <button
+                                key={mode}
+                                onClick={() => setViewMode(mode as any)}
+                                className={cn(
+                                    "px-3 py-1.5 text-xs font-semibold rounded-lg capitalize transition-all duration-200",
+                                    viewMode === mode
+                                        ? "bg-background text-foreground shadow-sm"
+                                        : "text-muted-foreground hover:text-foreground"
+                                )}
+                            >
+                                {mode === 'mois' ? 'Mois' : 'Année'}
+                            </button>
+                        ))}
                     </div>
-
-                    <CalendarNavigation
-                        label={navigationLabel}
-                        onPrev={handlePrev}
-                        onNext={handleNext}
-                    />
                 </div>
             </div>
 
             {/* Contenu calendrier */}
-            <div className={cn(
-                "flex-1 min-h-0",
-                viewMode === 'annee' ? "overflow-y-auto" : "relative"
-            )}>
+            <div
+                className={cn(
+                    "flex-1 min-h-0",
+                    viewMode === 'annee' ? "overflow-y-auto" : "relative"
+                )}
+                onTouchStart={handleTouchStart}
+                onTouchEnd={handleTouchEnd}
+            >
                 {viewMode === 'mois' ? (
                     <MonthViewShared
                         currentDate={currentDate}

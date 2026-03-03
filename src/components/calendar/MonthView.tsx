@@ -44,7 +44,7 @@ export function MonthView({
 
             {/* Calendar Grid */}
             <div className="flex-1 overflow-y-auto">
-                <div className="grid grid-cols-7 auto-rows-[minmax(44px,1fr)] min-h-full">
+                <div className="grid grid-cols-7 auto-rows-[minmax(40px,1fr)] min-h-full">
                     {days.map((date, idx) => {
                         const dStr = format(date, 'yyyy-MM-dd');
                         const dayEvents = events.filter((e) => {

@@ -61,7 +61,7 @@ export function EventForm({ initialData, onSubmit, isProposal = false }: EventFo
         ? (initialData.allDay && !!initialData.endDate && initialData.endDate > initialData.startDate)
         : false;
 
-    const { register, handleSubmit, control, watch, formState: { errors } } = useForm<EventFormValues>({
+    const { register, handleSubmit, control, watch, setValue, formState: { errors } } = useForm<EventFormValues>({
         resolver: zodResolver(eventSchema),
         defaultValues: {
             title: initialData?.title || "",
@@ -83,7 +83,7 @@ export function EventForm({ initialData, onSubmit, isProposal = false }: EventFo
         },
     });
 
-    const { fields: proposalFields, append: appendProposal, remove: removeProposal } = useFieldArray({
+    const { fields: proposalFields, append: appendProposal, remove: removeProposal, replace: replaceProposals } = useFieldArray({
         control,
         name: "proposals"
     });
@@ -127,7 +127,13 @@ export function EventForm({ initialData, onSubmit, isProposal = false }: EventFo
                             <Switch
                                 id="isVacation"
                                 checked={field.value}
-                                onCheckedChange={field.onChange}
+                                onCheckedChange={(val) => {
+                                    field.onChange(val);
+                                    if (val) {
+                                        setValue("isMultiDate", false);
+                                        replaceProposals([{ startDate: todayStr, endDate: todayStr, startTime: "09:00", comment: "" }]);
+                                    }
+                                }}
                             />
                         )}
                     />
@@ -143,7 +149,13 @@ export function EventForm({ initialData, onSubmit, isProposal = false }: EventFo
                             <Switch
                                 id="isMultiDate"
                                 checked={field.value}
-                                onCheckedChange={field.onChange}
+                                onCheckedChange={(val) => {
+                                    field.onChange(val);
+                                    if (val) {
+                                        setValue("isVacation", false);
+                                        replaceProposals([{ startDate: todayStr, endDate: todayStr, startTime: "19:00", comment: "" }]);
+                                    }
+                                }}
                             />
                         )}
                     />
@@ -180,7 +192,7 @@ export function EventForm({ initialData, onSubmit, isProposal = false }: EventFo
                                 <Input type="date" className="flex-1 text-sm" {...register(`proposals.${index}.startDate` as const)} />
                                 <span className="text-muted-foreground text-xs shrink-0">→</span>
                                 <Input type="date" className="flex-1 text-sm" {...register(`proposals.${index}.endDate` as const)} />
-                                {index > 0 && (
+                                {proposalFields.length > 1 && (
                                     <button
                                         type="button"
                                         onClick={() => removeProposal(index)}

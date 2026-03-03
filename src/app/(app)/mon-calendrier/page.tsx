@@ -1,9 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { Plus } from "lucide-react";
-import { CalendarNavigation } from "@/components/calendar/CalendarNavigation";
-import { CalendarSwitcher } from "@/components/calendar/CalendarSwitcher";
 import { MonthView } from "@/components/calendar/MonthView";
 import { YearView } from "@/components/calendar/YearView";
 import { AgendaView } from "@/components/calendar/AgendaView";
@@ -36,8 +34,22 @@ export default function MonCalendrierPage() {
     const [isDetailOpen, setIsDetailOpen] = useState(false);
     const [isDayListOpen, setIsDayListOpen] = useState(false);
     const [dayListEvents, setDayListEvents] = useState<CalendarEvent[]>([]);
-    // Mobile view mode: 'agenda' | 'mois' | 'annee'
-    const [mobileView, setMobileView] = useState<'agenda' | 'mois' | 'annee'>('agenda');
+
+    const touchStartX = useRef<number>(0);
+    const touchStartY = useRef<number>(0);
+
+    const handleTouchStart = (e: React.TouchEvent) => {
+        touchStartX.current = e.touches[0].clientX;
+        touchStartY.current = e.touches[0].clientY;
+    };
+
+    const handleTouchEnd = (e: React.TouchEvent) => {
+        const dx = e.changedTouches[0].clientX - touchStartX.current;
+        const dy = e.changedTouches[0].clientY - touchStartY.current;
+        if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 50) {
+            dx < 0 ? handleNext() : handlePrev();
+        }
+    };
 
     const handleDayClick = (date: Date) => {
         const dateStr = format(date, 'yyyy-MM-dd');
@@ -66,96 +78,77 @@ export default function MonCalendrierPage() {
         setSelectedEvent(null);
     };
 
-    // Use a key to force re-render when events array length changes for local state reactivity
     const eventsKey = personalEvents.length;
 
     return (
-        <div className="h-full flex flex-col gap-4">
-            <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-3">
+        <div className="h-full flex flex-col gap-4 overflow-hidden">
+            {/* Header */}
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shrink-0">
                 <div>
                     <h1 className="text-xl sm:text-2xl font-bold tracking-tight">Mon Calendrier</h1>
                     <p className="text-muted-foreground text-xs sm:text-sm hidden sm:block">Gérez vos événements personnels</p>
                 </div>
 
-                {/* Mobile view switcher tabs (hidden on desktop) */}
-                <div className="flex lg:hidden items-center rounded-xl border overflow-hidden bg-muted/30 p-0.5 gap-0.5">
-                    {(['agenda', 'mois', 'annee'] as const).map(mode => (
-                        <button
-                            key={mode}
-                            onClick={() => setMobileView(mode)}
-                            className={cn(
-                                "flex-1 px-3 py-1.5 text-xs font-semibold rounded-lg capitalize transition-all duration-200",
-                                mobileView === mode
-                                    ? "bg-background text-foreground shadow-sm"
-                                    : "text-muted-foreground hover:text-foreground"
-                            )}
-                        >
-                            {mode === 'agenda' ? 'Agenda' : mode === 'mois' ? 'Mois' : 'Année'}
-                        </button>
-                    ))}
-                </div>
-
-                {/* Desktop view switcher (hidden on mobile) */}
-                <div className="hidden lg:flex items-center gap-2 sm:gap-4 self-end md:self-auto w-auto">
-                    <CalendarNavigation
-                        label={navigationLabel}
-                        onPrev={handlePrev}
-                        onNext={handleNext}
-                    />
-                    <CalendarSwitcher viewMode={viewMode} onChange={setViewMode} />
+                <div className="flex items-center gap-3 self-end sm:self-auto">
+                    <span className="text-sm font-medium text-muted-foreground capitalize hidden sm:inline">{navigationLabel}</span>
+                    <div className="flex items-center rounded-xl border overflow-hidden bg-muted/30 p-0.5 gap-0.5">
+                        {(['mois', 'annee'] as const).map(mode => (
+                            <button
+                                key={mode}
+                                onClick={() => setViewMode(mode as any)}
+                                className={cn(
+                                    "px-3 py-1.5 text-xs font-semibold rounded-lg capitalize transition-all duration-200",
+                                    viewMode === mode
+                                        ? "bg-background text-foreground shadow-sm"
+                                        : "text-muted-foreground hover:text-foreground"
+                                )}
+                            >
+                                {mode === 'mois' ? 'Mois' : 'Année'}
+                            </button>
+                        ))}
+                    </div>
                 </div>
             </div>
 
-            <div className="flex-1 min-h-0 relative">
-                {/* Mobile: show selected mobile view */}
-                <div className="lg:hidden h-full overflow-y-auto">
-                    {mobileView === 'agenda' && (
+            {/* Body */}
+            {viewMode === 'mois' ? (
+                <div className="flex-1 min-h-0 overflow-y-auto flex flex-col gap-4">
+                    <div
+                        className="h-[280px] shrink-0"
+                        onTouchStart={handleTouchStart}
+                        onTouchEnd={handleTouchEnd}
+                    >
+                        <MonthView
+                            key={`month-${eventsKey}-${availabilities.length}`}
+                            currentDate={currentDate}
+                            events={personalEvents}
+                            availabilities={availabilities.filter(a => a.userId === currentUserId)}
+                            onToggleAvailability={(date, status) => toggleAvailability(date, status)}
+                            onDayClick={handleDayClick}
+                            onEventClick={handleEventClick}
+                        />
+                    </div>
+                    <div className="flex-1 pb-4">
+                        <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-3 px-1">À venir</p>
                         <AgendaView
                             events={personalEvents}
                             onEventClick={handleEventClick}
                         />
-                    )}
-                    {mobileView === 'mois' && (
-                        <MonthView
-                            key={`month-${eventsKey}-${availabilities.length}`}
-                            currentDate={currentDate}
-                            events={personalEvents}
-                            availabilities={availabilities.filter(a => a.userId === currentUserId)}
-                            onToggleAvailability={(date, status) => toggleAvailability(date, status)}
-                            onDayClick={handleDayClick}
-                            onEventClick={handleEventClick}
-                        />
-                    )}
-                    {mobileView === 'annee' && (
-                        <YearView
-                            currentYear={currentDate}
-                            events={personalEvents}
-                            onDayClick={handleDayClick}
-                        />
-                    )}
+                    </div>
                 </div>
-
-                {/* Desktop: show selected desktop view */}
-                <div className="hidden lg:block h-full">
-                    {viewMode === 'mois' ? (
-                        <MonthView
-                            key={`month-${eventsKey}-${availabilities.length}`}
-                            currentDate={currentDate}
-                            events={personalEvents}
-                            availabilities={availabilities.filter(a => a.userId === currentUserId)}
-                            onToggleAvailability={(date, status) => toggleAvailability(date, status)}
-                            onDayClick={handleDayClick}
-                            onEventClick={handleEventClick}
-                        />
-                    ) : (
-                        <YearView
-                            currentYear={currentDate}
-                            events={personalEvents}
-                            onDayClick={handleDayClick}
-                        />
-                    )}
+            ) : (
+                <div
+                    className="flex-1 min-h-0 overflow-y-auto"
+                    onTouchStart={handleTouchStart}
+                    onTouchEnd={handleTouchEnd}
+                >
+                    <YearView
+                        currentYear={currentDate}
+                        events={personalEvents}
+                        onDayClick={handleDayClick}
+                    />
                 </div>
-            </div>
+            )}
 
             {/* Dialog liste des événements du jour */}
             <Dialog open={isDayListOpen} onOpenChange={setIsDayListOpen}>
