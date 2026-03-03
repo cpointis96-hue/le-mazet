@@ -4,7 +4,6 @@ import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
-import { Label } from '@/components/ui/Label';
 import { updateProfile, changeEmail, changePassword } from './actions';
 import { Loader2, User, Mail, Lock, CheckCircle, AlertCircle } from 'lucide-react';
 
@@ -23,15 +22,15 @@ function SectionFeedback({ result }: { result: SectionResult }) {
     if (!result) return null;
     if (result.error) {
         return (
-            <div className="flex items-start gap-2 text-sm text-destructive bg-destructive/10 px-3 py-2 rounded-md">
-                <AlertCircle className="w-4 h-4 mt-0.5 shrink-0" />
+            <div className="flex items-center gap-1.5 text-xs text-destructive">
+                <AlertCircle className="w-3.5 h-3.5 shrink-0" />
                 {result.error}
             </div>
         );
     }
     return (
-        <div className="flex items-start gap-2 text-sm text-green-700 bg-green-500/10 px-3 py-2 rounded-md">
-            <CheckCircle className="w-4 h-4 mt-0.5 shrink-0" />
+        <div className="flex items-center gap-1.5 text-xs text-emerald-500">
+            <CheckCircle className="w-3.5 h-3.5 shrink-0" />
             {result.message ?? 'Mis à jour avec succès !'}
         </div>
     );
@@ -40,15 +39,12 @@ function SectionFeedback({ result }: { result: SectionResult }) {
 export function ProfileForm({ initialData }: ProfileFormProps) {
     const router = useRouter();
 
-    // Section 1 : infos de base
     const [profilePending, startProfileTransition] = useTransition();
     const [profileResult, setProfileResult] = useState<SectionResult>(null);
 
-    // Section 2 : changement d'email
     const [emailPending, startEmailTransition] = useTransition();
     const [emailResult, setEmailResult] = useState<SectionResult>(null);
 
-    // Section 3 : changement de mot de passe
     const [passwordPending, startPasswordTransition] = useTransition();
     const [passwordResult, setPasswordResult] = useState<SectionResult>(null);
 
@@ -81,116 +77,90 @@ export function ProfileForm({ initialData }: ProfileFormProps) {
     }
 
     return (
-        <div className="space-y-6">
+        <div className="bg-card rounded-xl border border-white/5 divide-y divide-white/5">
 
-            {/* ── Section 1 : Nom d'affichage ── */}
-            <section className="bg-card p-6 rounded-xl border shadow-sm space-y-4">
-                <div className="flex items-center gap-2 mb-1">
-                    <User className="w-5 h-5 text-muted-foreground" />
-                    <h2 className="font-semibold text-lg">Informations de base</h2>
+            {/* ── Nom d'affichage ── */}
+            <section className="px-4 py-4">
+                <div className="flex items-center gap-2 mb-3">
+                    <User className="w-3.5 h-3.5 text-muted-foreground" />
+                    <h2 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Nom d'affichage</h2>
                 </div>
-
-                <form action={handleProfileSubmit} className="space-y-4">
-                    <div className="space-y-2">
-                        <Label htmlFor="displayName">Nom d'affichage</Label>
-                        <Input
-                            id="displayName"
-                            name="displayName"
-                            type="text"
-                            defaultValue={initialData.displayName}
-                            required
-                            placeholder="Ex: Papa, Alice…"
-                        />
-                    </div>
-
+                <form action={handleProfileSubmit} className="flex flex-col gap-2">
+                    <Input
+                        name="displayName"
+                        type="text"
+                        defaultValue={initialData.displayName}
+                        required
+                        placeholder="Ex: Papa, Alice…"
+                        className="h-8 text-sm"
+                    />
                     <SectionFeedback result={profileResult} />
-
-                    <Button type="submit" disabled={profilePending} className="w-full sm:w-auto">
-                        {profilePending ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Mise à jour…</> : 'Enregistrer'}
+                    <Button type="submit" disabled={profilePending} size="sm" className="self-end text-xs h-7 px-3">
+                        {profilePending ? <><Loader2 className="mr-1.5 h-3 w-3 animate-spin" />Mise à jour…</> : 'Enregistrer'}
                     </Button>
                 </form>
             </section>
 
-            {/* ── Section 2 : Changer d'email ── */}
-            <section className="bg-card p-6 rounded-xl border shadow-sm space-y-4">
+            {/* ── Email ── */}
+            <section className="px-4 py-4">
                 <div className="flex items-center gap-2 mb-1">
-                    <Mail className="w-5 h-5 text-muted-foreground" />
-                    <h2 className="font-semibold text-lg">Changer d'adresse email</h2>
+                    <Mail className="w-3.5 h-3.5 text-muted-foreground" />
+                    <h2 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Email</h2>
                 </div>
-
-                <p className="text-sm text-muted-foreground mb-4">
-                    Votre adresse actuelle est <strong>{initialData.email}</strong>. Un lien de confirmation sera envoyé à la <strong>nouvelle adresse</strong>. Le changement ne sera effectif qu'après validation.
+                <p className="text-xs text-muted-foreground/60 mb-3">
+                    {initialData.email} · un lien de confirmation sera envoyé à la nouvelle adresse
                 </p>
-
-                <form action={handleEmailSubmit} className="space-y-4">
-                    <div className="space-y-2">
-                        <Label htmlFor="newEmail">Nouvelle adresse email</Label>
-                        <Input
-                            id="newEmail"
-                            name="newEmail"
-                            type="email"
-                            placeholder="nouvelle@exemple.com"
-                            required
-                            disabled={emailResult?.success}
-                        />
-                    </div>
-
+                <form action={handleEmailSubmit} className="flex flex-col gap-2">
+                    <Input
+                        name="newEmail"
+                        type="email"
+                        placeholder="nouvelle@exemple.com"
+                        required
+                        disabled={emailResult?.success}
+                        className="h-8 text-sm"
+                    />
                     <SectionFeedback result={emailResult} />
-
                     {!emailResult?.success && (
-                        <Button type="submit" disabled={emailPending} variant="outline" className="w-full sm:w-auto">
-                            {emailPending ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Envoi…</> : 'Envoyer le lien de confirmation'}
+                        <Button type="submit" disabled={emailPending} variant="outline" size="sm" className="self-end text-xs h-7 px-3">
+                            {emailPending ? <><Loader2 className="mr-1.5 h-3 w-3 animate-spin" />Envoi…</> : 'Envoyer le lien'}
                         </Button>
                     )}
                 </form>
             </section>
 
-            {/* ── Section 3 : Changer de mot de passe ── */}
-            <section className="bg-card p-6 rounded-xl border shadow-sm space-y-4">
-                <div className="flex items-center gap-2 mb-1">
-                    <Lock className="w-5 h-5 text-muted-foreground" />
-                    <h2 className="font-semibold text-lg">Changer de mot de passe</h2>
+            {/* ── Mot de passe ── */}
+            <section className="px-4 py-4">
+                <div className="flex items-center gap-2 mb-3">
+                    <Lock className="w-3.5 h-3.5 text-muted-foreground" />
+                    <h2 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Mot de passe</h2>
                 </div>
-
-                <form onSubmit={handlePasswordSubmit} className="space-y-4">
-                    <div className="space-y-2">
-                        <Label htmlFor="currentPassword">Mot de passe actuel</Label>
-                        <Input
-                            id="currentPassword"
-                            name="currentPassword"
-                            type="password"
-                            required
-                        />
-                    </div>
-
-                    <div className="space-y-2">
-                        <Label htmlFor="newPassword">Nouveau mot de passe</Label>
-                        <Input
-                            id="newPassword"
-                            name="newPassword"
-                            type="password"
-                            minLength={8}
-                            placeholder="Minimum 8 caractères"
-                            required
-                        />
-                    </div>
-
-                    <div className="space-y-2">
-                        <Label htmlFor="confirmPassword">Confirmer le mot de passe</Label>
-                        <Input
-                            id="confirmPassword"
-                            name="confirmPassword"
-                            type="password"
-                            minLength={8}
-                            placeholder="Répétez le nouveau mot de passe"
-                            required
-                        />
-                    </div>
-
+                <form onSubmit={handlePasswordSubmit} className="flex flex-col gap-2">
+                    <Input
+                        name="currentPassword"
+                        type="password"
+                        placeholder="Mot de passe actuel"
+                        required
+                        className="h-8 text-sm"
+                    />
+                    <Input
+                        name="newPassword"
+                        type="password"
+                        minLength={8}
+                        placeholder="Nouveau (min. 8 caractères)"
+                        required
+                        className="h-8 text-sm"
+                    />
+                    <Input
+                        name="confirmPassword"
+                        type="password"
+                        minLength={8}
+                        placeholder="Confirmer le nouveau"
+                        required
+                        className="h-8 text-sm"
+                    />
                     <SectionFeedback result={passwordResult} />
-
-                    <Button type="submit" disabled={passwordPending} variant="outline" className="w-full sm:w-auto">
-                        {passwordPending ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Mise à jour…</> : 'Changer le mot de passe'}
+                    <Button type="submit" disabled={passwordPending} variant="outline" size="sm" className="self-end text-xs h-7 px-3">
+                        {passwordPending ? <><Loader2 className="mr-1.5 h-3 w-3 animate-spin" />Mise à jour…</> : 'Changer'}
                     </Button>
                 </form>
             </section>
