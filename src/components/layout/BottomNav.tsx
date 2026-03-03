@@ -2,15 +2,14 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { CalendarDays, Users, Ticket, MessageSquare, User } from "lucide-react";
+import { CalendarDays, Users, Ticket, Settings } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const navItems = [
     { name: "Calendrier", href: "/mon-calendrier", icon: CalendarDays },
     { name: "Commun", href: "/calendrier-commun", icon: Users },
     { name: "Événements", href: "/evenements", icon: Ticket },
-    { name: "Messages", href: "/messagerie", icon: MessageSquare },
-    { name: "Profil", href: "/profil", icon: User },
+    { name: "Paramètres", href: "/parametres", icon: Settings },
 ];
 
 export function BottomNav() {

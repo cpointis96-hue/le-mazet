@@ -8,9 +8,7 @@ import {
     CalendarDays,
     Users,
     Settings,
-    User,
     Ticket,
-    MessageSquare,
     LogOut,
 } from "lucide-react";
 import { MemberLegend } from "@/components/shared-calendar/MemberLegend";
@@ -24,11 +22,9 @@ const mainNav = [
     { name: "Mon Calendrier", href: "/mon-calendrier", icon: CalendarDays },
     { name: "Calendrier Commun", href: "/calendrier-commun", icon: Users },
     { name: "Événements", href: "/evenements", icon: Ticket },
-    { name: "Messagerie", href: "/messagerie", icon: MessageSquare },
 ];
 
 const bottomNav = [
-    { name: "Profil", href: "/profil", icon: User },
     { name: "Paramètres", href: "/parametres", icon: Settings },
 ];
 

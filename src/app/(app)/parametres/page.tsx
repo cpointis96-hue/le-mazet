@@ -25,8 +25,8 @@ export default async function ProfilePage() {
 
     return (
         <div className="max-w-md mx-auto py-6 px-1">
-            <h1 className="text-lg font-bold mb-1">Mon Profil</h1>
-            <p className="text-xs text-muted-foreground mb-6">Informations personnelles et sécurité</p>
+            <h1 className="text-lg font-bold mb-1">Paramètres</h1>
+            <p className="text-xs text-muted-foreground mb-6">Préférences du compte et de l'application</p>
 
             <ProfileForm
                 initialData={{
