@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useForm, Controller, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { CalendarEvent, PrivacyLevel } from "@/types/calendar.types";
+import { CalendarEvent, PrivacyLevel, EventDateProposal } from "@/types/calendar.types";
 import { Trash2, Plus } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
@@ -48,7 +48,7 @@ const eventSchema = z.object({
 type EventFormValues = z.infer<typeof eventSchema>;
 
 interface EventFormProps {
-    initialData?: CalendarEvent;
+    initialData?: CalendarEvent & { proposals?: EventDateProposal[] };
     onSubmit?: (data: EventFormValues, files?: File[]) => void;
     onCancel?: () => void;
     isProposal?: boolean;
@@ -81,9 +81,16 @@ export function EventForm({ initialData, onSubmit, onCancel, isProposal = false 
             privacy: (initialData?.privacy as "prive" | "public" | "public_details") || "public_details",
             status: initialData?.status || (isProposal ? "proposed" : "confirmed"),
             isMultiDate: initialData?.isMultiDate ?? false,
-            proposals: initialData?.startDate
-                ? [{ startDate: initialData.startDate, endDate: initialData.endDate || initialData.startDate, startTime: initialData.startTime || "19:00", comment: "" }]
-                : [{ startDate: todayStr, endDate: todayStr, startTime: "19:00", comment: "" }],
+            proposals: initialData?.proposals && initialData.proposals.length > 0
+                ? initialData.proposals.map(p => ({
+                    startDate: p.startDate,
+                    endDate: p.endDate || p.startDate,
+                    startTime: p.startTime || "19:00",
+                    comment: p.comment || ""
+                }))
+                : initialData?.startDate
+                    ? [{ startDate: initialData.startDate, endDate: initialData.endDate || initialData.startDate, startTime: initialData.startTime || "19:00", comment: "" }]
+                    : [{ startDate: todayStr, endDate: todayStr, startTime: "19:00", comment: "" }],
         },
     });
 

@@ -22,6 +22,8 @@ import {
 import { EventForm } from "@/components/events/EventForm";
 import { EventDetailsModal } from "../evenements/EventDetailsModal";
 import { useSupabaseUsers } from "@/hooks/useSupabaseUsers";
+import { createClient } from "@/lib/supabase/client";
+import { getEventDateProposals } from "@/lib/supabase/queries";
 
 export default function MonCalendrierPage() {
     const { viewMode, setViewMode, currentDate, handlePrev, handleNext, navigationLabel } = useCalendarView("mois");
@@ -231,8 +233,13 @@ export default function MonCalendrierPage() {
                     }}
                     users={users}
                     proposalsData={proposalsData}
-                    onEdit={() => {
+                    onEdit={async () => {
                         setIsDetailOpen(false);
+                        if (selectedEvent.isMultiDate || selectedEvent.status === 'proposed') {
+                            const supabase = createClient();
+                            const proposals = await getEventDateProposals(supabase, selectedEvent.id);
+                            setSelectedEvent({ ...selectedEvent, proposals } as any);
+                        }
                         setIsFormOpen(true);
                     }}
                     onDelete={() => {

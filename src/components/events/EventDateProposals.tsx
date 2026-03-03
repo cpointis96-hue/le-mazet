@@ -7,7 +7,7 @@ import { createClient } from "@/lib/supabase/client";
 import { getEventDateProposals, getEventDateVotes, voteForDateProposal, confirmWinningDate, deleteDateVote } from "@/lib/supabase/queries";
 import { Button } from "@/components/ui/Button";
 import { UserAvatar } from "@/components/ui/UserAvatar";
-import { Check, X, HelpCircle, Trophy } from "lucide-react";
+import { Check, X, Crown, Trophy } from "lucide-react";
 
 export function EventDateProposals({ eventId, creatorId, onConfirmed }: { eventId: string, creatorId: string, onConfirmed: () => void }) {
     const { currentUser } = useSupabaseUsers();
@@ -120,70 +120,74 @@ export function EventDateProposals({ eventId, creatorId, onConfirmed }: { eventI
                     const availableCount = proposalVotes.filter(v => v.status === 'available').length;
 
                     return (
-                        <div key={proposal.id} className="bg-card border rounded-xl p-4 shadow-sm flex flex-col gap-3">
-                            <div className="flex items-center justify-between">
-                                <div>
-                                    <div className="font-semibold capitalize text-foreground/90">
+                        <div key={proposal.id} className="bg-zinc-950 border border-amber-900/30 rounded-lg p-3 shadow-md flex items-center justify-between gap-3 relative overflow-hidden group">
+                            {/* Subtle gold glow on hover */}
+                            <div className="absolute inset-0 bg-gradient-to-r from-amber-500/0 via-amber-500/5 to-amber-500/0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
+
+                            {/* Left: Date Display & Voters */}
+                            <div className="flex flex-col flex-1 min-w-0 z-10">
+                                <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-3">
+                                    <span className="font-medium capitalize text-zinc-200 text-sm truncate">
                                         {dateDisplay}
-                                    </div>
+                                    </span>
                                     {proposal.comment && (
-                                        <div className="text-sm text-muted-foreground mt-1 italic">"{proposal.comment}"</div>
+                                        <span className="text-xs text-zinc-500 italic truncate max-w-[120px]">
+                                            {proposal.comment}
+                                        </span>
                                     )}
                                 </div>
-                                {isCreator && (
-                                    <Button
-                                        size="sm"
-                                        variant="outline"
-                                        className="gap-2 border-green-500/30 text-green-700 hover:bg-green-50 dark:text-green-400 dark:hover:bg-green-950/30 font-semibold"
-                                        onClick={() => handleConfirm(proposal.id)}
-                                        disabled={isConfirming === proposal.id}
-                                    >
-                                        <Trophy className="w-4 h-4 text-amber-500" />
-                                        {isConfirming === proposal.id ? '...' : 'Choisir'}
-                                    </Button>
+
+                                {sortedVotes.length > 0 && (
+                                    <div className="flex flex-wrap gap-1 mt-1.5 opacity-90">
+                                        {sortedVotes.map(v => (
+                                            <div key={v.id} className={`flex items-center gap-1 px-1.5 py-0.5 rounded border text-[10px] font-medium shadow-sm transition-colors ${v.status === 'available' ? 'bg-amber-900/20 border-amber-800/50 text-amber-300' :
+                                                v.status === 'unavailable' ? 'bg-red-900/20 border-red-800/50 text-red-400' :
+                                                    'bg-zinc-800/50 border-zinc-700/50 text-zinc-400'
+                                                }`}>
+                                                <UserAvatar user={{ displayName: v.user.displayName, color: '#999' }} className="w-3.5 h-3.5 text-[8px]" />
+                                                <span className="hidden sm:inline opacity-80">{v.status === 'available' ? 'Dispo' : v.status === 'unavailable' ? 'Non' : '?'}</span>
+                                            </div>
+                                        ))}
+                                    </div>
                                 )}
                             </div>
 
-                            {/* Voters display */}
-                            {sortedVotes.length > 0 && (
-                                <div className="flex flex-wrap gap-2 mt-2">
-                                    {sortedVotes.map(v => (
-                                        <div key={v.id} className={`flex items-center gap-1.5 px-2 py-1 rounded-full border text-xs font-medium shadow-sm ${v.status === 'available' ? 'bg-green-50 border-green-200 text-green-800 dark:bg-green-900/20 dark:border-green-800/50 dark:text-green-300' :
-                                            v.status === 'unavailable' ? 'bg-red-50 border-red-200 text-red-800 dark:bg-red-900/20 dark:border-red-800/50 dark:text-red-300' :
-                                                'bg-amber-50 border-amber-200 text-amber-800 dark:bg-amber-900/20 dark:border-amber-800/50 dark:text-amber-300'
-                                            }`}>
-                                            <UserAvatar user={{ displayName: v.user.displayName, color: '#999' }} className="w-5 h-5 text-[10px]" />
-                                        </div>
-                                    ))}
+                            {/* Right: Actions */}
+                            <div className="flex items-center gap-2 z-10 shrink-0">
+                                {/* Voting Buttons (Inline) */}
+                                <div className="flex items-center bg-zinc-900/80 rounded border border-zinc-800 overflow-hidden shadow-inner">
+                                    <button
+                                        onClick={() => handleVote(proposal.id, 'available')}
+                                        className={`flex items-center justify-center w-8 h-8 transition-all ${myVote === 'available' ? 'bg-amber-500 text-zinc-950 shadow-[0_0_10px_rgba(245,158,11,0.3)]' : 'text-zinc-400 hover:text-amber-500 hover:bg-zinc-800'}`}
+                                        title="Disponible"
+                                    >
+                                        <Check className="w-4 h-4" />
+                                    </button>
+                                    <div className="w-px h-4 bg-zinc-800"></div>
+                                    <button
+                                        onClick={() => handleVote(proposal.id, 'unavailable')}
+                                        className={`flex items-center justify-center w-8 h-8 transition-all ${myVote === 'unavailable' ? 'bg-red-900/80 text-red-200' : 'text-zinc-500 hover:text-red-400 hover:bg-zinc-800'}`}
+                                        title="Indisponible"
+                                    >
+                                        <X className="w-4 h-4" />
+                                    </button>
                                 </div>
-                            )}
 
-                            {/* My voting actions */}
-                            <div className="flex gap-2 pt-3 border-t mt-2">
-                                <Button
-                                    size="sm"
-                                    variant={myVote === 'available' ? 'default' : 'outline'}
-                                    className={`flex-1 shadow-sm ${myVote === 'available' ? 'bg-green-600 hover:bg-green-700 text-white' : ''}`}
-                                    onClick={() => handleVote(proposal.id, 'available')}
-                                >
-                                    <Check className="w-4 h-4 mr-1.5" /> Dispo {availableCount > 0 && `(${availableCount})`}
-                                </Button>
-                                <Button
-                                    size="sm"
-                                    variant={myVote === 'maybe' ? 'default' : 'outline'}
-                                    className={`flex-1 shadow-sm ${myVote === 'maybe' ? 'bg-amber-500 hover:bg-amber-600 text-white' : ''}`}
-                                    onClick={() => handleVote(proposal.id, 'maybe')}
-                                >
-                                    <HelpCircle className="w-4 h-4 mr-1.5" /> <span className="hidden sm:inline">Peut-être</span>
-                                </Button>
-                                <Button
-                                    size="sm"
-                                    variant={myVote === 'unavailable' ? 'default' : 'outline'}
-                                    className={`flex-1 shadow-sm ${myVote === 'unavailable' ? 'bg-red-500 hover:bg-red-600 text-white' : ''}`}
-                                    onClick={() => handleVote(proposal.id, 'unavailable')}
-                                >
-                                    <X className="w-4 h-4 mr-1.5" /> Non
-                                </Button>
+                                {/* Confirmation Button (Creator Only) */}
+                                {isCreator && (
+                                    <button
+                                        onClick={() => handleConfirm(proposal.id)}
+                                        disabled={isConfirming === proposal.id}
+                                        className="flex items-center justify-center w-9 h-9 rounded-full ml-1 border border-amber-500/30 text-amber-500 hover:bg-amber-500/20 hover:border-amber-400 hover:text-amber-400 transition-all focus:outline-none"
+                                        title="Choisir cette date"
+                                    >
+                                        {isConfirming === proposal.id ? (
+                                            <span className="animate-pulse">...</span>
+                                        ) : (
+                                            <Crown className="w-4 h-4" />
+                                        )}
+                                    </button>
+                                )}
                             </div>
                         </div>
                     );
