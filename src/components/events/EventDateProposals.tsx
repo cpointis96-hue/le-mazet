@@ -103,7 +103,7 @@ export function EventDateProposals({ eventId, creatorId, onConfirmed }: { eventI
 
                     const startDate = new Date(proposal.startDate + 'T12:00:00').toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'short' });
                     let dateDisplay: string;
-                    if (proposal.endDate) {
+                    if (proposal.endDate && proposal.endDate !== proposal.startDate) {
                         const endDate = new Date(proposal.endDate + 'T12:00:00').toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'short' });
                         dateDisplay = `${startDate} → ${endDate}`;
                     } else {

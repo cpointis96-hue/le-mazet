@@ -64,7 +64,7 @@ export function EventForm({ initialData, onSubmit, onCancel, isProposal = false 
         ? (Boolean(initialData.allDay) && !!initialData.endDate && initialData.endDate > initialData.startDate)
         : false;
 
-    const { register, handleSubmit, control, watch, setValue, formState: { errors } } = useForm<EventFormValues>({
+    const { register, handleSubmit, control, watch, setValue, getValues, formState: { errors } } = useForm<EventFormValues>({
         resolver: zodResolver(eventSchema),
         defaultValues: {
             title: initialData?.title || "",
@@ -164,10 +164,11 @@ export function EventForm({ initialData, onSubmit, onCancel, isProposal = false 
                                     checked={field.value}
                                     onCheckedChange={(val) => {
                                         field.onChange(val);
+                                        const currentStartDate = getValues("startDate") || todayStr;
                                         if (val) {
                                             setValue("isMultiDate", false);
                                             setValue("category", "Vacances", { shouldValidate: true, shouldDirty: true });
-                                            replaceProposals([{ startDate: todayStr, endDate: todayStr, startTime: "09:00", comment: "" }]);
+                                            replaceProposals([{ startDate: currentStartDate, endDate: currentStartDate, startTime: "09:00", comment: "" }]);
                                         } else {
                                             setValue("category", CATEGORIES[0], { shouldValidate: true, shouldDirty: true });
                                         }
@@ -188,11 +189,12 @@ export function EventForm({ initialData, onSubmit, onCancel, isProposal = false 
                                     checked={field.value}
                                     onCheckedChange={(val) => {
                                         field.onChange(val);
+                                        const currentStartDate = getValues("startDate") || todayStr;
                                         if (val) {
                                             setValue("isVacation", false);
                                             setValue("category", CATEGORIES[0], { shouldValidate: true, shouldDirty: true });
                                             setValue("status", "proposed");
-                                            replaceProposals([{ startDate: todayStr, endDate: todayStr, startTime: "19:00", comment: "" }]);
+                                            replaceProposals([{ startDate: currentStartDate, endDate: currentStartDate, startTime: "19:00", comment: "" }]);
                                         }
                                     }}
                                 />

@@ -70,11 +70,11 @@ export default function MonCalendrierPage() {
         setIsDetailOpen(true);
     };
 
-    const handleFormSubmit = (data: any, files?: File[]) => {
+    const handleFormSubmit = async (data: any, files?: File[]) => {
         if (selectedEvent) {
-            updateEvent(selectedEvent.id, data, files);
+            await updateEvent(selectedEvent.id, data, files);
         } else {
-            addEvent(data, files);
+            await addEvent(data, files);
         }
         setIsFormOpen(false);
         setSelectedEvent(null);

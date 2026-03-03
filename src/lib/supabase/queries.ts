@@ -92,7 +92,8 @@ export async function createDateProposals(
     const rows = proposals.map(p => ({
         event_id: eventId,
         start_date: p.startDate,
-        end_date: (p.endDate && p.endDate !== "") ? p.endDate : null,
+        // end_date ne peut pas être NULL en base (migration 13)
+        end_date: (p.endDate && p.endDate !== "") ? p.endDate : p.startDate,
         start_time: (p.startTime && p.startTime !== "") ? p.startTime : null,
         comment: (p.comment && p.comment !== "") ? p.comment : null
     }));
