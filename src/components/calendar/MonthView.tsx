@@ -29,13 +29,13 @@ export function MonthView({
     const weekDays = days.slice(0, 7).map((d) => formatDayName(d));
 
     return (
-        <div className="flex flex-col h-full bg-card rounded-xl border shadow-sm overflow-hidden">
+        <div className="flex flex-col h-full bg-card rounded-xl border border-white/5 overflow-hidden">
             {/* Week day headers */}
-            <div className="grid grid-cols-7 border-b bg-muted/30">
+            <div className="grid grid-cols-7 border-b border-white/5">
                 {weekDays.map((dayName, idx) => (
                     <div
                         key={idx}
-                        className="py-2 text-center text-sm font-semibold capitalize text-muted-foreground"
+                        className="py-2 text-center text-[11px] font-semibold uppercase tracking-wide text-zinc-600"
                     >
                         {dayName}
                     </div>
@@ -46,7 +46,6 @@ export function MonthView({
             <div className="flex-1 overflow-y-auto">
                 <div className="grid grid-cols-7 auto-rows-[minmax(100px,1fr)] min-h-full">
                     {days.map((date, idx) => {
-                        // Filter events for this day
                         const dStr = format(date, 'yyyy-MM-dd');
                         const dayEvents = events.filter((e) => {
                             return e.startDate <= dStr && e.endDate >= dStr;

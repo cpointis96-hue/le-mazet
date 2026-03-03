@@ -25,9 +25,9 @@ export function YearViewMonth({
     const weekDays = days.slice(0, 7).map((d) => formatShortDayName(d).charAt(0));
 
     return (
-        <div className="flex flex-col bg-card rounded-lg border shadow-sm overflow-hidden h-full">
+        <div className="flex flex-col bg-card rounded-xl border border-white/5 overflow-hidden h-full">
             <div
-                className="py-2 text-center text-sm font-semibold capitalize border-b cursor-pointer hover:bg-muted/50 transition-colors"
+                className="py-2.5 px-3 text-sm font-semibold capitalize border-b border-white/5 cursor-pointer hover:bg-white/5 transition-colors text-foreground"
                 onClick={() => onMonthClick?.(monthDate)}
             >
                 {formatMonthYear(monthDate)}
@@ -37,7 +37,7 @@ export function YearViewMonth({
                 {/* Header Row */}
                 <div className="grid grid-cols-7 mb-1">
                     {weekDays.map((day, idx) => (
-                        <div key={idx} className="text-center text-[10px] font-medium text-muted-foreground uppercase">
+                        <div key={idx} className="text-center text-[10px] font-medium text-zinc-600 uppercase">
                             {day}
                         </div>
                     ))}
@@ -56,11 +56,11 @@ export function YearViewMonth({
                                 key={idx}
                                 onClick={() => onDayClick?.(date)}
                                 className={cn(
-                                    "flex items-center justify-center rounded-full aspect-square text-xs cursor-pointer hover:bg-muted/80 transition-colors relative",
-                                    !isCurrentMonth && "text-muted-foreground/40",
-                                    isCurrentMonth && "text-foreground",
+                                    "flex items-center justify-center rounded-full aspect-square text-xs cursor-pointer hover:bg-white/8 transition-colors relative",
+                                    !isCurrentMonth && "text-transparent pointer-events-none",
+                                    isCurrentMonth && "text-zinc-300",
                                     isCurrentDay && "bg-primary text-primary-foreground font-medium hover:bg-primary/90",
-                                    hasEvents && isCurrentMonth && !isCurrentDay && "font-bold text-primary" // Highlight days with events
+                                    hasEvents && isCurrentMonth && !isCurrentDay && "font-bold text-primary"
                                 )}
                             >
                                 {formatDayNumber(date)}

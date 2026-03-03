@@ -24,9 +24,9 @@ export function YearView({
     }, [currentYear]);
 
     return (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 h-full overflow-y-auto pr-2 pb-4">
+        // Vertical scroll — 12 months stacked, 2 per row on larger screens
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 overflow-y-auto pb-6">
             {months.map((monthDate, idx) => {
-                // Find events roughly in this month (optimizing rendering slightly)
                 const monthStart = monthDate.toISOString().substring(0, 7);
                 const monthEvents = events.filter(e =>
                     e.startDate.startsWith(monthStart) || e.endDate.startsWith(monthStart)

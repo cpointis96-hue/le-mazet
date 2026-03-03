@@ -42,8 +42,8 @@ export function MonthViewDay({
         <div
             onClick={() => onDayClick?.(date)}
             className={cn(
-                "min-h-[100px] border-b border-r p-1 flex flex-col transition-colors cursor-pointer hover:bg-muted/50",
-                !isCurrentMonth && "bg-muted/30 text-muted-foreground",
+                "min-h-[100px] border-b border-r border-white/5 p-1 flex flex-col transition-colors cursor-pointer hover:bg-white/3",
+                !isCurrentMonth && "opacity-30",
                 isCurrentDay && "bg-primary/5"
             )}
         >
@@ -53,23 +53,23 @@ export function MonthViewDay({
                         "text-sm font-medium w-6 h-6 flex items-center justify-center rounded-full shrink-0",
                         isCurrentDay
                             ? "bg-primary text-primary-foreground"
-                            : "text-foreground"
+                            : "text-zinc-300"
                     )}
                 >
                     {formatDayNumber(date)}
                 </span>
 
-                {/* Pastille de disponibilité (Vert/Rouge) */}
+                {/* Availability dot */}
                 <button
                     onClick={(e) => {
                         e.stopPropagation();
                         onToggleAvailability?.();
                     }}
                     className={cn(
-                        "w-4 h-4 rounded-full mt-1 shrink-0 transition-colors border shadow-sm flex-shrink-0 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-primary",
-                        !availability?.status && "bg-muted border-border hover:bg-muted-foreground/30",
-                        availability?.status === 'available' && "bg-green-500 border-green-600 shadow-green-500/20",
-                        availability?.status === 'busy' && "bg-red-500 border-red-600 shadow-red-500/20"
+                        "w-3.5 h-3.5 rounded-full mt-1 shrink-0 transition-colors border focus:outline-none",
+                        !availability?.status && "bg-white/10 border-white/10 hover:bg-white/20",
+                        availability?.status === 'available' && "bg-emerald-500 border-emerald-600",
+                        availability?.status === 'busy' && "bg-red-500 border-red-700"
                     )}
                     title={
                         availability?.status === 'available' ? "Disponible" :
@@ -89,7 +89,7 @@ export function MonthViewDay({
                 ))}
 
                 {hiddenCount > 0 && (
-                    <div className="text-xs text-muted-foreground font-medium px-1 mt-0.5 hover:text-foreground">
+                    <div className="text-[10px] text-zinc-600 font-medium px-1 mt-0.5 hover:text-zinc-400">
                         +{hiddenCount} autres
                     </div>
                 )}
