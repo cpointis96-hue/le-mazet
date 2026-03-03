@@ -62,17 +62,13 @@ export function MonthViewDay({
                 />
             </div>
 
-            {/* Dots événements */}
+            {/* Dots événements — clic bulle vers onDayClick du parent */}
             {events.length > 0 && (
                 <div className="flex flex-wrap gap-0.5 px-0.5">
                     {events.slice(0, 6).map(event => (
-                        <button
+                        <div
                             key={event.id}
-                            onClick={(e) => {
-                                e.stopPropagation();
-                                onEventClick?.(event);
-                            }}
-                            className="w-1.5 h-1.5 rounded-full shrink-0 focus:outline-none hover:scale-125 transition-transform"
+                            className="w-1.5 h-1.5 rounded-full shrink-0"
                             style={{ backgroundColor: event.color || '#7c6ff7' }}
                             title={event.title}
                         />
