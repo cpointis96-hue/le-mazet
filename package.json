@@ -52,6 +52,6 @@
     "typescript": "^5"
   },
   "optionalDependencies": {
-    "@rollup/rollup-android-arm-eabi": "4.52.2"
+    "@rollup/rollup-android-arm-eabi": "^4.52.2"
   }
 }
