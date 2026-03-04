@@ -45,14 +45,14 @@ export function EventDateProposals({ eventId, creatorId, proposalsData, users, o
     const handleVote = async (proposalId: string, status: 'available' | 'unavailable' | 'maybe') => {
         if (!currentUser) return;
 
-        let needsDelete = false;
+        const existing = votes.find(v => v.proposalId === proposalId && v.userId === currentUser.id);
+        const needsDelete = existing && existing.status === status;
 
         // Optimistic update
+        const userDisplay = { displayName: currentUser.displayName, avatarId: currentUser.avatarId ?? null };
         setVotes(prev => {
-            const existing = prev.find(v => v.proposalId === proposalId && v.userId === currentUser.id);
-            if (existing && existing.status === status) {
+            if (needsDelete) {
                 // Toggle off
-                needsDelete = true;
                 return prev.filter(v => !(v.proposalId === proposalId && v.userId === currentUser.id));
             } else if (existing) {
                 // Change vote
@@ -64,17 +64,22 @@ export function EventDateProposals({ eventId, creatorId, proposalsData, users, o
                     proposalId,
                     userId: currentUser.id,
                     status,
-                    user: { displayName: currentUser.displayName, avatarId: currentUser.avatarId ?? null }
+                    user: userDisplay
                 }];
             }
         });
+
+        // Also push to the global hook context so if modal closes, we don't lose it waiting for Realtime
+        if (proposalsData?.updateDateVoteLocal) {
+            proposalsData.updateDateVoteLocal(proposalId, currentUser.id, status, userDisplay);
+        }
 
         if (needsDelete) {
             await deleteDateVote(supabase, proposalId, currentUser.id);
         } else {
             await voteForDateProposal(supabase, proposalId, currentUser.id, status);
         }
-        // Supabase Realtime will automatically update the list behind the scenes
+        // Supabase Realtime will automatically sync the final state
     };
 
     const handleConfirm = async (proposalId: string) => {

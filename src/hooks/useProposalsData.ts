@@ -120,6 +120,25 @@ export function useProposalsData() {
         await addEventComment(supabase, eventId, currentUserId, content.trim());
     }, [currentUserId]);
 
+    const updateDateVoteLocal = useCallback((proposalId: string, userId: string, status: 'available' | 'unavailable' | 'maybe', userDisplay: { displayName: string, avatarId: string | null }) => {
+        setDateVotes(prev => {
+            const existing = prev.find(v => v.proposalId === proposalId && v.userId === userId);
+            if (existing && existing.status === status) {
+                return prev.filter(v => !(v.proposalId === proposalId && v.userId === userId));
+            } else if (existing) {
+                return prev.map(v => v.proposalId === proposalId && v.userId === userId ? { ...v, status } : v);
+            } else {
+                return [...prev, {
+                    id: `temp-${Date.now()}`,
+                    proposalId,
+                    userId,
+                    status,
+                    user: userDisplay
+                } as any];
+            }
+        });
+    }, []);
+
     return {
         responses,
         comments,
@@ -127,6 +146,7 @@ export function useProposalsData() {
         dateVotes,
         setResponse,
         postComment,
+        updateDateVoteLocal,
         currentUserId
     };
 }
