@@ -326,16 +326,22 @@ function EventCard({ event, users, proposalsData, isConfirmed = false, onClick }
 
                 {/* Ligne basse : facepile + action vote */}
                 <div className="flex items-center justify-between gap-3 pt-1 border-t border-white/5">
-                    {/* Liste des dispos */}
-                    <div className="flex items-center gap-1.5 flex-1 flex-wrap">
-                        {availableVoters.length === 0 ? (
-                            <span className="text-[10px] text-muted-foreground/50 italic">Personne n'est encore dispo</span>
-                        ) : (
-                            availableVoters.map((u: any, i: number) => (
-                                <span key={u.id} className="text-white text-xs font-semibold">
-                                    {u.displayName}{i < availableVoters.length - 1 ? ', ' : ''}
-                                </span>
-                            ))
+                    {/* Listes des dispos / pas dispos */}
+                    <div className="flex flex-col gap-0.5 flex-1">
+                        {availableVoters.length > 0 && (
+                            <div className="text-[10px] text-white">
+                                <span className="text-emerald-500 font-bold mr-1">Dispos :</span>
+                                {availableVoters.map((u: any) => u.displayName).join(', ')}
+                            </div>
+                        )}
+                        {unavailableVoters.length > 0 && (
+                            <div className="text-[10px] text-white/50">
+                                <span className="text-red-500 font-bold mr-1">Pas là :</span>
+                                {unavailableVoters.map((u: any) => u.displayName).join(', ')}
+                            </div>
+                        )}
+                        {availableVoters.length === 0 && unavailableVoters.length === 0 && (
+                            <span className="text-[10px] text-muted-foreground/50 italic">Personne n'a encore voté</span>
                         )}
                     </div>
 

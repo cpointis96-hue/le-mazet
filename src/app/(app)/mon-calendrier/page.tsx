@@ -233,20 +233,18 @@ export default function MonCalendrierPage() {
                     }}
                     users={users}
                     proposalsData={proposalsData}
-                    onEdit={async () => {
+                    isConfirmed={selectedEvent.status === 'confirmed'}
+                    onEdit={selectedEvent.userId === currentUserId ? () => {
                         setIsDetailOpen(false);
-                        if (selectedEvent.isMultiDate || selectedEvent.status === 'proposed') {
-                            const supabase = createClient();
-                            const proposals = await getEventDateProposals(supabase, selectedEvent.id);
-                            setSelectedEvent({ ...selectedEvent, proposals } as any);
-                        }
                         setIsFormOpen(true);
-                    }}
-                    onDelete={() => {
-                        deleteEvent(selectedEvent.id);
-                        setIsDetailOpen(false);
-                        setSelectedEvent(null);
-                    }}
+                    } : undefined}
+                    onDelete={selectedEvent.userId === currentUserId ? () => {
+                        if (confirm("Êtes-vous sûr de vouloir supprimer cet événement ?")) {
+                            setIsDetailOpen(false);
+                            deleteEvent(selectedEvent.id);
+                        }
+                    } : undefined}
+                    isPersonalView={true}
                 />
             )}
         </div>

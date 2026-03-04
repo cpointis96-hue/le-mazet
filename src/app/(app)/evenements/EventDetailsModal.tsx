@@ -26,9 +26,10 @@ interface EventDetailsModalProps {
     isConfirmed?: boolean;
     onEdit?: () => void;
     onDelete?: () => void;
+    isPersonalView?: boolean;
 }
 
-export function EventDetailsModal({ event, isOpen, onClose, users, proposalsData, isConfirmed = false, onEdit, onDelete }: EventDetailsModalProps) {
+export function EventDetailsModal({ event, isOpen, onClose, users, proposalsData, isConfirmed = false, onEdit, onDelete, isPersonalView = false }: EventDetailsModalProps) {
     const { currentUser } = useSupabaseUsers();
     const creator = users.find(u => u.id === event.userId);
     const dateFormatted = format(new Date(event.startDate), "EEEE d MMMM yyyy", { locale: fr });
@@ -182,6 +183,16 @@ export function EventDetailsModal({ event, isOpen, onClose, users, proposalsData
                                         ))}
                                     </div>
                                 </div>
+                                <div className="p-4 rounded-xl border border-red-900/30 bg-black">
+                                    <h5 className="font-semibold text-red-500 flex items-center gap-2 mb-2">
+                                        <span className="w-2 h-2 rounded-full bg-red-500" /> Pas dispo
+                                    </h5>
+                                    <div className="flex flex-wrap gap-2">
+                                        {unavailableUsers.map((u: UserProfile | undefined) => u && (
+                                            <span key={u.id} className="text-sm font-medium text-white">{u.displayName}</span>
+                                        ))}
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     )}
@@ -200,6 +211,14 @@ export function EventDetailsModal({ event, isOpen, onClose, users, proposalsData
                                 >
                                     <span className={cn("w-2.5 h-2.5 rounded-full", userResponse === 'available' ? 'bg-white' : 'bg-green-500')} />
                                     Je suis dispo
+                                </button>
+                                <button
+                                    onClick={() => proposalsData.setResponse(event.id, 'unavailable', userResponse)}
+                                    className={cn("px-4 py-2 rounded-full border text-sm font-semibold transition-colors flex items-center gap-2",
+                                        userResponse === 'unavailable' ? 'bg-red-500 border-red-600 text-white shadow-sm' : 'bg-card border-border hover:bg-red-50 text-muted-foreground hover:text-red-600 hover:border-red-200')}
+                                >
+                                    <span className={cn("w-2.5 h-2.5 rounded-full", userResponse === 'unavailable' ? 'bg-white' : 'bg-red-500')} />
+                                    Pas dispo
                                 </button>
                             </div>
                         </div>
