@@ -31,7 +31,7 @@ export default async function LandingPage() {
                     <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto animate-in fade-in slide-in-from-bottom-10 duration-700 delay-300">
                         {user ? (
                             <Button size="lg" asChild className="h-14 px-8 text-lg rounded-full font-bold shadow-xl shadow-primary/20 hover:shadow-primary/40 transition-all bg-gradient-to-r from-primary to-violet-600 hover:from-primary/90 hover:to-violet-600/90 border-0">
-                                <Link href="/mon-calendrier">
+                                <Link href="/calendrier">
                                     Accéder au calendrier <ArrowRight className="ml-2 w-5 h-5" />
                                 </Link>
                             </Button>
@@ -129,7 +129,7 @@ export default async function LandingPage() {
                     <p className="text-xl mb-10 opacity-90">Rejoints le calendrier pour qu'on puisse s'organiser plus vite.</p>
                     {user ? (
                         <Button size="lg" variant="secondary" asChild className="h-14 px-10 text-lg rounded-full font-bold text-primary">
-                            <Link href="/mon-calendrier">Mon Calendrier</Link>
+                            <Link href="/calendrier">Mon Calendrier</Link>
                         </Button>
                     ) : (
                         <Button size="lg" variant="secondary" asChild className="h-14 px-10 text-lg rounded-full font-bold text-primary">

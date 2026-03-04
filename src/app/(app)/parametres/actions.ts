@@ -47,8 +47,8 @@ export async function updateProfile(formData: FormData) {
     if (error) return { error: 'Erreur lors de la mise à jour du profil' };
 
     revalidatePath('/profil');
-    revalidatePath('/mon-calendrier');
-    revalidatePath('/calendrier-commun');
+    revalidatePath('/calendrier');
+    revalidatePath('/calendrier');
 
     return { success: true };
 }
@@ -71,7 +71,7 @@ export async function changeEmail(formData: FormData) {
 
     const { error } = await supabase.auth.updateUser(
         { email: parsed.data.newEmail },
-        { emailRedirectTo: `${appUrl}/mon-calendrier` }
+        { emailRedirectTo: `${appUrl}/calendrier` }
     );
 
     if (error) return { error: error.message };

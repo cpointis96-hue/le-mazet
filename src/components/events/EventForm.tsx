@@ -144,7 +144,7 @@ export function EventForm({ initialData, onSubmit, onCancel, isProposal = false 
         if (onSubmit) {
             onSubmit(data, selectedFiles);
         } else {
-            router.push("/mon-calendrier");
+            router.push("/calendrier");
         }
     };
 

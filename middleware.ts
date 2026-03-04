@@ -50,7 +50,7 @@ export async function middleware(request: NextRequest) {
     const isAuthPage = AUTH_ONLY_PATHS.some((p) => pathname === p);
     if (isAuthPage && user) {
         const url = request.nextUrl.clone();
-        url.pathname = '/mon-calendrier';
+        url.pathname = '/calendrier';
         return NextResponse.redirect(url);
     }
 

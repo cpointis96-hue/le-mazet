@@ -26,7 +26,7 @@ export async function login(formData: FormData) {
         return { error: 'Email ou mot de passe incorrect.' };
     }
 
-    redirect('/mon-calendrier');
+    redirect('/calendrier');
 }
 
 export async function logout() {

@@ -15,7 +15,7 @@ export default function NouvelEvenementPage() {
         if (isProposal) {
             router.push('/evenements');
         } else {
-            router.push('/mon-calendrier');
+            router.push('/calendrier');
         }
     };
 

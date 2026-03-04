@@ -38,7 +38,7 @@ export default function RegisterPage() {
             password,
             options: {
                 data: { display_name: displayName, color: '#D4AF37' },
-                emailRedirectTo: `${appUrl}/mon-calendrier`,
+                emailRedirectTo: `${appUrl}/calendrier`,
             },
         });
 
@@ -54,7 +54,7 @@ export default function RegisterPage() {
             setConfirmationPending(true);
         } else {
             // Session immédiate (confirmation désactivée dans Supabase)
-            window.location.href = '/mon-calendrier';
+            window.location.href = '/calendrier';
         }
     }
 

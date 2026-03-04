@@ -42,5 +42,5 @@ export async function signup(formData: FormData) {
         return { error: error.message };
     }
 
-    redirect('/mon-calendrier');
+    redirect('/calendrier');
 }

@@ -37,7 +37,7 @@ export default async function MarketingLayout({
                     <div className="flex items-center gap-4">
                         {user ? (
                             <Button asChild size="sm" className="rounded-full px-6 shadow-md shadow-primary/20 hover:shadow-primary/40 transition-all font-semibold">
-                                <Link href="/mon-calendrier">
+                                <Link href="/calendrier">
                                     Mon Calendrier <ArrowRight className="ml-2 w-4 h-4" />
                                 </Link>
                             </Button>
