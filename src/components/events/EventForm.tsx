@@ -143,6 +143,9 @@ export function EventForm({ initialData, onSubmit, onCancel, isProposal = false 
         if (data.startDate === "") data.startDate = todayStr;
         if (data.endDate === "") data.endDate = data.startDate || todayStr;
 
+        // Tous les événements sont désormais publics avec détails
+        data.privacy = "public_details";
+
         if (onSubmit) {
             onSubmit(data, selectedFiles);
         } else {
@@ -396,26 +399,6 @@ export function EventForm({ initialData, onSubmit, onCancel, isProposal = false 
                             )}
                         />
                     </div>
-                </div>
-
-                <div>
-                    <Label>Visibilité dans le calendrier commun</Label>
-                    <Controller
-                        control={control}
-                        name="privacy"
-                        render={({ field }) => (
-                            <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                <SelectTrigger className="mt-1">
-                                    <SelectValue />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="public_details">Détails visibles</SelectItem>
-                                    <SelectItem value="public">Titre visible (détails cachés)</SelectItem>
-                                    <SelectItem value="prive">Privé (juste "occupé")</SelectItem>
-                                </SelectContent>
-                            </Select>
-                        )}
-                    />
                 </div>
             </div>
 
