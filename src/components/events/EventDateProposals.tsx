@@ -21,11 +21,26 @@ export function EventDateProposals({ eventId, creatorId, proposalsData, users, o
 
     useEffect(() => {
         if (!proposalsData) return;
-        setProposals(proposalsData.dateProposals.filter((p: any) => p.eventId === eventId));
-        setVotes(proposalsData.dateVotes.filter((v: any) =>
-            proposalsData.dateProposals.some((p: any) => p.eventId === eventId && p.id === v.proposalId)
-        ));
-    }, [proposalsData?.dateProposals, proposalsData?.dateVotes, eventId]);
+
+        const localProps = proposalsData.dateProposals.filter((p: any) => p.eventId === eventId);
+
+        if (localProps.length === 0) {
+            // Fallback direct DB fetch in case Supabase Realtime hasn't synced the newly created dates yet
+            getEventDateProposals(supabase, eventId).then(fetchedProps => {
+                if (fetchedProps.length > 0) {
+                    setProposals(fetchedProps);
+                    getEventDateVotes(supabase, eventId).then(fetchedVotes => {
+                        setVotes(fetchedVotes);
+                    });
+                }
+            });
+        } else {
+            setProposals(localProps);
+            setVotes(proposalsData.dateVotes.filter((v: any) =>
+                localProps.some((p: any) => p.id === v.proposalId)
+            ));
+        }
+    }, [proposalsData?.dateProposals, proposalsData?.dateVotes, eventId, supabase]);
 
     const handleVote = async (proposalId: string, status: 'available' | 'unavailable' | 'maybe') => {
         if (!currentUser) return;
