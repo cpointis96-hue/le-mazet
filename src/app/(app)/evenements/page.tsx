@@ -20,7 +20,7 @@ function sortEvents(events: CalendarEvent[]) {
 
 export default function EvenementsPage() {
     const proposalsData = useProposalsData();
-    const { events, addEvent } = useSupabaseEvents(proposalsData.responses);
+    const { events, addEvent, deleteEvent, currentUserId } = useSupabaseEvents(proposalsData.responses);
     const { users } = useSupabaseUsers();
 
     const [selectedEvent, setSelectedEvent] = useState<CalendarEvent | null>(null);
@@ -161,6 +161,16 @@ export default function EvenementsPage() {
                     users={users}
                     proposalsData={proposalsData}
                     isConfirmed={selectedEventIsConfirmed}
+                    onDelete={selectedEvent.userId === currentUserId ? () => {
+                        if (confirm("Êtes-vous sûr de vouloir supprimer cet événement ?")) {
+                            setSelectedEvent(null);
+                            deleteEvent(selectedEvent.id);
+                        }
+                    } : undefined}
+                    onEdit={selectedEvent.userId === currentUserId ? () => {
+                        // redirect to edit page with event ID
+                        window.location.href = `/evenements/nouveau?edit=${selectedEvent.id}`;
+                    } : undefined}
                 />
             )}
         </div>

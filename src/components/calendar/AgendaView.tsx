@@ -8,6 +8,7 @@ import { CalendarDays, Clock } from "lucide-react";
 
 interface AgendaViewProps {
     events: CalendarEvent[];
+    currentUserId?: string | null;
     onEventClick?: (event: CalendarEvent) => void;
 }
 
@@ -55,7 +56,7 @@ function groupEventsByDate(events: CalendarEvent[]): GroupedEvents[] {
     });
 }
 
-export function AgendaView({ events, onEventClick }: AgendaViewProps) {
+export function AgendaView({ events, currentUserId, onEventClick }: AgendaViewProps) {
     // Only show upcoming events (today and future)
     const today = format(new Date(), "yyyy-MM-dd");
     const upcomingEvents = events.filter(e => e.endDate >= today);
@@ -96,7 +97,7 @@ export function AgendaView({ events, onEventClick }: AgendaViewProps) {
                                 style={{ backgroundColor: event.color || "#6366f1" }}
                             />
                             <p className="font-semibold text-sm truncate">
-                                {event.privacy === "prive" ? "Occupé" : event.title}
+                                {event.privacy === 'prive' && event.userId !== currentUserId ? "Occupé" : event.title}
                             </p>
                         </div>
 

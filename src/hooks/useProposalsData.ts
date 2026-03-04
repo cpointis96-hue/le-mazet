@@ -74,11 +74,24 @@ export function useProposalsData() {
             })
             .subscribe();
 
+        const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+            if (event === 'SIGNED_IN' || event === 'USER_UPDATED') {
+                init();
+            } else if (event === 'SIGNED_OUT') {
+                setResponses([]);
+                setComments([]);
+                setDateProposals([]);
+                setDateVotes([]);
+                setCurrentUserId(null);
+            }
+        });
+
         return () => {
             supabase.removeChannel(channelResp);
             supabase.removeChannel(channelComm);
             supabase.removeChannel(channelDateProps);
             supabase.removeChannel(channelDateVotes);
+            subscription.unsubscribe();
         };
     }, []);
 

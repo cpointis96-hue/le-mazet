@@ -48,8 +48,18 @@ export function useSupabaseEvents(eventResponses?: { eventId: string, userId: st
             )
             .subscribe();
 
+        const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+            if (event === 'SIGNED_IN' || event === 'USER_UPDATED') {
+                init();
+            } else if (event === 'SIGNED_OUT') {
+                setEvents([]);
+                setCurrentUserId(null);
+            }
+        });
+
         return () => {
             supabase.removeChannel(channel);
+            subscription.unsubscribe();
         };
     }, []);
 

@@ -142,6 +142,7 @@ export default function MonCalendrierPage() {
                         <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-3 px-1">À venir</p>
                         <AgendaView
                             events={personalEvents}
+                            currentUserId={currentUserId}
                             onEventClick={handleEventClick}
                         />
                     </div>
