@@ -169,7 +169,7 @@ export function EventDetailsModal({ event, isOpen, onClose, users, proposalsData
                     )}
 
                     {/* Section Votes (Propositions Date Unique uniquement) */}
-                    {event.status === 'proposed' && !event.isMultiDate && (
+                    {!event.isMultiDate && (
                         <div>
                             <h4 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-3">Disponibilités</h4>
                             <div className="flex flex-col gap-4">
@@ -199,7 +199,7 @@ export function EventDetailsModal({ event, isOpen, onClose, users, proposalsData
                 </div>
 
                 {/* Section d'Actions Rapides / Vote */}
-                {!isPrivateEvent && event.status === 'proposed' && !isConfirmed && !event.isMultiDate && (
+                {!isPrivateEvent && !event.isMultiDate && (
                     <div className="mt-4 p-4 sm:p-5 border-t flex flex-col sm:flex-row items-center justify-between gap-4">
                         <div className="flex flex-col sm:flex-row items-center sm:items-center gap-3 text-sm font-medium w-full sm:w-auto">
                             <span className="text-muted-foreground w-full text-center sm:text-left sm:w-auto">Votre disponibilité :</span>

@@ -13,45 +13,9 @@ import { useState } from "react";
 import { EventDetailsModal } from "./EventDetailsModal";
 import { UserAvatar } from "@/components/ui/UserAvatar";
 
-// Grouping Logic for Date Headers
-function getDateLabel(dateStr: string): string {
-    if (!dateStr) return "";
-    try {
-        const date = parseISO(dateStr);
-        if (isToday(date)) return "Aujourd'hui";
-        if (isTomorrow(date)) return "Demain";
-        if (isThisWeek(date)) return format(date, "EEEE", { locale: fr });
-        return format(date, "EEEE d MMMM", { locale: fr });
-    } catch (e) {
-        return dateStr;
-    }
-}
-
-function groupEventsByDate(events: CalendarEvent[]) {
-    const sorted = [...events].sort((a, b) =>
-        a.startDate.localeCompare(b.startDate)
-    );
-
-    const groups: { [key: string]: CalendarEvent[] } = {};
-    for (const event of sorted) {
-        if (!groups[event.startDate]) {
-            groups[event.startDate] = [];
-        }
-        groups[event.startDate].push(event);
-    }
-
-    return Object.entries(groups).map(([date, evts]) => {
-        const fullDateStr = format(parseISO(date), "d MMMM yyyy", { locale: fr });
-        const labelStr = getDateLabel(date);
-
-        const isLiteral = labelStr === "Aujourd'hui" || labelStr === "Demain" || labelStr.split(' ').length === 1;
-
-        return {
-            label: labelStr,
-            sublabel: isLiteral ? fullDateStr : undefined,
-            events: evts,
-        };
-    });
+// Helper to sort events
+function sortEvents(events: CalendarEvent[]) {
+    return [...events].sort((a, b) => a.startDate.localeCompare(b.startDate));
 }
 
 export default function EvenementsPage() {
@@ -96,8 +60,8 @@ export default function EvenementsPage() {
         return availableCount >= 2;
     });
 
-    const groupedProposed = groupEventsByDate(proposedEvents);
-    const groupedConfirmed = groupEventsByDate(confirmedEvents);
+    const sortedProposed = sortEvents(proposedEvents);
+    const sortedConfirmed = sortEvents(confirmedEvents);
 
     return (
         <div className="h-full flex flex-col gap-5 overflow-y-auto pb-8">
@@ -142,32 +106,16 @@ export default function EvenementsPage() {
                         <p className="text-muted-foreground text-xs mt-0.5">Lancez une idée pour réveiller le groupe !</p>
                     </div>
                 ) : (
-                    <div className="flex flex-col gap-6">
-                        {groupedProposed.map((group) => (
-                            <div key={group.label} className="flex flex-col gap-2">
-                                <div className="flex items-baseline gap-2 px-1">
-                                    <span className="text-sm font-bold capitalize text-foreground">
-                                        {group.label}
-                                    </span>
-                                    {group.sublabel && group.label !== group.sublabel && (
-                                        <span className="text-xs text-muted-foreground">
-                                            {group.sublabel}
-                                        </span>
-                                    )}
-                                </div>
-                                <div className="flex flex-col gap-2">
-                                    {group.events.map((event) => (
-                                        <EventCard
-                                            key={event.id}
-                                            event={event}
-                                            users={users}
-                                            proposalsData={proposalsData}
-                                            isConfirmed={false}
-                                            onClick={() => openEvent(event, false)}
-                                        />
-                                    ))}
-                                </div>
-                            </div>
+                    <div className="flex flex-col gap-2">
+                        {sortedProposed.map((event) => (
+                            <EventCard
+                                key={event.id}
+                                event={event}
+                                users={users}
+                                proposalsData={proposalsData}
+                                isConfirmed={false}
+                                onClick={() => openEvent(event, false)}
+                            />
                         ))}
                     </div>
                 )}
@@ -191,7 +139,7 @@ export default function EvenementsPage() {
                     </div>
                 ) : (
                     <div className="flex flex-col gap-2">
-                        {confirmedEvents.map((event) => (
+                        {sortedConfirmed.map((event) => (
                             <EventCard
                                 key={event.id}
                                 event={event}
@@ -229,9 +177,7 @@ function EventCard({ event, users, proposalsData, isConfirmed = false, onClick }
     const creator = users.find((u: any) => u.id === event.userId);
     const isMultiDate = event.isMultiDate && event.status === 'proposed';
 
-    const dateFormatted = isMultiDate
-        ? null
-        : format(new Date(event.startDate + 'T00:00:00'), 'd MMMM yyyy', { locale: fr });
+    const dateFormatted = format(new Date(event.startDate + 'T00:00:00'), 'd MMMM yyyy', { locale: fr });
 
     const timeFormatted = !event.allDay && event.startTime
         ? event.startTime.slice(0, 5)
@@ -275,11 +221,9 @@ function EventCard({ event, users, proposalsData, isConfirmed = false, onClick }
                     {/* Infos Date à droite */}
                     <div className="flex items-center gap-2 shrink-0">
                         {timeFormatted && <span className="text-xs text-muted-foreground whitespace-nowrap">{timeFormatted}</span>}
-                        {!isMultiDate && (
-                            <span className="text-sm text-foreground/80 lowercase whitespace-nowrap">
-                                {dateFormatted}
-                            </span>
-                        )}
+                        <span className="text-sm text-foreground/80 lowercase whitespace-nowrap">
+                            {dateFormatted}
+                        </span>
                         {/* Badge statut */}
                         {isConfirmed ? (
                             <span className="shrink-0 text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-400 border border-emerald-500/20">
