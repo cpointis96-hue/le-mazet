@@ -274,8 +274,9 @@ function EventCard({ event, users, proposalsData, isConfirmed = false, onClick }
 
                     {/* Infos Date à droite */}
                     <div className="flex items-center gap-2 shrink-0">
+                        {timeFormatted && <span className="text-xs text-muted-foreground whitespace-nowrap">{timeFormatted}</span>}
                         {!isMultiDate && (
-                            <span className="text-sm text-foreground/80 lowercase">
+                            <span className="text-sm text-foreground/80 lowercase whitespace-nowrap">
                                 {dateFormatted}
                             </span>
                         )}
@@ -288,16 +289,20 @@ function EventCard({ event, users, proposalsData, isConfirmed = false, onClick }
                             <span className="shrink-0 text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-500/15 text-amber-400 border border-amber-500/20">
                                 Sondage
                             </span>
-                        ) : null}
+                        ) : (
+                            <span className="shrink-0 text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-500/15 text-amber-400 border border-amber-500/20">
+                                Proposition
+                            </span>
+                        )}
                     </div>
                 </div>
 
-                {/* Second line if needed for Creator/Time (very compact) */}
-                <div className="flex items-center text-xs text-muted-foreground -mt-1">
-                    {timeFormatted && <span>{timeFormatted}</span>}
-                    {timeFormatted && creator && <span className="mx-1.5 opacity-40">•</span>}
-                    {creator && <span>par {creator.displayName}</span>}
-                </div>
+                {/* Second line if needed for Creator */}
+                {creator && (
+                    <div className="flex items-center text-[10px] text-muted-foreground/60 -mt-1 font-medium">
+                        par {creator.displayName}
+                    </div>
+                )}
 
                 {/* Description */}
                 {event.description && (

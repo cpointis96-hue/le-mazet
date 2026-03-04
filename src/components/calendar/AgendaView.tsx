@@ -100,8 +100,21 @@ export function AgendaView({ events, onEventClick }: AgendaViewProps) {
                             </p>
                         </div>
 
-                        <div className="flex items-center gap-2 shrink-0">
-                            <span className="text-sm font-medium text-foreground/80 lowercase whitespace-nowrap">
+                        <div className="flex items-center gap-2.5 shrink-0 text-right">
+                            {event.status === "proposed" && (
+                                <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-amber-500/15 text-amber-400 border border-amber-500/20 uppercase tracking-wide">
+                                    {event.isMultiDate ? "Sondage" : "Proposition"}
+                                </span>
+                            )}
+                            {event.isMultiDate && event.status === "proposed" ? null : (
+                                !event.allDay && event.startTime && (
+                                    <span className="text-[11px] font-medium text-muted-foreground whitespace-nowrap flex items-center gap-1">
+                                        <Clock className="w-3 h-3 opacity-60" />
+                                        {event.startTime.slice(0, 5)}
+                                    </span>
+                                )
+                            )}
+                            <span className="text-sm font-medium text-foreground/80 lowercase whitespace-nowrap min-w-[100px] text-right">
                                 {dateLabel}
                             </span>
                         </div>
