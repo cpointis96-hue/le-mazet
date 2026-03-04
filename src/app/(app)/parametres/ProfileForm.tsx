@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { updateProfile, changeEmail, changePassword } from './actions';
-import { Loader2, User, Mail, Lock, CheckCircle, AlertCircle, Sun, Moon, Palette } from 'lucide-react';
+import { Loader2, User, Mail, Lock, CheckCircle, AlertCircle, Sun, Moon, Palette, LogOut } from 'lucide-react';
 import { useTheme } from 'next-themes';
 
 interface ProfileFormProps {
@@ -191,16 +191,32 @@ export function ProfileForm({ initialData }: ProfileFormProps) {
                 </div>
             </section>
 
-            {/* ── Actions globales ── */}
             <section className="px-4 py-4 bg-muted/20 flex flex-col gap-3 rounded-b-xl items-end relative overflow-hidden">
                 <SectionFeedback result={result} />
                 <Button
                     type="submit"
                     disabled={isPending}
-                    className="h-9 px-6 bg-emerald-600 hover:bg-emerald-500 text-white font-semibold transition-all shadow-[0_0_15px_rgba(16,185,129,0.2)] hover:shadow-[0_0_20px_rgba(16,185,129,0.4)]"
+                    className="w-full sm:w-auto h-9 px-6 bg-emerald-600 hover:bg-emerald-500 text-white font-semibold transition-all shadow-[0_0_15px_rgba(16,185,129,0.2)] hover:shadow-[0_0_20px_rgba(16,185,129,0.4)]"
                 >
                     {isPending ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Enregistrement…</> : 'Enregistrer'}
                 </Button>
+            </section>
+
+            {/* ── Déconnexion ── */}
+            <section className="px-4 py-4 border-t border-white/5">
+                <button
+                    type="button"
+                    onClick={async () => {
+                        const { createClient } = await import('@/lib/supabase/client');
+                        const supabase = createClient();
+                        await supabase.auth.signOut();
+                        window.location.href = "/";
+                    }}
+                    className="flex w-full items-center justify-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all text-red-500/80 hover:bg-red-500/10 hover:text-red-400"
+                >
+                    <LogOut className="w-4 h-4" />
+                    Se déconnecter
+                </button>
             </section>
 
         </form>

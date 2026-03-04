@@ -22,11 +22,9 @@ const mainNav = [
     { name: "Mon Calendrier", href: "/mon-calendrier", icon: CalendarDays },
     { name: "Calendrier Commun", href: "/calendrier-commun", icon: Users },
     { name: "Événements", href: "/evenements", icon: Ticket },
-];
-
-const bottomNav = [
     { name: "Paramètres", href: "/parametres", icon: Settings },
 ];
+
 
 function NavItem({
     href,
@@ -125,32 +123,6 @@ export function Sidebar({ className, onClose, ...props }: SidebarProps) {
                 )}
             </div>
 
-            {/* Bottom nav */}
-            <div className="border-t border-white/5 py-3 px-2 flex flex-col gap-1">
-                {bottomNav.map((item) => (
-                    <NavItem
-                        key={item.href}
-                        href={item.href}
-                        icon={item.icon}
-                        name={item.name}
-                        isActive={pathname === item.href}
-                        onClick={onClose}
-                    />
-                ))}
-                <button
-                    onClick={async () => {
-                        if (onClose) onClose();
-                        const { createClient } = await import("@/lib/supabase/client");
-                        const supabase = createClient();
-                        await supabase.auth.signOut();
-                        window.location.href = "/";
-                    }}
-                    className="group flex w-full items-center gap-2.5 px-2.5 py-2 rounded-lg text-sm font-medium transition-all duration-150 text-red-500/70 hover:bg-red-500/10 hover:text-red-400"
-                >
-                    <LogOut className="w-4 h-4 shrink-0 text-red-500/50 group-hover:text-red-400 transition-colors" />
-                    Se déconnecter
-                </button>
-            </div>
         </div>
     );
 }
