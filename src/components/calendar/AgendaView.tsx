@@ -59,9 +59,9 @@ export function AgendaView({ events, onEventClick }: AgendaViewProps) {
     // Only show upcoming events (today and future)
     const today = format(new Date(), "yyyy-MM-dd");
     const upcomingEvents = events.filter(e => e.endDate >= today);
-    const groups = groupEventsByDate(upcomingEvents);
+    const sortedEvents = [...upcomingEvents].sort((a, b) => a.startDate.localeCompare(b.startDate));
 
-    if (groups.length === 0) {
+    if (sortedEvents.length === 0) {
         return (
             <div className="flex flex-col items-center justify-center py-16 text-center gap-3">
                 <div className="w-14 h-14 rounded-full bg-muted/50 flex items-center justify-center">
@@ -74,75 +74,40 @@ export function AgendaView({ events, onEventClick }: AgendaViewProps) {
     }
 
     return (
-        <div className="flex flex-col gap-6 pb-4">
-            {groups.map((group) => (
-                <div key={group.label} className="flex flex-col gap-2">
-                    {/* Date header */}
-                    <div className="flex items-baseline gap-2 px-1">
-                        <span className="text-sm font-bold capitalize text-foreground">
-                            {group.label}
-                        </span>
-                        {group.sublabel && group.label !== group.sublabel && (
-                            <span className="text-xs text-muted-foreground">
-                                {group.sublabel}
-                            </span>
+        <div className="flex flex-col gap-2 pb-4">
+            {sortedEvents.map((event) => {
+                const dateLabel = format(parseISO(event.startDate), "d MMMM yyyy", { locale: fr });
+
+                return (
+                    <button
+                        key={event.id}
+                        onClick={() => onEventClick?.(event)}
+                        className={cn(
+                            "w-full flex items-center justify-between gap-3 p-3.5 rounded-xl border bg-card text-left transition-all active:scale-[0.98] hover:shadow-sm",
+                            event.status === "proposed"
+                                ? "border-amber-200 dark:border-amber-800/50"
+                                : "border-border"
                         )}
-                    </div>
+                    >
+                        <div className="flex items-center gap-3 flex-1 min-w-0">
+                            {/* Color indicator */}
+                            <div
+                                className="w-2 h-2 rounded-full shrink-0"
+                                style={{ backgroundColor: event.color || "#6366f1" }}
+                            />
+                            <p className="font-semibold text-sm truncate">
+                                {event.privacy === "prive" ? "Occupé" : event.title}
+                            </p>
+                        </div>
 
-                    {/* Events for this date */}
-                    <div className="flex flex-col gap-2">
-                        {group.events.map((event) => (
-                            <button
-                                key={event.id}
-                                onClick={() => onEventClick?.(event)}
-                                className={cn(
-                                    "w-full flex items-start gap-3 p-3.5 rounded-xl border bg-card text-left transition-all active:scale-[0.98] hover:shadow-sm",
-                                    event.status === "proposed"
-                                        ? "border-amber-200 dark:border-amber-800/50"
-                                        : "border-border"
-                                )}
-                            >
-                                {/* Color indicator */}
-                                <div
-                                    className="w-1 self-stretch rounded-full shrink-0 mt-1"
-                                    style={{ backgroundColor: event.color || "#6366f1" }}
-                                />
-
-                                <div className="flex-1 min-w-0">
-                                    <div className="flex items-center gap-2 flex-wrap">
-                                        <p className="font-semibold text-sm truncate">
-                                            {event.privacy === "prive" ? "Occupé" : event.title}
-                                        </p>
-                                        {event.status === "proposed" && (
-                                            <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400 uppercase tracking-wide shrink-0">
-                                                {event.isMultiDate ? "Sondage" : "Proposition"}
-                                            </span>
-                                        )}
-                                    </div>
-
-                                    {event.isMultiDate && event.status === "proposed" ? null : (
-                                        !event.allDay && event.startTime && (
-                                            <div className="flex items-center gap-1 mt-1 text-xs text-muted-foreground">
-                                                <Clock className="w-3 h-3" />
-                                                <span>
-                                                    {event.startTime.slice(0, 5)}
-                                                    {event.endTime && ` → ${event.endTime.slice(0, 5)}`}
-                                                </span>
-                                            </div>
-                                        )
-                                    )}
-
-                                    {event.description && (
-                                        <p className="text-xs text-muted-foreground mt-1 line-clamp-1">
-                                            {event.description}
-                                        </p>
-                                    )}
-                                </div>
-                            </button>
-                        ))}
-                    </div>
-                </div>
-            ))}
+                        <div className="flex items-center gap-2 shrink-0">
+                            <span className="text-sm font-medium text-foreground/80 lowercase whitespace-nowrap">
+                                {dateLabel}
+                            </span>
+                        </div>
+                    </button>
+                );
+            })}
         </div>
     );
 }

@@ -190,32 +190,16 @@ export default function EvenementsPage() {
                         <p className="text-muted-foreground text-xs mt-0.5">Votez plus haut et ça va vite changer !</p>
                     </div>
                 ) : (
-                    <div className="flex flex-col gap-6">
-                        {groupedConfirmed.map((group) => (
-                            <div key={group.label} className="flex flex-col gap-2">
-                                <div className="flex items-baseline gap-2 px-1">
-                                    <span className="text-sm font-bold capitalize text-foreground">
-                                        {group.label}
-                                    </span>
-                                    {group.sublabel && group.label !== group.sublabel && (
-                                        <span className="text-xs text-muted-foreground">
-                                            {group.sublabel}
-                                        </span>
-                                    )}
-                                </div>
-                                <div className="flex flex-col gap-2">
-                                    {group.events.map((event) => (
-                                        <EventCard
-                                            key={event.id}
-                                            event={event}
-                                            users={users}
-                                            proposalsData={proposalsData}
-                                            isConfirmed={true}
-                                            onClick={() => openEvent(event, true)}
-                                        />
-                                    ))}
-                                </div>
-                            </div>
+                    <div className="flex flex-col gap-2">
+                        {confirmedEvents.map((event) => (
+                            <EventCard
+                                key={event.id}
+                                event={event}
+                                users={users}
+                                proposalsData={proposalsData}
+                                isConfirmed={true}
+                                onClick={() => openEvent(event, true)}
+                            />
                         ))}
                     </div>
                 )}
@@ -247,7 +231,7 @@ function EventCard({ event, users, proposalsData, isConfirmed = false, onClick }
 
     const dateFormatted = isMultiDate
         ? null
-        : format(new Date(event.startDate + 'T00:00:00'), 'EEE d MMM', { locale: fr });
+        : format(new Date(event.startDate + 'T00:00:00'), 'd MMMM yyyy', { locale: fr });
 
     const timeFormatted = !event.allDay && event.startTime
         ? event.startTime.slice(0, 5)
@@ -283,31 +267,36 @@ function EventCard({ event, users, proposalsData, isConfirmed = false, onClick }
 
             <div className="px-4 py-3 pl-5 flex flex-col gap-2.5">
                 {/* Ligne 1 : titre + badge */}
-                <div className="flex items-start justify-between gap-3">
+                <div className="flex items-center justify-between gap-3">
                     <div className="flex-1 min-w-0">
                         <h3 className="font-semibold text-sm leading-snug truncate">{event.title}</h3>
-                        <p className="text-xs text-muted-foreground mt-0.5">
-                            {isMultiDate ? (
-                                <span className="text-amber-500">Sondage en cours</span>
-                            ) : (
-                                <>
-                                    {timeFormatted && <span>{timeFormatted} · </span>}
-                                    <span className="capitalize">{dateFormatted}</span>
-                                </>
-                            )}
-                            {creator && <span className="text-foreground/30"> · {creator.displayName}</span>}
-                        </p>
                     </div>
-                    {/* Badge statut */}
-                    {isConfirmed ? (
-                        <span className="shrink-0 text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-400 border border-emerald-500/20">
-                            C'est noté ✓
-                        </span>
-                    ) : isMultiDate ? (
-                        <span className="shrink-0 text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-500/15 text-amber-400 border border-amber-500/20">
-                            Sondage
-                        </span>
-                    ) : null}
+
+                    {/* Infos Date à droite */}
+                    <div className="flex items-center gap-2 shrink-0">
+                        {!isMultiDate && (
+                            <span className="text-sm text-foreground/80 lowercase">
+                                {dateFormatted}
+                            </span>
+                        )}
+                        {/* Badge statut */}
+                        {isConfirmed ? (
+                            <span className="shrink-0 text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-400 border border-emerald-500/20">
+                                C'est noté ✓
+                            </span>
+                        ) : isMultiDate ? (
+                            <span className="shrink-0 text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-500/15 text-amber-400 border border-amber-500/20">
+                                Sondage
+                            </span>
+                        ) : null}
+                    </div>
+                </div>
+
+                {/* Second line if needed for Creator/Time (very compact) */}
+                <div className="flex items-center text-xs text-muted-foreground -mt-1">
+                    {timeFormatted && <span>{timeFormatted}</span>}
+                    {timeFormatted && creator && <span className="mx-1.5 opacity-40">•</span>}
+                    {creator && <span>par {creator.displayName}</span>}
                 </div>
 
                 {/* Description */}
