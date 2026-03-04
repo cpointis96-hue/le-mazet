@@ -6,8 +6,7 @@ import { CalendarDays, Users, Ticket, Settings } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const navItems = [
-    { name: "Calendrier", href: "/mon-calendrier", icon: CalendarDays },
-    { name: "Commun", href: "/calendrier-commun", icon: Users },
+    { name: "Calendrier", href: "/calendrier", icon: CalendarDays },
     { name: "Événements", href: "/evenements", icon: Ticket },
     { name: "Paramètres", href: "/parametres", icon: Settings },
 ];

@@ -1,7 +1,5 @@
 export type ViewMode = 'mois' | 'annee';
 
-export type PrivacyLevel = 'prive' | 'public' | 'public_details';
-
 export interface CalendarEvent {
     id: string;
     userId: string;
@@ -18,7 +16,6 @@ export interface CalendarEvent {
     color: string;
     icon?: string;
     category?: string;
-    privacy: PrivacyLevel;
     recurrenceRule?: string;
     recurrenceEnd?: string;
     reminderMinutes?: number;
@@ -41,10 +38,15 @@ export interface EventDateVote {
     status: 'available' | 'unavailable' | 'maybe';
 }
 
-export type SharedEventDisplay =
-    | { type: 'occupe'; date: string; color: string; userId: string }
-    | { type: 'public'; title: string; date: string; color: string; userId: string }
-    | { type: 'public_details'; title: string; description?: string; date: string; color: string; userId: string };
+export interface EventReaction {
+    id: string;
+    eventId: string;
+    userId: string;
+    emoji: string;
+    createdAt: string;
+}
+
+export type SharedEventDisplay = { id: string, title: string; description?: string; date: string; color: string; userId: string; status: 'proposed' | 'confirmed'; };
 
 export type AvailabilityStatus = 'available' | 'busy';
 

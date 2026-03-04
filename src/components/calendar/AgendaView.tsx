@@ -97,7 +97,7 @@ export function AgendaView({ events, currentUserId, onEventClick }: AgendaViewPr
                                 style={{ backgroundColor: event.color || "#6366f1" }}
                             />
                             <p className="font-semibold text-sm truncate">
-                                {event.privacy === 'prive' && event.userId !== currentUserId ? "Occupé" : event.title}
+                                {event.title}
                             </p>
                         </div>
 

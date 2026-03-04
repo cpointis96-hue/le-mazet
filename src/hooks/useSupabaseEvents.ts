@@ -96,7 +96,6 @@ export function useSupabaseEvents(eventResponses?: { eventId: string, userId: st
         if (e.userId === currentUserId) {
             return {
                 id: e.id,
-                type: 'public_details',
                 title: e.title,
                 description: e.description,
                 date: e.startDate,
@@ -105,13 +104,15 @@ export function useSupabaseEvents(eventResponses?: { eventId: string, userId: st
                 status: e.status,
             };
         }
-        if (e.privacy === 'prive') {
-            return { id: e.id, type: 'occupe', date: e.startDate, color: e.color, userId: e.userId, status: e.status };
-        } else if (e.privacy === 'public') {
-            return { id: e.id, type: 'public', title: e.title, date: e.startDate, color: e.color, userId: e.userId, status: e.status };
-        } else {
-            return { id: e.id, type: 'public_details', title: e.title, description: e.description, date: e.startDate, color: e.color, userId: e.userId, status: e.status };
-        }
+        return {
+            id: e.id,
+            title: e.title,
+            description: e.description,
+            date: e.startDate,
+            color: e.color,
+            userId: e.userId,
+            status: e.status,
+        };
     });
 
     const addEvent = useCallback(

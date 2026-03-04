@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useForm, Controller, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { CalendarEvent, PrivacyLevel, EventDateProposal } from "@/types/calendar.types";
+import { CalendarEvent, EventDateProposal } from "@/types/calendar.types";
 import { Trash2, Plus } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
@@ -33,7 +33,6 @@ const eventSchema = z.object({
     isVacation: z.boolean(),
     color: z.string(),
     category: z.string().optional(),
-    privacy: z.enum(["prive", "public", "public_details"]),
     status: z.enum(["proposed", "confirmed"]),
     isMultiDate: z.boolean().optional(),
     proposals: z.array(z.object({
@@ -78,7 +77,6 @@ export function EventForm({ initialData, onSubmit, onCancel, isProposal = false 
             isVacation: isVacationInitial,
             color: initialData?.color || EVENT_COLORS[0].value,
             category: initialData?.category || CATEGORIES[0],
-            privacy: (initialData?.privacy as "prive" | "public" | "public_details") || "public_details",
             status: initialData?.status || (isProposal ? "proposed" : "confirmed"),
             isMultiDate: initialData?.isMultiDate ?? false,
             proposals: initialData?.proposals && initialData.proposals.length > 0
@@ -142,9 +140,6 @@ export function EventForm({ initialData, onSubmit, onCancel, isProposal = false 
         if (data.pollDeadline === "") data.pollDeadline = undefined;
         if (data.startDate === "") data.startDate = todayStr;
         if (data.endDate === "") data.endDate = data.startDate || todayStr;
-
-        // Tous les événements sont désormais publics avec détails
-        data.privacy = "public_details";
 
         if (onSubmit) {
             onSubmit(data, selectedFiles);

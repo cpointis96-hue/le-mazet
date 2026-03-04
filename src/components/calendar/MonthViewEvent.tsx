@@ -8,8 +8,6 @@ interface MonthViewEventProps {
 }
 
 export function MonthViewEvent({ event, onClick }: MonthViewEventProps) {
-    // If it's a shared calendar, privacy logic comes from SharedEventPill
-    // Here we just render the raw event as if it's "Mon Calendrier" (personal view)
     // For Phase 1, we just render the basic pill
 
     return (

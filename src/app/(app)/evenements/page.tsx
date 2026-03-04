@@ -12,6 +12,15 @@ import { useProposalsData } from "@/hooks/useProposalsData";
 import { useState } from "react";
 import { EventDetailsModal } from "./EventDetailsModal";
 import { UserAvatar } from "@/components/ui/UserAvatar";
+import {
+    Dialog,
+    DialogContent,
+    DialogHeader,
+    DialogTitle,
+    DialogFooter
+} from "@/components/ui/Dialog";
+import { Input } from "@/components/ui/Input";
+import { Button } from "@/components/ui/Button";
 
 // Helper to sort events
 function sortEvents(events: CalendarEvent[]) {
@@ -26,6 +35,9 @@ export default function EvenementsPage() {
     const [selectedEvent, setSelectedEvent] = useState<CalendarEvent | null>(null);
     const [selectedEventIsConfirmed, setSelectedEventIsConfirmed] = useState(false);
 
+    const [isMousseDialogOpen, setIsMousseDialogOpen] = useState(false);
+    const [mousseTime, setMousseTime] = useState("19:00");
+
     const openEvent = (event: CalendarEvent, isConfirmed: boolean) => {
         setSelectedEvent(event);
         setSelectedEventIsConfirmed(isConfirmed);
@@ -34,18 +46,18 @@ export default function EvenementsPage() {
     const handleQuickDrink = async () => {
         const today = new Date();
         await addEvent({
-            title: "Boire un coup ce soir 🍻",
+            title: "Une mousse ? 🍻",
             description: "Spontané ! Qui est chaud ?",
             startDate: format(today, "yyyy-MM-dd"),
             endDate: format(today, "yyyy-MM-dd"),
-            startTime: "19:00",
+            startTime: mousseTime,
             endTime: "23:00",
             allDay: false,
             color: "#f59e0b",
             icon: "Beer",
-            privacy: "public_details" as const,
             status: "proposed" as const,
         });
+        setIsMousseDialogOpen(false);
     };
 
     const proposedEvents = events.filter(e => {
@@ -80,11 +92,11 @@ export default function EvenementsPage() {
                         Lancer
                     </Link>
                     <button
-                        onClick={handleQuickDrink}
+                        onClick={() => setIsMousseDialogOpen(true)}
                         className="inline-flex items-center gap-1.5 rounded-xl border border-amber-500/20 bg-amber-500/10 px-3 py-1.5 text-xs font-medium text-amber-500 hover:bg-amber-500/20 transition-colors"
                     >
                         <Beer className="w-3.5 h-3.5" />
-                        Ce soir ?
+                        Une mousse
                     </button>
                 </div>
             </div>
@@ -173,6 +185,41 @@ export default function EvenementsPage() {
                     } : undefined}
                 />
             )}
+
+            {/* Modal "Une mousse" */}
+            <Dialog open={isMousseDialogOpen} onOpenChange={setIsMousseDialogOpen}>
+                <DialogContent className="sm:max-w-md">
+                    <DialogHeader>
+                        <DialogTitle className="text-xl">Une mousse 🍻</DialogTitle>
+                    </DialogHeader>
+                    <div className="flex flex-col gap-4 py-4">
+                        <p className="text-sm text-muted-foreground">À partir de quelle heure ?</p>
+                        <div className="flex items-center gap-3">
+                            <Input
+                                type="time"
+                                value={mousseTime}
+                                onChange={(e) => setMousseTime(e.target.value)}
+                                className="flex-1 text-lg"
+                                autoFocus
+                            />
+                        </div>
+                    </div>
+                    <DialogFooter className="flex items-center justify-end gap-2 pt-2 sm:pt-0">
+                        <Button
+                            variant="outline"
+                            onClick={() => setIsMousseDialogOpen(false)}
+                        >
+                            Annuler
+                        </Button>
+                        <Button
+                            onClick={handleQuickDrink}
+                            className="bg-amber-500 hover:bg-amber-600 text-white border-none"
+                        >
+                            Lancer
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
         </div>
     );
 }
@@ -185,6 +232,7 @@ function EventCard({ event, users, proposalsData, isConfirmed = false, onClick }
     onClick?: () => void;
 }) {
     const creator = users.find((u: any) => u.id === event.userId);
+    const [showEmojis, setShowEmojis] = useState(false);
     const isMultiDate = event.isMultiDate && event.status === 'proposed';
 
     const dateFormatted = format(new Date(event.startDate + 'T00:00:00'), 'd MMMM yyyy', { locale: fr });
@@ -209,6 +257,21 @@ function EventCard({ event, users, proposalsData, isConfirmed = false, onClick }
     const accentColor = isConfirmed
         ? '#10b981'
         : (event.color || '#8b5cf6');
+
+    const eventReactions = proposalsData.reactions?.filter((r: any) => r.eventId === event.id) || [];
+    const EMOJIS = ['👍', '❤️', '😂', '🎉', '😢'];
+
+    const handleEmojiClick = (e: React.MouseEvent, emoji: string) => {
+        e.stopPropagation();
+        proposalsData.toggleReaction(event.id, emoji);
+        setShowEmojis(false);
+    };
+
+    const reactionGroups = EMOJIS.map(emoji => {
+        const reacts = eventReactions.filter((r: any) => r.emoji === emoji);
+        const hasReacted = reacts.some((r: any) => r.userId === proposalsData.currentUserId);
+        return { emoji, count: reacts.length, hasReacted };
+    }).filter(g => g.count > 0);
 
     return (
         <div
@@ -272,10 +335,58 @@ function EventCard({ event, users, proposalsData, isConfirmed = false, onClick }
                     </p>
                 )}
 
-                {/* Ligne basse : facepile + action vote */}
-                <div className="flex items-center justify-between gap-3 pt-1 border-t border-white/5">
-                    {/* Listes des dispos / pas dispos */}
-                    <div className="flex flex-col gap-0.5 flex-1">
+                {/* Ligne basse : facepile + action vote + reactions */}
+                <div className="flex items-center justify-between gap-3 pt-1 border-t border-white/5 relative">
+                    {/* Reactions & Disponibilités */}
+                    <div className="flex flex-col gap-1 flex-1">
+                        {/* Barre de réactions */}
+                        <div className="flex flex-wrap items-center gap-1.5 mt-0.5 relative">
+                            {reactionGroups.map(g => (
+                                <button
+                                    key={g.emoji}
+                                    onClick={(e) => handleEmojiClick(e, g.emoji)}
+                                    className={cn(
+                                        "flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[10px] font-medium transition-colors border",
+                                        g.hasReacted ? "bg-primary/20 border-primary/30 text-primary-foreground" : "bg-white/5 border-white/10 text-white/70 hover:bg-white/10"
+                                    )}
+                                >
+                                    <span>{g.emoji}</span>
+                                    <span>{g.count}</span>
+                                </button>
+                            ))}
+                            <div className="relative">
+                                <button
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        setShowEmojis(!showEmojis);
+                                    }}
+                                    className="flex items-center justify-center w-5 h-5 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 text-white/70 transition-colors"
+                                >
+                                    <span className="text-[10px]">+</span>
+                                </button>
+                                {showEmojis && (
+                                    <>
+                                        <div
+                                            className="fixed inset-0 z-40"
+                                            onClick={(e) => { e.stopPropagation(); setShowEmojis(false); }}
+                                        />
+                                        <div className="absolute left-0 bottom-full mb-2 z-50 flex items-center gap-1 p-1.5 rounded-full bg-[#111113] border border-white/10 shadow-lg shadow-black/50">
+                                            {EMOJIS.map(emoji => (
+                                                <button
+                                                    key={emoji}
+                                                    onClick={(e) => handleEmojiClick(e, emoji)}
+                                                    className="w-7 h-7 flex items-center justify-center rounded-full hover:bg-white/10 text-sm transition-transform hover:scale-110"
+                                                >
+                                                    {emoji}
+                                                </button>
+                                            ))}
+                                        </div>
+                                    </>
+                                )}
+                            </div>
+                        </div>
+
+                        {/* Listes dispos / pas dispos */}
                         {availableVoters.length > 0 && (
                             <div className="text-[10px] text-white">
                                 <span className="text-emerald-500 font-bold mr-1">Dispos :</span>
@@ -295,13 +406,13 @@ function EventCard({ event, users, proposalsData, isConfirmed = false, onClick }
 
                     {/* Action vote */}
                     {isMultiDate ? (
-                        <div className="flex items-center gap-1 text-[10px] font-semibold text-amber-500 pointer-events-none">
+                        <div className="flex items-center gap-1 text-[10px] font-semibold text-amber-500 pointer-events-none mt-auto">
                             Choisir <ChevronRight className="w-3 h-3" />
                         </div>
                     ) : userResponse ? (
                         <div
                             onClick={e => e.stopPropagation()}
-                            className="flex gap-1.5"
+                            className="flex gap-1.5 mt-auto"
                         >
                             <button
                                 onClick={() => proposalsData.setResponse(event.id, 'available', userResponse)}
@@ -329,7 +440,7 @@ function EventCard({ event, users, proposalsData, isConfirmed = false, onClick }
                     ) : (
                         <div
                             onClick={e => e.stopPropagation()}
-                            className="flex gap-1.5"
+                            className="flex gap-1.5 mt-auto"
                         >
                             <button
                                 onClick={() => proposalsData.setResponse(event.id, 'available', userResponse)}

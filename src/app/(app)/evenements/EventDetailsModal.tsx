@@ -44,7 +44,6 @@ export function EventDetailsModal({ event, isOpen, onClose, users, proposalsData
     const availableUsers = eventResponses.filter((r: any) => r.status === 'available').map((r: any) => users.find(u => u.id === r.userId));
     const unavailableUsers = eventResponses.filter((r: any) => r.status === 'unavailable').map((r: any) => users.find(u => u.id === r.userId));
     const userResponse = eventResponses.find((r: any) => r.userId === proposalsData.currentUserId)?.status;
-    const isPrivateEvent = event.privacy === 'prive';
 
     const [attachments, setAttachments] = useState<EventAttachment[]>([]);
     const [newComment, setNewComment] = useState("");
@@ -75,6 +74,22 @@ export function EventDetailsModal({ event, isOpen, onClose, users, proposalsData
     };
 
     const eventColor = event.color || '#3b82f6';
+
+    const [showEmojis, setShowEmojis] = useState(false);
+    const eventReactions = proposalsData.reactions?.filter((r: any) => r.eventId === event.id) || [];
+    const EMOJIS = ['👍', '❤️', '😂', '🎉', '😢'];
+
+    const handleEmojiClick = (e: React.MouseEvent, emoji: string) => {
+        e.stopPropagation();
+        proposalsData.toggleReaction(event.id, emoji);
+        setShowEmojis(false);
+    };
+
+    const reactionGroups = EMOJIS.map(emoji => {
+        const reacts = eventReactions.filter((r: any) => r.emoji === emoji);
+        const hasReacted = reacts.some((r: any) => r.userId === proposalsData.currentUserId);
+        return { emoji, count: reacts.length, hasReacted };
+    }).filter(g => g.count > 0);
 
     return (
         <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
@@ -120,6 +135,55 @@ export function EventDetailsModal({ event, isOpen, onClose, users, proposalsData
                     <div className="absolute top-6 right-14 flex items-center gap-1.5 text-sm text-muted-foreground mr-2">
                         <span className="hidden sm:inline">Créé par</span>
                         <UserAvatar user={creator} className="font-semibold text-xs" />
+                    </div>
+
+                    {/* Reactions Bar inside Header */}
+                    <div className="px-6 pb-4 mt-2">
+                        <div className="flex flex-wrap items-center gap-1.5 relative">
+                            {reactionGroups.map(g => (
+                                <button
+                                    key={g.emoji}
+                                    onClick={(e) => handleEmojiClick(e, g.emoji)}
+                                    className={cn(
+                                        "flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium transition-colors border",
+                                        g.hasReacted ? "bg-primary/20 border-primary/30 text-primary-foreground" : "bg-muted/50 border-border hover:bg-muted"
+                                    )}
+                                >
+                                    <span>{g.emoji}</span>
+                                    <span>{g.count}</span>
+                                </button>
+                            ))}
+                            <div className="relative">
+                                <button
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        setShowEmojis(!showEmojis);
+                                    }}
+                                    className="flex items-center justify-center h-6 px-2.5 rounded-full bg-muted/30 hover:bg-muted/50 border border-border text-muted-foreground transition-colors"
+                                >
+                                    <span className="text-xs font-medium text-foreground">+ Réagir</span>
+                                </button>
+                                {showEmojis && (
+                                    <>
+                                        <div
+                                            className="fixed inset-0 z-40"
+                                            onClick={(e) => { e.stopPropagation(); setShowEmojis(false); }}
+                                        />
+                                        <div className="absolute left-0 bottom-full mb-2 z-50 flex items-center gap-1 p-2 rounded-full bg-popover border shadow-lg shadow-black/20">
+                                            {EMOJIS.map(emoji => (
+                                                <button
+                                                    key={emoji}
+                                                    onClick={(e) => handleEmojiClick(e, emoji)}
+                                                    className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-muted text-base transition-transform hover:scale-110"
+                                                >
+                                                    {emoji}
+                                                </button>
+                                            ))}
+                                        </div>
+                                    </>
+                                )}
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -199,7 +263,7 @@ export function EventDetailsModal({ event, isOpen, onClose, users, proposalsData
                 </div>
 
                 {/* Section d'Actions Rapides / Vote */}
-                {!isPrivateEvent && !event.isMultiDate && (
+                {!event.isMultiDate && (
                     <div className="mt-4 p-4 sm:p-5 border-t flex flex-col sm:flex-row items-center justify-between gap-4">
                         <div className="flex flex-col sm:flex-row items-center sm:items-center gap-3 text-sm font-medium w-full sm:w-auto">
                             <span className="text-muted-foreground w-full text-center sm:text-left sm:w-auto">Votre disponibilité :</span>

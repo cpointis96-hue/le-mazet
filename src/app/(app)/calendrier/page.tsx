@@ -181,38 +181,35 @@ export default function CalendrierCommunPage() {
                                     }
 
                                     return dayEventsRaw.map(event => {
-                                        const isPrivate = event.privacy === 'prive' && event.userId !== currentUserId;
                                         const creator = users.find(u => u.id === event.userId);
                                         const isProposed = event.status === 'proposed';
 
                                         return (
                                             <div
                                                 key={event.id}
-                                                onClick={() => !isPrivate && setSelectedEventDetails(event)}
+                                                onClick={() => setSelectedEventDetails(event)}
                                                 className={cn(
                                                     "border p-3 rounded-xl flex flex-col gap-2 transition-colors",
-                                                    isPrivate ? "bg-muted/30 border-dashed" : "bg-card hover:bg-muted/50 cursor-pointer shadow-sm hover:shadow-md"
+                                                    "bg-card hover:bg-muted/50 cursor-pointer shadow-sm hover:shadow-md"
                                                 )}
                                             >
                                                 <div className="flex items-center justify-between">
                                                     <div className="flex items-center gap-2">
                                                         <span className="w-3 h-3 rounded-full" style={{ backgroundColor: event.color }} />
                                                         <span className="font-semibold">
-                                                            {isPrivate ? "Occupé" : event.title}
+                                                            {event.title}
                                                         </span>
-                                                        {isProposed && !isPrivate && (
+                                                        {isProposed && (
                                                             <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-700 uppercase tracking-wide">
                                                                 Proposition
                                                             </span>
                                                         )}
                                                     </div>
-                                                    {!isPrivate && (
-                                                        <div className="text-xs flex items-center">
-                                                            <UserAvatar user={creator} />
-                                                        </div>
-                                                    )}
+                                                    <div className="text-xs flex items-center">
+                                                        <UserAvatar user={creator} />
+                                                    </div>
                                                 </div>
-                                                {!isPrivate && isProposed && (
+                                                {isProposed && (
                                                     <div className="text-xs text-muted-foreground mt-1">
                                                         Cliquez pour voter ou commenter...
                                                     </div>

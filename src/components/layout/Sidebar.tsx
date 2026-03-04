@@ -19,8 +19,7 @@ interface SidebarProps extends React.HTMLAttributes<HTMLDivElement> {
 }
 
 const mainNav = [
-    { name: "Mon Calendrier", href: "/mon-calendrier", icon: CalendarDays },
-    { name: "Calendrier Commun", href: "/calendrier-commun", icon: Users },
+    { name: "Calendrier", href: "/calendrier", icon: CalendarDays },
     { name: "Événements", href: "/evenements", icon: Ticket },
     { name: "Paramètres", href: "/parametres", icon: Settings },
 ];
@@ -111,7 +110,7 @@ export function Sidebar({ className, onClose, ...props }: SidebarProps) {
                 ))}
 
                 {/* Member legend — only on shared calendar page */}
-                {pathname === "/calendrier-commun" && users.length > 0 && (
+                {pathname === "/calendrier" && users.length > 0 && (
                     <div className="mt-6">
                         <p className="text-[10px] font-semibold uppercase tracking-widest text-zinc-600 px-2.5 mb-2">
                             Membres

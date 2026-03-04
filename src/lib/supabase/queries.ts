@@ -1,4 +1,4 @@
-import { CalendarEvent, ChecklistItem, ChecklistCategory, EventDateProposal, EventDateVote } from '@/types/calendar.types';
+import { CalendarEvent, ChecklistItem, ChecklistCategory, EventDateProposal, EventDateVote, EventReaction } from '@/types/calendar.types';
 import { SupabaseClient } from '@supabase/supabase-js';
 
 // Helper : convertit une ligne BDD → CalendarEvent
@@ -18,7 +18,6 @@ function rowToEvent(row: Record<string, unknown>): CalendarEvent {
         color: row.color as string,
         icon: row.icon as string | undefined,
         category: row.category as string | undefined,
-        privacy: row.privacy as CalendarEvent['privacy'],
         recurrenceRule: row.recurrence_rule as string | undefined,
         recurrenceEnd: row.recurrence_end as string | undefined,
         reminderMinutes: row.reminder_minutes as number | undefined,
@@ -43,7 +42,6 @@ function eventToRow(event: Omit<CalendarEvent, 'id' | 'userId'>, userId: string)
         color: event.color,
         icon: event.icon ?? null,
         category: event.category ?? null,
-        privacy: event.privacy,
         recurrence_rule: event.recurrenceRule ?? null,
         recurrence_end: event.recurrenceEnd ?? null,
         reminder_minutes: event.reminderMinutes ?? null,
@@ -321,7 +319,6 @@ export async function updateEvent(
     if (updates.color !== undefined) dbUpdates.color = updates.color;
     if (updates.icon !== undefined) dbUpdates.icon = updates.icon;
     if (updates.category !== undefined) dbUpdates.category = updates.category;
-    if (updates.privacy !== undefined) dbUpdates.privacy = updates.privacy;
     if (updates.recurrenceRule !== undefined) dbUpdates.recurrence_rule = updates.recurrenceRule;
     if (updates.recurrenceEnd !== undefined) dbUpdates.recurrence_end = updates.recurrenceEnd;
     if (updates.reminderMinutes !== undefined) dbUpdates.reminder_minutes = updates.reminderMinutes;
@@ -433,6 +430,93 @@ export async function deleteChecklistItem(supabase: SupabaseClient, itemId: stri
 
     if (error) {
         console.error('deleteChecklistItem error:', error.message);
+        return false;
+    }
+    return count !== 0;
+}
+
+// ------------------------------------------------------------------
+// REACTION QUERIES
+// ------------------------------------------------------------------
+
+export async function getEventReactions(supabase: SupabaseClient, eventId: string): Promise<EventReaction[]> {
+    const { data, error } = await supabase
+        .from('event_reactions')
+        .select('*')
+        .eq('event_id', eventId);
+
+    if (error) {
+        console.error('getEventReactions error:', error.message);
+        return [];
+    }
+
+    return (data || []).map(row => ({
+        id: row.id,
+        eventId: row.event_id,
+        userId: row.user_id,
+        emoji: row.emoji,
+        createdAt: row.created_at,
+    }));
+}
+
+export async function getAllEventReactions(supabase: SupabaseClient): Promise<EventReaction[]> {
+    const { data, error } = await supabase
+        .from('event_reactions')
+        .select('*');
+
+    if (error) {
+        console.error('getAllEventReactions error:', error.message);
+        return [];
+    }
+
+    return (data || []).map(row => ({
+        id: row.id,
+        eventId: row.event_id,
+        userId: row.user_id,
+        emoji: row.emoji,
+        createdAt: row.created_at,
+    }));
+}
+
+export async function addEventReaction(
+    supabase: SupabaseClient,
+    eventId: string,
+    userId: string,
+    emoji: string
+): Promise<boolean> {
+    const { error } = await supabase
+        .from('event_reactions')
+        .insert({
+            event_id: eventId,
+            user_id: userId,
+            emoji: emoji
+        });
+
+    if (error) {
+        // Ignorer l'erreur si c'est une violation de contrainte unique (déjà réagi)
+        if (error.code !== '23505') {
+            console.error('addEventReaction error:', error.message);
+        }
+        return false;
+    }
+    return true;
+}
+
+export async function deleteEventReaction(
+    supabase: SupabaseClient,
+    eventId: string,
+    userId: string,
+    emoji: string
+): Promise<boolean> {
+    const { error, count } = await supabase
+        .from('event_reactions')
+        .delete({ count: 'exact' })
+        .eq('event_id', eventId)
+        .eq('user_id', userId)
+        .eq('emoji', emoji);
+
+    if (error) {
+        console.error('deleteEventReaction error:', error.message);
         return false;
     }
     return count !== 0;

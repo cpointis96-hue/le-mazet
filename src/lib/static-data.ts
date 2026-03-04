@@ -16,16 +16,16 @@ export const STATIC_EVENTS: CalendarEvent[] = [
     {
         id: 'e1', userId: 'user-1', title: 'Réunion équipe', startDate: '2026-03-05',
         endDate: '2026-03-05', startTime: '10:00', endTime: '11:30', allDay: false,
-        color: '#6366f1', privacy: 'public', category: 'Travail', status: 'confirmed'
+        color: '#6366f1', category: 'Travail', status: 'confirmed'
     },
     {
         id: 'e2', userId: 'user-1', title: 'Rendez-vous médecin', startDate: '2026-03-12',
         endDate: '2026-03-12', startTime: '14:00', endTime: '15:00', allDay: false,
-        color: '#ef4444', privacy: 'prive', category: 'Santé', status: 'confirmed'
+        color: '#ef4444', category: 'Santé', status: 'confirmed'
     },
     {
         id: 'e3', userId: 'user-2', title: 'Anniversaire de Bob', startDate: '2026-03-20',
         endDate: '2026-03-20', allDay: true, color: '#f59e0b',
-        privacy: 'public_details', description: 'Fête à partir de 18h chez moi !', status: 'confirmed'
+        description: 'Fête à partir de 18h chez moi !', status: 'confirmed'
     },
 ];
