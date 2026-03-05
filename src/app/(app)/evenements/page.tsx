@@ -270,7 +270,6 @@ function EventCard({ event, users, proposalsData, isConfirmed = false, onClick }
     onClick?: () => void;
 }) {
     const creator = users.find((u: any) => u.id === event.userId);
-    const [showEmojis, setShowEmojis] = useState(false);
     const isMultiDate = event.isMultiDate && event.status === 'proposed';
 
     const dateFormatted = format(new Date(event.startDate + 'T00:00:00'), 'd MMMM yyyy', { locale: fr });
@@ -295,21 +294,6 @@ function EventCard({ event, users, proposalsData, isConfirmed = false, onClick }
     const accentColor = isConfirmed
         ? '#10b981'
         : (event.color || '#8b5cf6');
-
-    const eventReactions = proposalsData.reactions?.filter((r: any) => r.eventId === event.id) || [];
-    const EMOJIS = ['👍', '❤️', '😂', '🎉', '😢'];
-
-    const handleEmojiClick = (e: React.MouseEvent, emoji: string) => {
-        e.stopPropagation();
-        proposalsData.toggleReaction(event.id, emoji);
-        setShowEmojis(false);
-    };
-
-    const reactionGroups = EMOJIS.map(emoji => {
-        const reacts = eventReactions.filter((r: any) => r.emoji === emoji);
-        const hasReacted = reacts.some((r: any) => r.userId === proposalsData.currentUserId);
-        return { emoji, count: reacts.length, hasReacted };
-    }).filter(g => g.count > 0);
 
     return (
         <div
@@ -377,53 +361,6 @@ function EventCard({ event, users, proposalsData, isConfirmed = false, onClick }
                 <div className="flex items-center justify-between gap-3 pt-1 border-t border-white/5 relative">
                     {/* Reactions & Disponibilités */}
                     <div className="flex flex-col gap-1 flex-1">
-                        {/* Barre de réactions */}
-                        <div className="flex flex-wrap items-center gap-1.5 mt-0.5 relative">
-                            {reactionGroups.map(g => (
-                                <button
-                                    key={g.emoji}
-                                    onClick={(e) => handleEmojiClick(e, g.emoji)}
-                                    className={cn(
-                                        "flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[10px] font-medium transition-colors border",
-                                        g.hasReacted ? "bg-primary/20 border-primary/30 text-primary-foreground" : "bg-white/5 border-white/10 text-white/70 hover:bg-white/10"
-                                    )}
-                                >
-                                    <span>{g.emoji}</span>
-                                    <span>{g.count}</span>
-                                </button>
-                            ))}
-                            <div className="relative">
-                                <button
-                                    onClick={(e) => {
-                                        e.stopPropagation();
-                                        setShowEmojis(!showEmojis);
-                                    }}
-                                    className="flex items-center justify-center w-5 h-5 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 text-white/70 transition-colors"
-                                >
-                                    <span className="text-[10px]">+</span>
-                                </button>
-                                {showEmojis && (
-                                    <>
-                                        <div
-                                            className="fixed inset-0 z-40"
-                                            onClick={(e) => { e.stopPropagation(); setShowEmojis(false); }}
-                                        />
-                                        <div className="absolute left-0 bottom-full mb-2 z-50 flex items-center gap-1 p-1.5 rounded-full bg-[#111113] border border-white/10 shadow-lg shadow-black/50">
-                                            {EMOJIS.map(emoji => (
-                                                <button
-                                                    key={emoji}
-                                                    onClick={(e) => handleEmojiClick(e, emoji)}
-                                                    className="w-7 h-7 flex items-center justify-center rounded-full hover:bg-white/10 text-sm transition-transform hover:scale-110"
-                                                >
-                                                    {emoji}
-                                                </button>
-                                            ))}
-                                        </div>
-                                    </>
-                                )}
-                            </div>
-                        </div>
-
                         {/* Listes dispos / pas dispos */}
                         {availableVoters.length > 0 && (
                             <div className="text-[10px] text-white">

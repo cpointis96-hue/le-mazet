@@ -81,18 +81,7 @@ export function useSupabaseEvents(eventResponses?: { eventId: string, userId: st
         return e.userId === currentUserId || hasVotedAvailable;
     });
 
-    const sharedEvents: SharedEventDisplay[] = events.filter(e => {
-        // Un événement proposé n'apparaît dans le calendrier commun que s'il a au moins 2 personnes disponibles
-        if (e.status === 'proposed') {
-            if (eventResponses) {
-                const availableCount = eventResponses.filter(r => r.eventId === e.id && r.status === 'available').length;
-                if (availableCount < 2) return false;
-            } else {
-                return false;
-            }
-        }
-        return true;
-    }).map((e) => ({
+    const sharedEvents: SharedEventDisplay[] = events.map((e) => ({
         id: e.id,
         title: e.title,
         description: e.description,

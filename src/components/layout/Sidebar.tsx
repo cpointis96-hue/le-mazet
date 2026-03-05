@@ -6,9 +6,7 @@ import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import {
     CalendarDays,
-    Users,
     Settings,
-    Ticket,
     LogOut,
 } from "lucide-react";
 import { MemberLegend } from "@/components/shared-calendar/MemberLegend";
@@ -20,7 +18,6 @@ interface SidebarProps extends React.HTMLAttributes<HTMLDivElement> {
 
 const mainNav = [
     { name: "Calendrier", href: "/calendrier", icon: CalendarDays },
-    { name: "Événements", href: "/evenements", icon: Ticket },
     { name: "Paramètres", href: "/parametres", icon: Settings },
 ];
 

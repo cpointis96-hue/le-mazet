@@ -298,6 +298,25 @@ export async function confirmWinningDate(
         console.error('Error confirming winning date:', updateError.message);
         return false;
     }
+
+    // Auto-count as "present" all users who voted 'available' on the winning proposal
+    const { data: availableVotes } = await supabase
+        .from('event_date_votes')
+        .select('user_id')
+        .eq('proposal_id', winningProposalId)
+        .eq('status', 'available');
+
+    if (availableVotes && availableVotes.length > 0) {
+        const rows = availableVotes.map((v: { user_id: string }) => ({
+            event_id: eventId,
+            user_id: v.user_id,
+            status: 'available'
+        }));
+        await supabase
+            .from('event_responses')
+            .upsert(rows, { onConflict: 'event_id,user_id' });
+    }
+
     return true;
 }
 
