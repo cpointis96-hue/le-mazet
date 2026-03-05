@@ -142,6 +142,12 @@ export function useSupabaseEvents(eventResponses?: { eventId: string, userId: st
         }
     }, []);
 
+    const refreshEvents = useCallback(async () => {
+        const supabase = createClient();
+        const fresh = await getEvents(supabase);
+        setEvents(fresh);
+    }, []);
+
     return {
         events,
         personalEvents,
@@ -149,6 +155,7 @@ export function useSupabaseEvents(eventResponses?: { eventId: string, userId: st
         addEvent,
         updateEvent,
         deleteEvent,
+        refreshEvents,
         isLoaded,
         currentUserId,
     };

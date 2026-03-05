@@ -30,7 +30,7 @@ export default function CalendrierCommunPage() {
     const { viewMode, setViewMode, currentDate, handlePrev, handleNext, navigationLabel } = useCalendarView("mois");
     const { proposalsData, eventsData, usersData, availabilitiesData } = useAppData();
     const { availabilities } = availabilitiesData;
-    const { sharedEvents, events, currentUserId, deleteEvent } = eventsData;
+    const { sharedEvents, events, currentUserId, deleteEvent, refreshEvents } = eventsData;
     const { users } = usersData;
 
     const [selectedDate, setSelectedDate] = useState<Date | null>(null);
@@ -283,7 +283,7 @@ export default function CalendrierCommunPage() {
                 <EventDetailsModal
                     event={selectedEventDetails}
                     isOpen={!!selectedEventDetails}
-                    onClose={() => setSelectedEventDetails(null)}
+                    onClose={() => { setSelectedEventDetails(null); refreshEvents(); }}
                     users={users}
                     proposalsData={proposalsData}
                     isConfirmed={selectedEventIsConfirmed}

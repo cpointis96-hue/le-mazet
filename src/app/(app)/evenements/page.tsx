@@ -60,17 +60,8 @@ export default function EvenementsPage() {
         setIsMousseDialogOpen(false);
     };
 
-    const proposedEvents = events.filter(e => {
-        if (e.status === 'confirmed') return false;
-        const availableCount = proposalsData.responses.filter((r: any) => r.eventId === e.id && r.status === 'available').length;
-        return availableCount < 2;
-    });
-
-    const confirmedEvents = events.filter(e => {
-        if (e.status === 'confirmed') return true;
-        const availableCount = proposalsData.responses.filter((r: any) => r.eventId === e.id && r.status === 'available').length;
-        return availableCount >= 2;
-    });
+    const proposedEvents = events.filter(e => e.status === 'proposed');
+    const confirmedEvents = events.filter(e => e.status === 'confirmed');
 
     const sortedProposed = sortEvents(proposedEvents);
     const sortedConfirmed = sortEvents(confirmedEvents);
