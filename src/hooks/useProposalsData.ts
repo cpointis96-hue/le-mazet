@@ -26,16 +26,15 @@ export function useProposalsData() {
         const supabase = createClient();
 
         async function init() {
-            const { data: { user } } = await supabase.auth.getUser();
-            if (user) {
-                setCurrentUserId(user.id);
-            }
-            const res = await getEventResponses(supabase);
-            const com = await getEventComments(supabase);
-            const dProps = await getAllEventDateProposals(supabase);
-            const dVotes = await getAllEventDateVotes(supabase);
-            const reacts = await getAllEventReactions(supabase);
-
+            const [{ data: { user } }, res, com, dProps, dVotes, reacts] = await Promise.all([
+                supabase.auth.getUser(),
+                getEventResponses(supabase),
+                getEventComments(supabase),
+                getAllEventDateProposals(supabase),
+                getAllEventDateVotes(supabase),
+                getAllEventReactions(supabase),
+            ]);
+            if (user) setCurrentUserId(user.id);
             setResponses(res);
             setComments(com);
             setDateProposals(dProps);

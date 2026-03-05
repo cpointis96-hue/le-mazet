@@ -46,7 +46,7 @@ export function MonthViewShared({
                     {days.map((date) => {
                         // Filter SharedEventDisplay for this day
                         const dStr = format(date, 'yyyy-MM-dd');
-                        const dayEvents = events.filter((e) => e.date === dStr);
+                        const dayEvents = events.filter((e) => e.date <= dStr && e.endDate >= dStr);
                         const dayAvailabilities = availabilities.filter(a => a.date === dStr);
 
                         return (

@@ -46,7 +46,7 @@ export interface EventReaction {
     createdAt: string;
 }
 
-export type SharedEventDisplay = { id: string, title: string; description?: string; date: string; color: string; userId: string; status: 'proposed' | 'confirmed'; };
+export type SharedEventDisplay = { id: string, title: string; description?: string; date: string; endDate: string; color: string; userId: string; status: 'proposed' | 'confirmed'; };
 
 export type AvailabilityStatus = 'available' | 'busy';
 

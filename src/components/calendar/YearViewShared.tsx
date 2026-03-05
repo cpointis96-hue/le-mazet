@@ -58,7 +58,7 @@ export function YearViewShared({
                                 const dStr = format(date, "yyyy-MM-dd");
 
                                 const dayEvents = isCurrentMonth
-                                    ? sharedEvents.filter(e => e.date === dStr)
+                                    ? sharedEvents.filter(e => e.date <= dStr && e.endDate >= dStr)
                                     : [];
                                 const availableCount = isCurrentMonth
                                     ? availabilities.filter(a => a.date === dStr && a.status === "available").length

@@ -1,14 +1,13 @@
 "use client";
 
-import { useSupabaseEvents } from "@/hooks/useSupabaseEvents";
-import { useSupabaseUsers } from "@/hooks/useSupabaseUsers";
+import { useAppData } from "@/contexts/AppDataContext";
 import { CalendarEvent } from "@/types/calendar.types";
 import Link from "next/link";
-import { format, isToday, isTomorrow, isThisWeek, parseISO } from "date-fns";
+import { useRouter } from "next/navigation";
+import { format } from "date-fns";
 import { fr } from "date-fns/locale";
-import { Plus, Beer, ChevronRight, Check } from "lucide-react";
+import { Plus, Beer, ChevronRight, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useProposalsData } from "@/hooks/useProposalsData";
 import { useState } from "react";
 import { EventDetailsModal } from "./EventDetailsModal";
 import { UserAvatar } from "@/components/ui/UserAvatar";
@@ -28,12 +27,14 @@ function sortEvents(events: CalendarEvent[]) {
 }
 
 export default function EvenementsPage() {
-    const proposalsData = useProposalsData();
-    const { events, addEvent, deleteEvent, currentUserId } = useSupabaseEvents(proposalsData.responses);
-    const { users } = useSupabaseUsers();
+    const router = useRouter();
+    const { proposalsData, eventsData, usersData } = useAppData();
+    const { events, addEvent, deleteEvent, currentUserId, isLoaded } = eventsData;
+    const { users } = usersData;
 
     const [selectedEvent, setSelectedEvent] = useState<CalendarEvent | null>(null);
     const [selectedEventIsConfirmed, setSelectedEventIsConfirmed] = useState(false);
+    const [eventToDelete, setEventToDelete] = useState<CalendarEvent | null>(null);
 
     const [isMousseDialogOpen, setIsMousseDialogOpen] = useState(false);
     const [mousseTime, setMousseTime] = useState("19:00");
@@ -101,69 +102,80 @@ export default function EvenementsPage() {
                 </div>
             </div>
 
-            {/* Section À voter */}
-            <section className="flex flex-col gap-3">
-                <div className="flex items-center gap-2">
-                    <span className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground">À voter</span>
-                    {proposedEvents.length > 0 && (
-                        <span className="text-[10px] font-semibold bg-violet-500/15 text-violet-400 px-1.5 py-0.5 rounded-full">
-                            {proposedEvents.length}
-                        </span>
-                    )}
+            {/* Skeleton premier chargement */}
+            {!isLoaded && (
+                <div className="flex flex-col gap-3">
+                    {[1, 2, 3].map(i => (
+                        <div key={i} className="h-24 rounded-xl bg-white/5 animate-pulse" />
+                    ))}
                 </div>
+            )}
 
-                {proposedEvents.length === 0 ? (
-                    <div className="py-6 text-center border border-dashed border-white/10 rounded-xl text-sm">
-                        <p className="text-foreground/60 font-medium text-sm">C'est calme par ici.</p>
-                        <p className="text-muted-foreground text-xs mt-0.5">Lancez une idée pour réveiller le groupe !</p>
+            {isLoaded && <>
+                {/* Section À voter */}
+                <section className="flex flex-col gap-3">
+                    <div className="flex items-center gap-2">
+                        <span className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground">À voter</span>
+                        {proposedEvents.length > 0 && (
+                            <span className="text-[10px] font-semibold bg-violet-500/15 text-violet-400 px-1.5 py-0.5 rounded-full">
+                                {proposedEvents.length}
+                            </span>
+                        )}
                     </div>
-                ) : (
-                    <div className="flex flex-col gap-2">
-                        {sortedProposed.map((event) => (
-                            <EventCard
-                                key={event.id}
-                                event={event}
-                                users={users}
-                                proposalsData={proposalsData}
-                                isConfirmed={false}
-                                onClick={() => openEvent(event, false)}
-                            />
-                        ))}
-                    </div>
-                )}
-            </section>
 
-            {/* Section C'est noté */}
-            <section className="flex flex-col gap-3">
-                <div className="flex items-center gap-2">
-                    <span className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground">C'est noté</span>
-                    {confirmedEvents.length > 0 && (
-                        <span className="text-[10px] font-semibold bg-emerald-500/15 text-emerald-400 px-1.5 py-0.5 rounded-full">
-                            {confirmedEvents.length}
-                        </span>
+                    {proposedEvents.length === 0 ? (
+                        <div className="py-6 text-center border border-dashed border-white/10 rounded-xl text-sm">
+                            <p className="text-foreground/60 font-medium text-sm">C'est calme par ici.</p>
+                            <p className="text-muted-foreground text-xs mt-0.5">Lancez une idée pour réveiller le groupe !</p>
+                        </div>
+                    ) : (
+                        <div className="flex flex-col gap-2">
+                            {sortedProposed.map((event) => (
+                                <EventCard
+                                    key={event.id}
+                                    event={event}
+                                    users={users}
+                                    proposalsData={proposalsData}
+                                    isConfirmed={false}
+                                    onClick={() => openEvent(event, false)}
+                                />
+                            ))}
+                        </div>
                     )}
-                </div>
+                </section>
 
-                {confirmedEvents.length === 0 ? (
-                    <div className="py-6 text-center border border-dashed border-white/10 rounded-xl text-sm">
-                        <p className="text-foreground/60 font-medium text-sm">Pas encore de plans fixés.</p>
-                        <p className="text-muted-foreground text-xs mt-0.5">Votez plus haut et ça va vite changer !</p>
+                {/* Section C'est noté */}
+                <section className="flex flex-col gap-3">
+                    <div className="flex items-center gap-2">
+                        <span className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground">C'est noté</span>
+                        {confirmedEvents.length > 0 && (
+                            <span className="text-[10px] font-semibold bg-emerald-500/15 text-emerald-400 px-1.5 py-0.5 rounded-full">
+                                {confirmedEvents.length}
+                            </span>
+                        )}
                     </div>
-                ) : (
-                    <div className="flex flex-col gap-2">
-                        {sortedConfirmed.map((event) => (
-                            <EventCard
-                                key={event.id}
-                                event={event}
-                                users={users}
-                                proposalsData={proposalsData}
-                                isConfirmed={true}
-                                onClick={() => openEvent(event, true)}
-                            />
-                        ))}
-                    </div>
-                )}
-            </section>
+
+                    {confirmedEvents.length === 0 ? (
+                        <div className="py-6 text-center border border-dashed border-white/10 rounded-xl text-sm">
+                            <p className="text-foreground/60 font-medium text-sm">Pas encore de plans fixés.</p>
+                            <p className="text-muted-foreground text-xs mt-0.5">Votez plus haut et ça va vite changer !</p>
+                        </div>
+                    ) : (
+                        <div className="flex flex-col gap-2">
+                            {sortedConfirmed.map((event) => (
+                                <EventCard
+                                    key={event.id}
+                                    event={event}
+                                    users={users}
+                                    proposalsData={proposalsData}
+                                    isConfirmed={true}
+                                    onClick={() => openEvent(event, true)}
+                                />
+                            ))}
+                        </div>
+                    )}
+                </section>
+            </>}
 
             {selectedEvent && (
                 <EventDetailsModal
@@ -174,17 +186,43 @@ export default function EvenementsPage() {
                     proposalsData={proposalsData}
                     isConfirmed={selectedEventIsConfirmed}
                     onDelete={selectedEvent.userId === currentUserId ? () => {
-                        if (confirm("Êtes-vous sûr de vouloir supprimer cet événement ?")) {
-                            setSelectedEvent(null);
-                            deleteEvent(selectedEvent.id);
-                        }
+                        setEventToDelete(selectedEvent);
+                        setSelectedEvent(null);
                     } : undefined}
                     onEdit={selectedEvent.userId === currentUserId ? () => {
-                        // redirect to edit page with event ID
-                        window.location.href = `/evenements/nouveau?edit=${selectedEvent.id}`;
+                        router.push(`/evenements/nouveau?edit=${selectedEvent.id}`);
                     } : undefined}
                 />
             )}
+
+            {/* Dialog confirmation suppression */}
+            <Dialog open={!!eventToDelete} onOpenChange={(open) => { if (!open) setEventToDelete(null); }}>
+                <DialogContent className="sm:max-w-sm">
+                    <DialogHeader>
+                        <DialogTitle className="flex items-center gap-2 text-red-400">
+                            <Trash2 className="w-4 h-4" />
+                            Supprimer l'événement
+                        </DialogTitle>
+                    </DialogHeader>
+                    <p className="text-sm text-muted-foreground py-2">
+                        Supprimer <span className="font-semibold text-foreground">"{eventToDelete?.title}"</span> ? Cette action est irréversible.
+                    </p>
+                    <DialogFooter className="flex items-center justify-end gap-2">
+                        <Button variant="outline" onClick={() => setEventToDelete(null)}>
+                            Annuler
+                        </Button>
+                        <Button
+                            className="bg-red-500 hover:bg-red-600 text-white border-none"
+                            onClick={() => {
+                                if (eventToDelete) deleteEvent(eventToDelete.id);
+                                setEventToDelete(null);
+                            }}
+                        >
+                            Supprimer
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
 
             {/* Modal "Une mousse" */}
             <Dialog open={isMousseDialogOpen} onOpenChange={setIsMousseDialogOpen}>

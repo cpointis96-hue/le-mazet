@@ -1,4 +1,5 @@
 import { AppShell } from '@/components/layout/AppShell';
+import { AppDataProvider } from '@/contexts/AppDataContext';
 import { createClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 
@@ -14,5 +15,9 @@ export default async function AppLayout({
         redirect('/connexion');
     }
 
-    return <AppShell>{children}</AppShell>;
+    return (
+        <AppDataProvider>
+            <AppShell>{children}</AppShell>
+        </AppDataProvider>
+    );
 }

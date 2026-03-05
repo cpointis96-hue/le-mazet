@@ -92,28 +92,16 @@ export function useSupabaseEvents(eventResponses?: { eventId: string, userId: st
             }
         }
         return true;
-    }).map((e) => {
-        if (e.userId === currentUserId) {
-            return {
-                id: e.id,
-                title: e.title,
-                description: e.description,
-                date: e.startDate,
-                color: e.color,
-                userId: e.userId,
-                status: e.status,
-            };
-        }
-        return {
-            id: e.id,
-            title: e.title,
-            description: e.description,
-            date: e.startDate,
-            color: e.color,
-            userId: e.userId,
-            status: e.status,
-        };
-    });
+    }).map((e) => ({
+        id: e.id,
+        title: e.title,
+        description: e.description,
+        date: e.startDate,
+        endDate: e.endDate,
+        color: e.color,
+        userId: e.userId,
+        status: e.status,
+    }));
 
     const addEvent = useCallback(
         async (event: Omit<CalendarEvent, 'id' | 'userId'> & { proposals?: any[] }, files?: File[]) => {

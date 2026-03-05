@@ -6,10 +6,7 @@ import { fr } from "date-fns/locale";
 import { MonthViewShared } from "@/components/calendar/MonthViewShared";
 import { YearViewShared } from "@/components/calendar/YearViewShared";
 import { useCalendarView } from "@/hooks/useCalendarView";
-import { useSupabaseEvents } from "@/hooks/useSupabaseEvents";
-import { useSupabaseUsers } from "@/hooks/useSupabaseUsers";
-import { useAvailabilities } from "@/hooks/useAvailabilities";
-import { useProposalsData } from "@/hooks/useProposalsData";
+import { useAppData } from "@/contexts/AppDataContext";
 import { EventDetailsModal } from "../evenements/EventDetailsModal";
 import { CalendarEvent } from "@/types/calendar.types";
 import {
@@ -23,10 +20,10 @@ import { cn } from "@/lib/utils";
 
 export default function CalendrierCommunPage() {
     const { viewMode, setViewMode, currentDate, handlePrev, handleNext, navigationLabel } = useCalendarView("mois");
-    const proposalsData = useProposalsData();
-    const { availabilities } = useAvailabilities();
-    const { sharedEvents, events, currentUserId } = useSupabaseEvents(proposalsData.responses);
-    const { users } = useSupabaseUsers();
+    const { proposalsData, eventsData, usersData, availabilitiesData } = useAppData();
+    const { availabilities } = availabilitiesData;
+    const { sharedEvents, events, currentUserId } = eventsData;
+    const { users } = usersData;
 
     const [selectedDate, setSelectedDate] = useState<Date | null>(null);
     const [isDialogOpen, setIsDialogOpen] = useState(false);
