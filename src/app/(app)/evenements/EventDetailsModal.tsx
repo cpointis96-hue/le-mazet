@@ -4,16 +4,14 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import { CalendarEvent } from "@/types/calendar.types";
-import { UserProfile, useSupabaseUsers } from "@/hooks/useSupabaseUsers";
-import { MapPin, FileText, Download, Send, Calendar } from "lucide-react";
+import { UserProfile } from "@/hooks/useSupabaseUsers";
+import { MapPin, FileText, Download, Calendar } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useState, useEffect } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { getEventAttachments, EventAttachment } from "@/lib/supabase/attachments";
-import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
 import { UserAvatar } from "@/components/ui/UserAvatar";
-import { EventChecklist } from "@/components/events/EventChecklist";
 import { EventDateProposals } from "@/components/events/EventDateProposals";
 import * as Icons from "lucide-react";
 
@@ -29,8 +27,7 @@ interface EventDetailsModalProps {
     isPersonalView?: boolean;
 }
 
-export function EventDetailsModal({ event, isOpen, onClose, users, proposalsData, isConfirmed = false, onEdit, onDelete, isPersonalView = false }: EventDetailsModalProps) {
-    const { currentUser } = useSupabaseUsers();
+export function EventDetailsModal({ event, isOpen, onClose, users, proposalsData, isConfirmed = false, onEdit, onDelete }: EventDetailsModalProps) {
     const creator = users.find(u => u.id === event.userId);
     const dateFormatted = format(new Date(event.startDate), "EEEE d MMMM yyyy", { locale: fr });
     const fmtT = (t?: string | null) => t ? t.slice(0, 5) : null;
@@ -39,14 +36,12 @@ export function EventDetailsModal({ event, isOpen, onClose, users, proposalsData
         : [fmtT(event.startTime), fmtT(event.endTime)].filter(Boolean).join(' - ');
 
     const eventResponses = proposalsData.responses.filter((r: any) => r.eventId === event.id);
-    const eventComments = proposalsData.comments.filter((c: any) => c.eventId === event.id);
 
     const availableUsers = eventResponses.filter((r: any) => r.status === 'available').map((r: any) => users.find(u => u.id === r.userId));
     const unavailableUsers = eventResponses.filter((r: any) => r.status === 'unavailable').map((r: any) => users.find(u => u.id === r.userId));
     const userResponse = eventResponses.find((r: any) => r.userId === proposalsData.currentUserId)?.status;
 
     const [attachments, setAttachments] = useState<EventAttachment[]>([]);
-    const [newComment, setNewComment] = useState("");
 
     useEffect(() => {
         if (isOpen && event.id) {
@@ -58,14 +53,6 @@ export function EventDetailsModal({ event, isOpen, onClose, users, proposalsData
             fetchAttachments();
         }
     }, [isOpen, event.id]);
-
-    const handleCommentSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        if (newComment.trim()) {
-            await proposalsData.postComment(event.id, newComment);
-            setNewComment("");
-        }
-    };
 
     const getFileUrl = (filePath: string) => {
         const supabase = createClient();
@@ -135,11 +122,6 @@ export function EventDetailsModal({ event, isOpen, onClose, users, proposalsData
                     {/* Sondage de dates (Mullti-dates Doodle) */}
                     {event.isMultiDate && event.status === 'proposed' && (
                         <EventDateProposals eventId={event.id} creatorId={event.userId} proposalsData={proposalsData} users={users} onConfirmed={onClose} />
-                    )}
-
-                    {/* Checklist "Ce qu'on ramène" uniquement pour l'invitation à manger ET (date unique OU date choisie) */}
-                    {event.category === 'Invitation à déjeuner/dîner' && (!event.isMultiDate || event.status === 'confirmed') && (
-                        <EventChecklist eventId={event.id} />
                     )}
 
                     {/* Fichiers joints */}
@@ -225,7 +207,7 @@ export function EventDetailsModal({ event, isOpen, onClose, users, proposalsData
                     </div>
                 )}
                 {/* Actions pour le créateur (Modifier / Supprimer) */}
-                {currentUser?.id === event.userId && (onEdit || onDelete) && (
+                {proposalsData.currentUserId === event.userId && (onEdit || onDelete) && (
                     <div className="p-4 sm:p-5 border-t bg-muted/20 flex items-center justify-end gap-3 shrink-0">
                         {onDelete && (
                             <Button

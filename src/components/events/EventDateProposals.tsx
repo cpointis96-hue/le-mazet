@@ -5,9 +5,7 @@ import { EventDateProposal, EventDateVote } from "@/types/calendar.types";
 import { UserProfile } from "@/hooks/useSupabaseUsers";
 import { createClient } from "@/lib/supabase/client";
 import { getEventDateProposals, getEventDateVotes, voteForDateProposal, confirmWinningDate, deleteDateVote } from "@/lib/supabase/queries";
-import { Button } from "@/components/ui/Button";
-import { UserAvatar } from "@/components/ui/UserAvatar";
-import { Check, X, Crown, Trophy } from "lucide-react";
+import { Check, Crown } from "lucide-react";
 
 export function EventDateProposals({ eventId, creatorId, proposalsData, users, onConfirmed }: { eventId: string, creatorId: string, proposalsData: any, users: UserProfile[], onConfirmed: () => void }) {
     const supabase = useMemo(() => createClient(), []);
@@ -100,14 +98,15 @@ export function EventDateProposals({ eventId, creatorId, proposalsData, users, o
                     const proposalVotes = votes.filter(v => v.proposalId === proposal.id);
                     const myVote = proposalVotes.find(v => v.userId === currentUser?.id)?.status;
 
-                    const startDate = new Date(proposal.startDate + 'T12:00:00').toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'short' });
+                    const fmtDate = (d: string) => new Date(d + 'T12:00:00').toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'short' });
+                    const startDateStr = fmtDate(proposal.startDate);
                     let dateDisplay: string;
                     if (proposal.endDate && proposal.endDate !== proposal.startDate) {
-                        const endDate = new Date(proposal.endDate + 'T12:00:00').toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'short' });
-                        dateDisplay = `${startDate} → ${endDate}`;
+                        dateDisplay = `${startDateStr} → ${fmtDate(proposal.endDate)}`;
+                    } else if (proposal.startTime) {
+                        dateDisplay = `${startDateStr} — ${proposal.startTime.slice(0, 5)}`;
                     } else {
-                        const timeStr = proposal.startTime ? proposal.startTime.slice(0, 5) : 'Toute la journée';
-                        dateDisplay = `${startDate} — ${timeStr}`;
+                        dateDisplay = startDateStr;
                     }
 
                     // Sort votes: available first, then maybe, then unavailable
@@ -115,8 +114,6 @@ export function EventDateProposals({ eventId, creatorId, proposalsData, users, o
                         const score = { available: 2, maybe: 1, unavailable: 0 };
                         return score[b.status] - score[a.status];
                     });
-
-                    const availableCount = proposalVotes.filter(v => v.status === 'available').length;
 
                     return (
                         <div key={proposal.id} className="bg-zinc-950 border border-amber-900/30 rounded-lg p-3 shadow-md flex items-center justify-between gap-3 relative overflow-hidden group">

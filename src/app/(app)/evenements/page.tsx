@@ -6,7 +6,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
-import { Plus, Beer, ChevronRight, Trash2 } from "lucide-react";
+import { Plus, Beer, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
 import { EventDetailsModal } from "./EventDetailsModal";
@@ -16,7 +16,7 @@ import {
     DialogContent,
     DialogHeader,
     DialogTitle,
-    DialogFooter
+    DialogFooter,
 } from "@/components/ui/Dialog";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
@@ -34,7 +34,6 @@ export default function EvenementsPage() {
 
     const [selectedEvent, setSelectedEvent] = useState<CalendarEvent | null>(null);
     const [selectedEventIsConfirmed, setSelectedEventIsConfirmed] = useState(false);
-    const [eventToDelete, setEventToDelete] = useState<CalendarEvent | null>(null);
 
     const [isMousseDialogOpen, setIsMousseDialogOpen] = useState(false);
     const [mousseTime, setMousseTime] = useState("19:00");
@@ -186,7 +185,7 @@ export default function EvenementsPage() {
                     proposalsData={proposalsData}
                     isConfirmed={selectedEventIsConfirmed}
                     onDelete={selectedEvent.userId === currentUserId ? () => {
-                        setEventToDelete(selectedEvent);
+                        deleteEvent(selectedEvent.id);
                         setSelectedEvent(null);
                     } : undefined}
                     onEdit={selectedEvent.userId === currentUserId ? () => {
@@ -194,35 +193,6 @@ export default function EvenementsPage() {
                     } : undefined}
                 />
             )}
-
-            {/* Dialog confirmation suppression */}
-            <Dialog open={!!eventToDelete} onOpenChange={(open) => { if (!open) setEventToDelete(null); }}>
-                <DialogContent className="sm:max-w-sm">
-                    <DialogHeader>
-                        <DialogTitle className="flex items-center gap-2 text-red-400">
-                            <Trash2 className="w-4 h-4" />
-                            Supprimer l'événement
-                        </DialogTitle>
-                    </DialogHeader>
-                    <p className="text-sm text-muted-foreground py-2">
-                        Supprimer <span className="font-semibold text-foreground">"{eventToDelete?.title}"</span> ? Cette action est irréversible.
-                    </p>
-                    <DialogFooter className="flex items-center justify-end gap-2">
-                        <Button variant="outline" onClick={() => setEventToDelete(null)}>
-                            Annuler
-                        </Button>
-                        <Button
-                            className="bg-red-500 hover:bg-red-600 text-white border-none"
-                            onClick={() => {
-                                if (eventToDelete) deleteEvent(eventToDelete.id);
-                                setEventToDelete(null);
-                            }}
-                        >
-                            Supprimer
-                        </Button>
-                    </DialogFooter>
-                </DialogContent>
-            </Dialog>
 
             {/* Modal "Une mousse" */}
             <Dialog open={isMousseDialogOpen} onOpenChange={setIsMousseDialogOpen}>

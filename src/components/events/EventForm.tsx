@@ -18,7 +18,7 @@ import {
     SelectTrigger,
     SelectValue
 } from "@/components/ui/Select";
-import { EVENT_COLORS, CATEGORIES } from "@/lib/constants";
+import { EVENT_COLORS } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 
 const eventSchema = z.object({
@@ -76,7 +76,7 @@ export function EventForm({ initialData, onSubmit, onCancel, isProposal = false 
             allDay: initialData?.allDay ?? false,
             isVacation: isVacationInitial,
             color: initialData?.color || EVENT_COLORS[0].value,
-            category: initialData?.category || CATEGORIES[0],
+            category: initialData?.category || "",
             status: initialData?.status || (isProposal ? "proposed" : "confirmed"),
             isMultiDate: initialData?.isMultiDate ?? false,
             proposals: initialData?.proposals && initialData.proposals.length > 0
@@ -107,9 +107,10 @@ export function EventForm({ initialData, onSubmit, onCancel, isProposal = false 
         const hasMultipleDates = data.proposals && data.proposals.length > 1;
 
         if (data.isVacation && data.proposals?.length) {
+            // Vacation proposals have no time
+            data.proposals = data.proposals.map(p => ({ ...p, startTime: "" }));
             data.startDate = data.proposals[0].startDate || todayStr;
             data.endDate = data.proposals[0].endDate || data.startDate;
-            data.category = "Vacances";
             // Si c'est multi-période, on transforme en sondage (Doodle)
             if (hasMultipleDates) {
                 data.isMultiDate = true;
@@ -172,10 +173,7 @@ export function EventForm({ initialData, onSubmit, onCancel, isProposal = false 
                                         const currentStartDate = getValues("startDate") || todayStr;
                                         if (val) {
                                             setValue("isMultiDate", false);
-                                            setValue("category", "Vacances", { shouldValidate: true, shouldDirty: true });
-                                            replaceProposals([{ startDate: currentStartDate, endDate: currentStartDate, startTime: "09:00", comment: "" }]);
-                                        } else {
-                                            setValue("category", CATEGORIES[0], { shouldValidate: true, shouldDirty: true });
+                                            replaceProposals([{ startDate: currentStartDate, endDate: currentStartDate, startTime: "", comment: "" }]);
                                         }
                                     }}
                                 />
@@ -197,7 +195,6 @@ export function EventForm({ initialData, onSubmit, onCancel, isProposal = false 
                                         const currentStartDate = getValues("startDate") || todayStr;
                                         if (val) {
                                             setValue("isVacation", false);
-                                            setValue("category", CATEGORIES[0], { shouldValidate: true, shouldDirty: true });
                                             setValue("status", "proposed");
                                             replaceProposals([{ startDate: currentStartDate, endDate: currentStartDate, startTime: "19:00", comment: "" }]);
                                         }
@@ -209,31 +206,6 @@ export function EventForm({ initialData, onSubmit, onCancel, isProposal = false 
                     </div>
                 </div>
 
-                {/* Catégorie juste en dessous */}
-                <div className="pb-4 border-b">
-                    <Label className={cn(isVacation && "text-muted-foreground")}>Catégorie</Label>
-                    <Controller
-                        control={control}
-                        name="category"
-                        render={({ field }) => (
-                            <Select
-                                onValueChange={field.onChange}
-                                value={field.value}
-                                disabled={isVacation}
-                            >
-                                <SelectTrigger className="mt-1">
-                                    <SelectValue placeholder="Choisir..." />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    {!isVacation && CATEGORIES.map(c => (
-                                        <SelectItem key={c} value={c}>{c}</SelectItem>
-                                    ))}
-                                    {isVacation && <SelectItem value="Vacances">Vacances</SelectItem>}
-                                </SelectContent>
-                            </Select>
-                        )}
-                    />
-                </div>
 
                 {/* Date de fin de sondage (si isMultiDate) */}
                 {isMultiDate && (
@@ -284,7 +256,7 @@ export function EventForm({ initialData, onSubmit, onCancel, isProposal = false 
                             onClick={() => {
                                 const currentP = getValues("proposals");
                                 const lastDate = currentP && currentP.length > 0 ? currentP[currentP.length - 1].startDate : todayStr;
-                                appendProposal({ startDate: lastDate, endDate: lastDate, startTime: "09:00", comment: "" });
+                                appendProposal({ startDate: lastDate, endDate: lastDate, startTime: "", comment: "" });
                             }}
                             className="flex items-center gap-1.5 text-xs text-primary hover:text-primary/80 transition-colors mt-1"
                         >

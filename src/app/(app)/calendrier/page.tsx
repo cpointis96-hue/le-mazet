@@ -16,12 +16,10 @@ import {
     DialogContent,
     DialogHeader,
     DialogTitle,
-    DialogFooter,
 } from "@/components/ui/Dialog";
 import { UserAvatar } from "@/components/ui/UserAvatar";
-import { Button } from "@/components/ui/Button";
 import { cn } from "@/lib/utils";
-import { Plus, Trash2 } from "lucide-react";
+import { Plus } from "lucide-react";
 
 function sortEvents(events: CalendarEvent[]) {
     return [...events].sort((a, b) => a.startDate.localeCompare(b.startDate));
@@ -39,7 +37,6 @@ export default function CalendrierCommunPage() {
     const [isDayDialogOpen, setIsDayDialogOpen] = useState(false);
     const [selectedEventDetails, setSelectedEventDetails] = useState<CalendarEvent | null>(null);
     const [selectedEventIsConfirmed, setSelectedEventIsConfirmed] = useState(false);
-    const [eventToDelete, setEventToDelete] = useState<CalendarEvent | null>(null);
 
     const touchStartX = useRef<number>(0);
     const touchStartY = useRef<number>(0);
@@ -282,33 +279,6 @@ export default function CalendrierCommunPage() {
                 </DialogContent>
             </Dialog>
 
-            {/* Dialog confirmation suppression */}
-            <Dialog open={!!eventToDelete} onOpenChange={(open) => { if (!open) setEventToDelete(null); }}>
-                <DialogContent className="sm:max-w-sm">
-                    <DialogHeader>
-                        <DialogTitle className="flex items-center gap-2 text-red-400">
-                            <Trash2 className="w-4 h-4" />
-                            Supprimer l'événement
-                        </DialogTitle>
-                    </DialogHeader>
-                    <p className="text-sm text-muted-foreground py-2">
-                        Supprimer <span className="font-semibold text-foreground">"{eventToDelete?.title}"</span> ? Cette action est irréversible.
-                    </p>
-                    <DialogFooter className="flex items-center justify-end gap-2">
-                        <Button variant="outline" onClick={() => setEventToDelete(null)}>Annuler</Button>
-                        <Button
-                            className="bg-red-500 hover:bg-red-600 text-white border-none"
-                            onClick={() => {
-                                if (eventToDelete) deleteEvent(eventToDelete.id);
-                                setEventToDelete(null);
-                            }}
-                        >
-                            Supprimer
-                        </Button>
-                    </DialogFooter>
-                </DialogContent>
-            </Dialog>
-
             {selectedEventDetails && (
                 <EventDetailsModal
                     event={selectedEventDetails}
@@ -322,7 +292,7 @@ export default function CalendrierCommunPage() {
                         router.push(`/evenements/nouveau?edit=${selectedEventDetails.id}`);
                     } : undefined}
                     onDelete={selectedEventDetails.userId === currentUserId ? () => {
-                        setEventToDelete(selectedEventDetails);
+                        deleteEvent(selectedEventDetails.id);
                         setSelectedEventDetails(null);
                     } : undefined}
                 />
