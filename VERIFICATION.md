@@ -22,7 +22,7 @@ Le code de suppression utilise un compte exact et renvoie `false` si aucune lign
 
 ## Non validé
 
-Aucun accès Supabase ni script SQL exécuté. Auth, RLS, RPC, Storage, Realtime, notifications et parcours multiutilisateurs non validés. Pas de capture, pas de déploiement, pas de preuve de fonctionnement complet. La police Inter utilise `next/font/google` ; le build peut nécessiter un accès réseau, mais la cause de la compilation inachevée n'est pas établie.
+Aucun accès Supabase ni script SQL exécuté. Auth, RLS, RPC, Storage, Realtime, notifications et parcours multiutilisateurs non validés. Pas de capture de calendrier connecté, pas de déploiement, pas de preuve de fonctionnement complet. La police Inter utilise `next/font/google` ; le build peut nécessiter un accès réseau, mais la cause du blocage Turbopack n'est pas établie.
 
 Mise à jour du diagnostic : webpack aboutit après configuration, sans modification du code. Le défaut Turbopack reste non expliqué. Les captures ajoutées montrent uniquement l’écran public original, pas un calendrier rempli. Les variables de l’essai ont été définies seulement pour les commandes : `NEXT_PUBLIC_SUPABASE_URL=http://127.0.0.1:65530`, `NEXT_PUBLIC_SUPABASE_ANON_KEY=synthetic-build-only-no-credentials`, `NEXT_PUBLIC_APP_URL=http://127.0.0.1:4188`. Le port65530 a été contrôlé sans serveur à l’écoute. Aucun fichier d’environnement privé n’a été lu ni créé. Aucune instance Supabase réelle n’a été contactée. Le serveur local lié à127.0.0.1 utilise ces mêmes valeurs fictives. Dépréciation Node module.register observée pendant build.
 
