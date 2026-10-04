@@ -1,5 +1,55 @@
-import { CalendarEvent, ChecklistItem, ChecklistCategory, EventDateProposal, EventDateVote } from '@/types/calendar.types';
+import { CalendarEvent, ChecklistItem, ChecklistCategory, EventDateProposal, EventDateVote, EventReaction } from '@/types/calendar.types';
 import { SupabaseClient } from '@supabase/supabase-js';
+
+export async function getEventReactions(supabase: SupabaseClient, eventId: string): Promise<EventReaction[]> {
+    const { data, error } = await supabase
+        .from('event_reactions')
+        .select('*')
+        .eq('event_id', eventId)
+        .order('created_at', { ascending: true });
+
+    if (error) {
+        console.error('getEventReactions error:', error.message);
+        return [];
+    }
+
+    return (data ?? []).map(row => ({
+        id: row.id,
+        eventId: row.event_id,
+        userId: row.user_id,
+        emoji: row.emoji,
+        createdAt: row.created_at
+    }));
+}
+
+export async function addEventReaction(supabase: SupabaseClient, eventId: string, userId: string, emoji: string): Promise<boolean> {
+    const { error } = await supabase.from('event_reactions').insert({
+        event_id: eventId,
+        user_id: userId,
+        emoji
+    });
+
+    if (error) {
+        console.error('addEventReaction error:', error.message);
+        return false;
+    }
+    return true;
+}
+
+export async function deleteEventReaction(supabase: SupabaseClient, eventId: string, userId: string, emoji: string): Promise<boolean> {
+    const { error, count } = await supabase
+        .from('event_reactions')
+        .delete({ count: 'exact' })
+        .eq('event_id', eventId)
+        .eq('user_id', userId)
+        .eq('emoji', emoji);
+
+    if (error) {
+        console.error('deleteEventReaction error:', error.message);
+        return false;
+    }
+    return count !== 0;
+}
 
 // Helper : convertit une ligne BDD → CalendarEvent
 function rowToEvent(row: Record<string, unknown>): CalendarEvent {
@@ -453,4 +503,3 @@ export async function deleteChecklistItem(supabase: SupabaseClient, itemId: stri
     }
     return count !== 0;
 }
-
