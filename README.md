@@ -1,8 +1,16 @@
 # Le Mazet
 
-Prototype de calendrier partagé. Le code contient des vues mensuelle et annuelle, des événements, des disponibilités, des propositions de dates avec votes, des réactions emoji, des listes de contributions et des pièces jointes. L'authentification, les profils et les données reposent sur Supabase.
+## En bref
 
-Cette notice décrit une reprise technique pour portfolio, sans certifier une application prête pour la production ni un parcours complet validé. L'interface d'origine est conservée.
+**Ce que c’est :** un prototype de calendrier partagé nommé CalenShare.
+
+**À quoi il sert :** organiser des événements, comparer des disponibilités, voter sur des dates, ajouter des réactions et suivre les contributions ou pièces jointes.
+
+**Ce qui a été réalisé :** vues mensuelle et annuelle, événements, disponibilités, propositions de dates, réactions, contributions et interface d’authentification conservée.
+
+**Technologies :** Next.js, React, TypeScript, Tailwind CSS et Supabase (Auth, PostgreSQL, RLS, Storage, Realtime).
+
+Le dépôt décrit une reprise technique pour portfolio. L’instance Supabase réelle et le parcours complet restent à valider.
 
 ![Écran de connexion original, exécuté sans base réelle](docs/screenshots/connexion-desktop.png)
 
