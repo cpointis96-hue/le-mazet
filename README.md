@@ -2,7 +2,7 @@
 
 Prototype de calendrier partagé. Le code contient des vues mensuelle et annuelle, des événements, des disponibilités, des propositions de dates avec votes, des réactions emoji, des listes de contributions et des pièces jointes. L'authentification, les profils et les données reposent sur Supabase.
 
-Cette notice décrit une reprise technique pour portfolio, sans certifier une application prête pour la production ni un parcours complet validé. Le dépôt d'origine est privé ; sa disponibilité ici ne constitue pas une autorisation de publication publique. L'interface d'origine est conservée.
+Cette notice décrit une reprise technique pour portfolio, sans certifier une application prête pour la production ni un parcours complet validé. L'interface d'origine est conservée.
 
 ![Écran de connexion original, exécuté sans base réelle](docs/screenshots/connexion-desktop.png)
 
@@ -33,7 +33,7 @@ npm run build
 npm start
 ```
 
-`npm start` nécessite un build réussi. Le téléchargement des sources passe par le dépôt privé avec les accès de son propriétaire ; aucun miroir public ni archive contenant des données personnelles n'est fourni.
+`npm start` nécessite un build réussi. Les sources publiques ne contiennent pas de données personnelles.
 
 Si Turbopack reste bloqué, `npm run build -- --webpack` est une alternative vérifiée ici. Sans les trois variables publiques, ce mode compile mais échoue ensuite à collecter les pages. Avec des valeurs de test synthétiques pointant vers un port local sans serveur, le build complet réussit : cela valide la compilation, pas Supabase ni l’authentification. Pour réellement utiliser le calendrier, renseigner sa propre instance de test et valider son schéma.
 
@@ -46,3 +46,7 @@ Aucune instance Supabase, migration, donnée de production, clé privée ou dép
 Les écrans de connexion desktop et mobile ont été réellement rendus dans Chromium. À 390px, le document mesure 390px ; aucun formulaire soumis ni erreur applicative observée sur cet écran. Une remarque navigateur sur autocomplete est présente. Ce contrôle ne valide pas un parcours connecté.
 
 L'installation préparatoire a signalé 77 vulnérabilités (6 critiques, 50 élevées, 19 modérées et 2 faibles) et un écart entre Node 26.7.0 installé et Node 22.x demandé. Aucune mise à niveau globale automatique n'a été appliquée. Une reprise doit analyser ces dépendances avant toute mise en production, valider les scripts SQL sur une base vierge et tester les autorisations avec plusieurs comptes.
+
+## Dépôt et téléchargement
+
+[Voir le dépôt](https://github.com/cpointis96-hue/le-mazet) · [Télécharger les sources ZIP](https://github.com/cpointis96-hue/le-mazet/archive/HEAD.zip). Le ZIP contient les sources ; il ne fournit ni instance Supabase ni application prête pour la production.
