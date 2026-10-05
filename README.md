@@ -1,4 +1,23 @@
-# Le Mazet
+# CalenShare : calendrier partagé
+
+## Le projet en quelques mots
+
+Je conçois un outil pour organiser des événements à plusieurs : voir un calendrier, proposer une date, indiquer ses disponibilités et voter sur les propositions.
+
+Le travail conservé comprend les vues du calendrier, les événements, les disponibilités, les propositions de dates, les réactions et les écrans de connexion.
+
+Ce projet montre ma recherche d'un parcours simple pour organiser une activité collective. Le nom du dossier GitHub, `le-mazet`, est un ancien nom ; le projet présenté s'appelle CalenShare.
+
+## Comment le découvrir
+
+La capture ci-dessous peut être consultée sans installation. Elle montre l'écran de connexion du prototype. Pour utiliser le calendrier complet, il faut encore configurer et vérifier le service qui gère les comptes et les données.
+
+Le ZIP est destiné à une reprise technique. Une personne qui souhaite simplement découvrir le travail peut lire la fiche et regarder la capture, sans suivre les commandes ci-dessous.
+
+## Détails pour reprendre le projet
+
+<details>
+<summary>Capture, configuration et limites techniques</summary>
 
 ## En bref
 
@@ -58,3 +77,5 @@ L'installation préparatoire a signalé 77 vulnérabilités (6 critiques, 50 él
 ## Dépôt et téléchargement
 
 [Voir le dépôt](https://github.com/cpointis96-hue/le-mazet) · [Télécharger les sources ZIP](https://github.com/cpointis96-hue/le-mazet/archive/HEAD.zip). Le ZIP contient les sources ; il ne fournit ni instance Supabase ni application prête pour la production.
+
+</details>
