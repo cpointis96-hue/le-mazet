@@ -1,4 +1,4 @@
-# CalenShare : calendrier partagé
+# Calancher : calendrier partagé
 
 ## Le projet en quelques mots
 
@@ -6,7 +6,7 @@ Je conçois un outil pour organiser des événements à plusieurs : voir un cale
 
 Le travail conservé comprend les vues du calendrier, les événements, les disponibilités, les propositions de dates, les réactions et les écrans de connexion.
 
-Ce projet montre ma recherche d'un parcours simple pour organiser une activité collective. Le nom du dossier GitHub, `le-mazet`, est un ancien nom ; le projet présenté s'appelle CalenShare.
+Ce projet montre ma recherche d'un parcours simple pour organiser une activité collective. Je le présente désormais sous le nom Calancher. Il fait partie des projets exploratoires qui ont précédé mon choix de concentrer mon activité sur Ancrage.
 
 ## Comment le découvrir
 
@@ -21,7 +21,7 @@ Le ZIP est destiné à une reprise technique. Une personne qui souhaite simpleme
 
 ## En bref
 
-**Ce que c’est :** un prototype de calendrier partagé nommé CalenShare.
+**Ce que c’est :** un prototype de calendrier partagé présenté sous le nom Calancher.
 
 **À quoi il sert :** organiser des événements, comparer des disponibilités, voter sur des dates, ajouter des réactions et suivre les contributions ou pièces jointes.
 
@@ -33,7 +33,7 @@ Le dépôt décrit une reprise technique pour portfolio. L’instance Supabase r
 
 ![Écran de connexion original, exécuté sans base réelle](docs/screenshots/connexion-desktop.png)
 
-La capture montre l’écran public avec une configuration synthétique ; aucune connexion ni donnée de calendrier réelle n’a été utilisée. Le branding CalenShare historique est conservé.
+La capture montre l’écran public avec une configuration synthétique ; aucune connexion ni donnée de calendrier réelle n’a été utilisée. Les écrans et le code conservent encore le nom historique CalenShare ; le changement de présentation ne constitue pas une nouvelle version fonctionnelle.
 
 ## Stack
 
@@ -76,6 +76,6 @@ L'installation préparatoire a signalé 77 vulnérabilités (6 critiques, 50 él
 
 ## Dépôt et téléchargement
 
-[Voir le dépôt](https://github.com/cpointis96-hue/le-mazet) · [Télécharger les sources ZIP](https://github.com/cpointis96-hue/le-mazet/archive/HEAD.zip). Le ZIP contient les sources ; il ne fournit ni instance Supabase ni application prête pour la production.
+[Voir le dépôt](https://github.com/cpointis96-hue/calancher) · [Télécharger les sources ZIP](https://github.com/cpointis96-hue/calancher/archive/HEAD.zip). Le ZIP contient les sources ; il ne fournit ni instance Supabase ni application prête pour la production.
 
 </details>
